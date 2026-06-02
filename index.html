@@ -161,12 +161,14 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .vbtn.up{background:#dcfce7;border-color:#16a34a;color:#16a34a}
 .vbtn.dn{background:#fee2e2;border-color:#dc2626;color:#dc2626}
 .vscore{font-size:12px;font-weight:700;min-width:26px;text-align:center}
-.take-input-wrap{background:linear-gradient(135deg,#f0f8fd,#f5f0ff);border:2px solid var(--wbblue);border-radius:var(--radius);padding:13px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,34,68,0.10)}
-.take-input-wrap textarea{width:100%;background:#fff;border:1.5px solid var(--border);color:var(--text);border-radius:5px;padding:7px 9px;font-size:12px;font-family:'Inter',sans-serif;resize:none;height:56px;line-height:1.5}
-.take-input-wrap textarea:focus{outline:none;border-color:var(--navy)}
+.take-input-wrap{background:linear-gradient(135deg,#fff5f0,#fff0e8);border:2px solid var(--orange);border-radius:var(--radius);padding:13px;flex-shrink:0;box-shadow:0 2px 10px rgba(240,80,35,0.12)}
+.take-input-wrap textarea{width:100%;background:#fff;border:1.5px solid #f9c4b4;color:var(--text);border-radius:5px;padding:7px 9px;font-size:12px;font-family:'Inter',sans-serif;resize:none;height:56px;line-height:1.5}
+.take-input-wrap textarea:focus{outline:none;border-color:var(--orange)}
 .take-input-wrap textarea::placeholder{color:var(--text3)}
 .post-row{display:flex;align-items:center;justify-content:space-between;margin-top:6px;gap:8px}
-.post-row span{font-size:10px;text-transform:uppercase;color:var(--text3);letter-spacing:.8px}
+.post-row span{font-size:10px;text-transform:uppercase;color:var(--orange2);letter-spacing:.8px;font-weight:600}
+.btn-post{background:var(--orange);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:background .12s}
+.btn-post:hover{background:var(--orange2)}
 .bold-card{background:#fff8f0;border:1.5px solid var(--orange);border-radius:var(--radius);padding:9px 11px;flex-shrink:0;box-shadow:var(--shadow)}
 .bold-tag{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--orange2);margin-bottom:3px;display:flex;align-items:center;gap:5px}
 .bold-dot{width:5px;height:5px;border-radius:50%;background:var(--orange);flex-shrink:0}
@@ -786,9 +788,9 @@ function renderGames(p1,p2,p3){
     locked?'🔒 Group-stage tipping is closed — your picks are locked in. Knockout tipping opens once the bracket is set.'
           :'⏰ Tipping closes <strong>11 Jun 2026, 15:00 ET</strong> — when the first match kicks off.');
 
+  p1.appendChild(notice);
   [[0,3],[4,7],[8,11]].forEach(([s,e],pi)=>{
     const p=ps[pi];
-    p.appendChild(notice.cloneNode(true));
     for(let gi=s;gi<=e;gi++){
       const g=groups[gi];
       const gTeams=[...new Set(GAMES.filter(x=>x.group===g).flatMap(x=>[x.home,x.away]))];
@@ -1016,7 +1018,7 @@ function renderHot(p1,p2,p3){
   p3.appendChild(submitTitle);
   const form=mk('div','take-input-wrap');
   form.innerHTML=`<textarea id="takeTextarea" placeholder="Your World Cup prediction… be specific! (min 15 chars)"></textarea>
-    <div class="post-row"><span>Visible to all colleagues</span><button class="btn-play" onclick="postTake()">Post 🔥</button></div>`;
+    <div class="post-row"><span>Visible to all colleagues</span><button class="btn-post" onclick="postTake()">Post 🔥</button></div>`;
   p3.appendChild(form);
   // Visual divider before recent list
   const divider=mk('div','');
