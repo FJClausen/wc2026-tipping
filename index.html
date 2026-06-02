@@ -71,15 +71,16 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .game-time-lbl{font-weight:700;color:var(--navy)}
 .game-code{color:#a8b4c0;font-weight:600;letter-spacing:.5px}
 .matchup{display:flex;align-items:stretch;gap:5px;margin-bottom:5px}
+.team-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.team-col .tbtn{flex:none;width:100%}
+.vs-col{flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:space-around;min-width:26px}
 .tbtn{flex:1;border:2px solid var(--border);border-radius:6px;padding:5px 3px;font-size:11px;font-weight:600;text-align:center;font-family:'Inter',sans-serif;min-height:30px;display:flex;align-items:center;justify-content:center;line-height:1.2;background:var(--bg2);color:var(--text);pointer-events:none;transition:all .15s}
 .tbtn.win{background:var(--greenlt);border-color:var(--green);color:var(--green2);font-weight:700}
 .tbtn.lose{background:#fee2e2;border-color:#dc2626;color:#b91c1c}
 .tbtn.draw-t{background:var(--goldbg);border-color:var(--gold2);color:var(--gold)}
-.vs{font-size:9px;color:var(--text3);font-weight:700;flex-shrink:0;align-self:center}
+.vs{font-size:9px;color:var(--text3);font-weight:700}
 
-/* SCORE ROW */
-.score-row{display:flex;align-items:center;gap:7px;margin-bottom:5px}
-.score-label{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap}
+/* SCORE INPUT */
 .score-inp{width:48px;height:36px;background:var(--bg2);border:2px solid var(--border);border-radius:6px;padding:4px 6px;font-size:18px;font-weight:700;text-align:center;font-family:'Inter',sans-serif;color:var(--text);transition:border-color .12s}
 .score-inp:focus{outline:none;border-color:var(--wbblue);background:#fff}
 .score-dash{font-size:18px;font-weight:700;color:var(--text3)}
@@ -639,6 +640,12 @@ const SCORERS=[
 const SEED_TAKES=[];
 const SEED_AVATARS={};
 
+// ── TOURNAMENT RESULT CONSTANTS ────────────────────────────
+// Admin: update these after the final and redeploy to award the 20-pt bonuses.
+// Values must exactly match strings in TEAMS and SCORERS arrays respectively.
+const OFFICIAL_WINNER = null;  // e.g. 'Brazil'
+const OFFICIAL_SCORER = null;  // e.g. 'Kylian Mbappé (France)'
+
 const AVATARS={
   daredevil:{emoji:'🦁',label:'Daredevil',desc:'Loves the underdog'},
   oracle:{emoji:'🔮',label:'Oracle',desc:'Always backs the favourite'},
@@ -834,19 +841,22 @@ function buildGameCard(gm,locked){
       <span>${esc(gm.date)} · <span class="game-time-lbl">${esc(gm.time)}</span> · ${esc(gm.venue)} · <span class="game-code">${esc(gm.id)}</span></span>
     </div>
     <div class="matchup">
-      <div class="tbtn${homeClass}" id="hbtn_${gm.id}">${fl(gm.home)} ${esc(gm.home)}</div>
-      <div class="vs">VS</div>
-      <div class="tbtn${awayClass}" id="abtn_${gm.id}">${fl(gm.away)} ${esc(gm.away)}</div>
-    </div>
-    <div class="score-row">
-      <span class="score-label">Your score</span>
-      <input class="score-inp" type="number" min="0" max="20" placeholder="–"
-        value="${esc(hs)}" data-gid="${gm.id}" data-side="home"
-        oninput="liveScore(this)" onchange="saveScore(this)">
-      <span class="score-dash">–</span>
-      <input class="score-inp" type="number" min="0" max="20" placeholder="–"
-        value="${esc(as)}" data-gid="${gm.id}" data-side="away"
-        oninput="liveScore(this)" onchange="saveScore(this)">
+      <div class="team-col">
+        <div class="tbtn${homeClass}" id="hbtn_${gm.id}">${fl(gm.home)} ${esc(gm.home)}</div>
+        <input class="score-inp" type="number" min="0" max="20" placeholder="–"
+          value="${esc(hs)}" data-gid="${gm.id}" data-side="home"
+          oninput="liveScore(this)" onchange="saveScore(this)">
+      </div>
+      <div class="vs-col">
+        <div class="vs">VS</div>
+        <span class="score-dash">–</span>
+      </div>
+      <div class="team-col">
+        <div class="tbtn${awayClass}" id="abtn_${gm.id}">${fl(gm.away)} ${esc(gm.away)}</div>
+        <input class="score-inp" type="number" min="0" max="20" placeholder="–"
+          value="${esc(as)}" data-gid="${gm.id}" data-side="away"
+          oninput="liveScore(this)" onchange="saveScore(this)">
+      </div>
     </div>
     <div class="result-row${res?' has-result':''}" id="res_${gm.id}">
       <span class="result-lbl">Result:</span>
@@ -971,11 +981,11 @@ function renderWinner(p1,p2,p3){
 
 <div class="sc-section">
   <div class="sc-section-title">Tournament Bonuses (lock in before Jun 11)</div>
-  <div class="sc-row"><div class="sc-pts">10</div><div class="sc-desc">Correct tournament winner</div></div>
-  <div class="sc-row"><div class="sc-pts">10</div><div class="sc-desc">Correct top goalscorer</div></div>
+  <div class="sc-row"><div class="sc-pts">20</div><div class="sc-desc">Correct tournament winner</div></div>
+  <div class="sc-row"><div class="sc-pts">20</div><div class="sc-desc">Correct top goalscorer</div></div>
 </div>
 
-<div class="sc-note">⚡ Brave Pick and 🎲 Wild Score bonuses stack — maximum 7 pts from a single game.</div>`;
+<div class="sc-note">⚡ Brave Pick and 🎲 Wild Score bonuses stack — maximum 7 pts from a single game. Correct winner and scorer are worth 20 pts each, awarded after the final.</div>`;
   p3.appendChild(se);
   const wrap=mk('div','');wrap.id='summaryWrap';p3.appendChild(wrap);
   refreshSummary();
@@ -1169,6 +1179,9 @@ function calcPoints(user){
     if((exact||outOk)&&isBravePick(gid,actualW)) pts+=2;
     if(exact&&isWildScore(uh,ua)) pts+=2;
   }
+  // Tournament winner and top scorer bonuses (+20 each)
+  if(OFFICIAL_WINNER && p.winner===OFFICIAL_WINNER) pts+=20;
+  if(OFFICIAL_SCORER && p.scorer===OFFICIAL_SCORER) pts+=20;
   return pts;
 }
 function calcPredCount(user){
