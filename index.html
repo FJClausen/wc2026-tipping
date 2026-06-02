@@ -198,6 +198,15 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .ts-avg{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--wbblue2)}
 .ts-count{font-size:10px;color:var(--text3)}
 
+/* POPULAR VERDICT */
+.pv-section{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;box-shadow:var(--shadow);flex-shrink:0}
+.pv-subhead{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);margin-bottom:6px;padding-bottom:5px;border-bottom:2px solid var(--intgold)}
+.pv-row{display:flex;align-items:center;gap:7px;padding:4px 0;border-bottom:1px solid var(--border);font-size:11px}
+.pv-row:last-of-type{border-bottom:none}
+.pv-rank{font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--text3);width:22px;flex-shrink:0}
+.pv-name{flex:1;font-weight:600;color:var(--text)}
+.pv-pct{font-size:10px;color:var(--text3);font-weight:500;white-space:nowrap}
+
 .toast{position:fixed;bottom:16px;right:16px;z-index:9998;background:var(--navy);border:2px solid var(--wbblue);color:#fff;padding:8px 16px;border-radius:7px;font-size:12px;font-weight:600;opacity:0;transform:translateY(6px);transition:all .2s;pointer-events:none;box-shadow:0 4px 18px rgba(0,0,0,.2)}
 /* ONBOARDING OVERLAY */
 #onboarding{position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,var(--navy) 0%,var(--navy2) 50%,var(--green2) 100%);display:flex;align-items:center;justify-content:center;padding:20px}
@@ -1240,6 +1249,37 @@ function renderLB(p1,p2,p3){
       <div class="ts-avg">${t.avg} avg</div>`;
     p2.appendChild(row);
   });
+
+  // ── POPULAR VERDICT ──────────────────────────────────────
+  p2.appendChild(mk('div','ptitle','⚖️ Popular Verdict'));
+  p2.appendChild(mk('div','psub','Most-picked winner and scorer across all entries'));
+  const winnerPicks=Object.values(predictions).map(p=>p.picks&&p.picks.winner).filter(Boolean);
+  const scorerPicks=Object.values(predictions).map(p=>p.picks&&p.picks.scorer).filter(Boolean);
+  const totalW=winnerPicks.length||1;
+  const totalS=scorerPicks.length||1;
+  const wC={},sC={};
+  winnerPicks.forEach(w=>{wC[w]=(wC[w]||0)+1;});
+  scorerPicks.forEach(s=>{sC[s]=(sC[s]||0)+1;});
+  const topW=Object.entries(wC).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  const topS=Object.entries(sC).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  const medals=['🥇','🥈','🥉'];
+  const pv=mk('div','pv-section');
+  let pvHtml=`<div class="pv-subhead">🏆 Favourite to Win</div>`;
+  if(topW.length){
+    topW.forEach(([name,count],i)=>{
+      const pct=Math.round(count/totalW*100);
+      pvHtml+=`<div class="pv-row"><span class="pv-rank">${medals[i]}</span><span class="pv-name">${fl(name)}${esc(name)}</span><span class="pv-pct">${count} pick${count!==1?'s':''} · ${pct}%</span></div>`;
+    });
+  } else { pvHtml+=`<div class="pv-row"><span class="pv-name" style="color:var(--text3);font-style:italic">No winner picks yet</span></div>`; }
+  pvHtml+=`<div class="pv-subhead" style="margin-top:10px">⚽ Favourite Scorer</div>`;
+  if(topS.length){
+    topS.forEach(([name,count],i)=>{
+      const pct=Math.round(count/totalS*100);
+      pvHtml+=`<div class="pv-row"><span class="pv-rank">${medals[i]}</span><span class="pv-name">${esc(name)}</span><span class="pv-pct">${count} pick${count!==1?'s':''} · ${pct}%</span></div>`;
+    });
+  } else { pvHtml+=`<div class="pv-row"><span class="pv-name" style="color:var(--text3);font-style:italic">No scorer picks yet</span></div>`; }
+  pv.innerHTML=pvHtml;
+  p2.appendChild(pv);
 
   p3.appendChild(mk('div','ptitle','⚡ Bold Predictions'));
   p3.appendChild(mk('div','psub','⚡ Brave Pick: backing clear underdogs &nbsp;·&nbsp; 🎲 Wild Score: predicting 7+ goal games'));
