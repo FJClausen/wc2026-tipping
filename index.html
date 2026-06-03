@@ -38,7 +38,19 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 #teamSelect option{color:#111;background:#fff}
 .btn-play{background:var(--wbblue);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:background .12s}
 .btn-play:hover{background:var(--wbblue2)}
-.active-user{font-size:14px;font-weight:700;color:#fff;background:rgba(0,159,218,.22);border:1px solid rgba(0,159,218,.4);padding:7px 14px;border-radius:6px;white-space:nowrap}
+.active-user{font-size:14px;font-weight:700;color:#fff;background:rgba(0,159,218,.22);border:1px solid rgba(0,159,218,.4);padding:7px 14px;border-radius:6px;white-space:nowrap;cursor:pointer;transition:background .12s}
+.active-user:hover{background:rgba(0,159,218,.34)}
+.active-user::after{content:' ✎';opacity:.65;font-size:11px;font-weight:400}
+/* TEAM EDITOR MODAL */
+#teamEditor{display:none;position:fixed;inset:0;z-index:9990;background:rgba(0,20,40,.55);align-items:center;justify-content:center;padding:20px}
+.te-card{background:#fff;border-radius:14px;padding:24px 26px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.4);max-height:90vh;overflow-y:auto}
+.te-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:var(--navy);margin-bottom:4px}
+.te-sub{font-size:12px;color:var(--text3);line-height:1.5;margin-bottom:14px}
+.te-actions{display:flex;gap:8px;margin-top:16px}
+.te-cancel{flex:1;background:var(--bg2);color:var(--text2);border:1.5px solid var(--border);border-radius:8px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.te-cancel:hover{background:var(--bg3)}
+.te-save{flex:2;background:linear-gradient(135deg,var(--wbblue),var(--wbblue2));color:#fff;border:none;border-radius:8px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+.te-save:hover{opacity:.9}
 .sync-badge{font-size:10px;padding:3px 8px;border-radius:4px;font-weight:600;white-space:nowrap}
 .sync-badge.ok{background:rgba(74,222,128,.18);color:#16a34a}
 .sync-badge.busy{background:rgba(0,159,218,.18);color:var(--wbblue)}
@@ -265,7 +277,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
   </div>
   <div class="user-area">
     <span class="sync-badge busy" id="syncBadge">Connecting…</span>
-    <div class="active-user" id="activeUser" style="display:none"></div>
+    <div class="active-user" id="activeUser" style="display:none" onclick="openTeamEditor()" title="Click to edit your INT teams"></div>
   </div>
 </div>
 <div class="tabs">
@@ -318,6 +330,17 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 </div>
 
 <div class="toast" id="toastEl"></div>
+<div id="teamEditor" onclick="if(event.target===this)closeTeamEditor()">
+  <div class="te-card">
+    <div class="te-title">Edit your INT team(s)</div>
+    <div class="te-sub">Tap all the teams you belong to. Your points feed each team's average on the leaderboard. Leave everything unselected to belong to no team.</div>
+    <div class="ob-teamgrid" id="te-teams"></div>
+    <div class="te-actions">
+      <button class="te-cancel" onclick="closeTeamEditor()">Cancel</button>
+      <button class="te-save" onclick="saveTeamEditor()">Save teams</button>
+    </div>
+  </div>
+</div>
 <script>
 const sb=supabase.createClient('https://qumffmxqezfbrbjbqdxv.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1bWZmbXhxZXpmYnJiamJxZHh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5MDQyNjksImV4cCI6MjA5NTQ4MDI2OX0.WcnR0KWXRlOrwT4bzpBDByt0OmZGRhdcP8QfaQiWEp8');
 const GROUP_CUTOFF=new Date('2026-06-11T19:00:00Z');
@@ -1420,6 +1443,43 @@ function buildTeamChips(){
     c.onclick=()=>c.classList.toggle('sel');
     box.appendChild(c);
   });
+}
+
+// In-app team editor — lets an already-logged-in user change their team(s)
+// without re-entering name/password. Reuses the onboarding chip styling and
+// pre-selects whatever they currently belong to.
+function buildEditorChips(){
+  const box=document.getElementById('te-teams');if(!box)return;
+  const mine=teamList(currentTeam);
+  box.innerHTML='';
+  INT_TEAMS.forEach(t=>{
+    const c=mk('div','ob-chip'+(mine.includes(t)?' sel':''),esc(t));c.dataset.team=t;
+    c.onclick=()=>c.classList.toggle('sel');
+    box.appendChild(c);
+  });
+}
+function openTeamEditor(){
+  if(!currentUser)return;
+  buildEditorChips();
+  const m=document.getElementById('teamEditor');if(m)m.style.display='flex';
+}
+function closeTeamEditor(){
+  const m=document.getElementById('teamEditor');if(m)m.style.display='none';
+}
+function saveTeamEditor(){
+  if(!currentUser){closeTeamEditor();return;}
+  const sel=[...document.querySelectorAll('#te-teams .ob-chip.sel')].map(c=>c.dataset.team);
+  const tm=sel.join(', ');
+  currentTeam=tm;
+  if(!predictions[currentUser])predictions[currentUser]={picks:{},team:tm};
+  predictions[currentUser].team=tm;
+  if(tm)localStorage.setItem('wc26_team',tm);else localStorage.removeItem('wc26_team');
+  const au=document.getElementById('activeUser');
+  if(au)au.textContent='Welcome '+currentUser+(tm?' · '+tm:'');
+  closeTeamEditor();
+  scheduleSave();
+  toast(tm?'Teams updated ✓':'Teams cleared ✓');
+  render();
 }
 
 async function obSubmit(){
