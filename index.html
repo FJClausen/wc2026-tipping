@@ -315,12 +315,12 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
       </svg>
     </div>
     <div class="ob-title">INT WORLD CUP 2026<br><span>Bracket Challenge</span></div>
-    <div class="ob-sub">Pick scores for all group-stage games, tip the overall winner and top scorer, and compete on the INT leaderboard. Enter your name to get started.</div>
+    <div class="ob-sub">Predict every World Cup game, tip the winner and top scorer, and climb the individual and team INT leaderboards. Enter your name and team(s) to get started.</div>
     <label class="ob-label" for="ob-name">Your name</label>
     <input class="ob-field" type="text" id="ob-name" placeholder="Your name" maxlength="30" onkeydown="if(event.key==='Enter')document.getElementById('ob-pw').focus()">
     <label class="ob-label" for="ob-pw">Choose a password <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(stops someone casually picking as you)</span></label>
     <input class="ob-field" type="password" id="ob-pw" placeholder="Min 4 characters" maxlength="50" onkeydown="if(event.key==='Enter')obSubmit()">
-    <label class="ob-label">Your INT team(s)</label>
+    <label class="ob-label">Your INT team(s) <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">— select all that apply</span></label>
     <div class="ob-teamgrid" id="ob-teams"></div>
     <div class="ob-hint">Pick <strong>every team you belong to</strong> — tap all that apply. Your points count toward each team's average on the Team Standings board. You can leave this blank if none apply.</div>
     <div class="ob-error" id="ob-error"></div>
