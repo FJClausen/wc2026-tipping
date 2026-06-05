@@ -597,6 +597,7 @@ const SCORERS=[
   'Raphinha (Brazil)',
   'Julián Álvarez (Argentina)',
   'Nick Woltemade (Germany)',
+  'Deniz Undav (Germany)',
   'Cody Gakpo (Netherlands)',
   'Ferran Torres (Spain)',
   'Bukayo Saka (England)',
@@ -770,7 +771,7 @@ function toast(msg){const t=document.getElementById('toastEl');t.textContent=msg
 const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const mk=(tag,cls,html)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(html!==undefined)e.innerHTML=html;return e;};
 const timeAgo=ts=>{const d=(Date.now()-ts)/1000;if(d<60)return 'just now';if(d<3600)return Math.floor(d/60)+'m ago';if(d<86400)return Math.floor(d/3600)+'h ago';return Math.floor(d/86400)+'d ago';};
-const teamList=str=>String(str||'').split(',').map(s=>s.trim()).filter(Boolean);
+const teamList=str=>String(str||'').split(/\s*[,;]\s*|\s+-\s+/).map(s=>s.trim()).filter(Boolean);
 const myPicks=()=>(currentUser&&predictions[currentUser]&&predictions[currentUser].picks)||{};
 const myPick=k=>myPicks()[k]||null;
 const groupLocked=()=>new Date()>=GROUP_CUTOFF;
@@ -1264,7 +1265,7 @@ function getBolds(){
     const getO=x=>{const o=GAME_ODDS[x.game.id]||[2,3,2];return x.pick===x.game.home?o[0]:x.pick===x.game.away?o[2]:o[1];};
     return getO(b)-getO(a);
   });
-  return out.slice(0,20);
+  return out.slice(0,10);
 }
 
 // ── BOLD CARD BUILDER ──────────────────────────────────────
@@ -1346,7 +1347,7 @@ function renderLB(p1,p2,p3){
   });
 
   p2.appendChild(mk('div','ptitle','👥 Team Standings'));
-  p2.appendChild(mk('div','psub','Average points per INT team'));
+  p2.appendChild(mk('div','psub','Average points per INT team member'));
   const teamMap={};
   rows.forEach(r=>{
     teamList(r.team).forEach(tm=>{
