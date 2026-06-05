@@ -118,6 +118,8 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .ko-sec-title{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;color:var(--navy);margin-bottom:3px}
 .ko-sec-sub{font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.4}
 .ko-round-block{margin-bottom:10px}
+.ko-predicted{background:var(--intgoldbg);border:1.5px solid var(--intgold);border-radius:8px;padding:9px 10px;margin-bottom:12px}
+.ko-predicted .ko-round-label{color:var(--gold)}
 .ko-round-label{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1.5px;color:var(--wbblue2);margin-bottom:5px;display:flex;align-items:center;gap:6px}
 .ko-round-dates{font-size:10px;font-weight:400;color:var(--text3);letter-spacing:0;font-family:'Inter',sans-serif}
 .ko-match{display:flex;align-items:center;gap:0;margin-bottom:4px;border-radius:6px;overflow:hidden;border:1px solid var(--border);background:var(--bg2)}
@@ -1010,11 +1012,83 @@ function saveScore(inp){
 }
 
 // ── KO BRACKET ─────────────────────────────────────────────
+// ── PREDICTED ROUND OF 32 (FIFA 2026 rules, from the user's group picks) ──
+// Top 2 of each group + the 8 best third-placed teams, slotted into the official
+// R32 bracket. Returns null until all 72 group games have been predicted.
+function predictedR32(){
+  const groups=['A','B','C','D','E','F','G','H','I','J','K','L'];
+  const pk=myPicks();
+  const got=gid=>{const hs=pk['hs_'+gid],as=pk['as_'+gid];return (hs!==''&&hs!=null&&as!==''&&as!=null)?{hs,as}:null;};
+  if(!GAMES.every(g=>got(g.id))) return null;            // need every group game predicted
+  const st={}; groups.forEach(g=>{st[g]=groupStandings(g,got).rows;});
+  const first=g=>st[g][0].team, second=g=>st[g][1].team;
+  // Rank the 12 third-placed teams: points → goal difference → goals for →
+  // (group letter as a deterministic stand-in for FIFA's fair-play / lots steps).
+  const thirds=groups.map(g=>Object.assign({group:g}, st[g][2]));
+  thirds.sort((a,b)=> b.Pts-a.Pts || b.GD-a.GD || b.GF-a.GF || a.group.localeCompare(b.group));
+  const qual=thirds.slice(0,8).map(t=>t.group);          // the 8 groups whose 3rd qualifies
+  const thirdTeam={}; thirds.forEach(t=>{thirdTeam[t.group]=t.team;});
+  // Slot qualifying thirds into the 8 'Best 3rd' positions, honouring each slot's
+  // allowed-group set (FIFA's allocation constraints) via bipartite matching.
+  const slots=R32.filter(m=>/Best 3rd/.test(m.away))
+                 .map(m=>({m:m.m, allowed:m.away.match(/\(([^)]+)\)/)[1].split('/')}));
+  const slotGroup={}, groupSlot={};
+  function aug(i,seen){
+    for(const g of slots[i].allowed){
+      if(qual.includes(g) && !seen.has(g)){
+        seen.add(g);
+        if(groupSlot[g]===undefined || aug(groupSlot[g],seen)){
+          groupSlot[g]=i; slotGroup[slots[i].m]=g; return true;
+        }
+      }
+    }
+    return false;
+  }
+  let perfect=true;
+  for(let i=0;i<slots.length;i++) if(!aug(i,new Set())) perfect=false;
+  if(!perfect){ // defensive fallback: fill any unmatched slot with a leftover third
+    const used=new Set(Object.values(slotGroup));
+    const left=qual.filter(g=>!used.has(g));
+    slots.forEach(s=>{ if(slotGroup[s.m]===undefined) slotGroup[s.m]=left.shift(); });
+  }
+  const resolve=l=>{ let m=l.match(/^1st Group ([A-L])$/); if(m) return first(m[1]);
+                     m=l.match(/^2nd Group ([A-L])$/); if(m) return second(m[1]); return null; };
+  return R32.map(mt=>{
+    const home=resolve(mt.home);
+    let away, note='';
+    if(/Best 3rd/.test(mt.away)){ const g=slotGroup[mt.m]; away=g?thirdTeam[g]:null; note=g?('3rd · Grp '+g):''; }
+    else away=resolve(mt.away);
+    return {m:mt.m, venue:mt.venue, home, away, note};
+  });
+}
+
+function buildPredictedR32(){
+  const wrap=mk('div','ko-round-block ko-predicted');
+  wrap.appendChild(mk('div','ko-round-label','🔮 Your Predicted Round of 32'));
+  const r32=predictedR32();
+  if(!r32){
+    wrap.appendChild(mk('div','ms-empty','Predict all 72 group games and this fills in automatically — the top 2 of every group plus the 8 best third-placed teams, ranked by FIFA tie-breaks (points, goal difference, then goals scored).'));
+    return wrap;
+  }
+  r32.forEach(mm=>{
+    const row=mk('div','ko-match');
+    const awayName=mm.away?`${fl(mm.away)} ${esc(mm.away)}`:'—';
+    const awayNote=mm.note?` <span class="ko-3rd">${esc(mm.note)}</span>`:'';
+    row.innerHTML=`<div class="ko-side home"><span class="ko-match-num">M${mm.m}</span><span class="ko-qualifier winner">${mm.home?fl(mm.home)+' '+esc(mm.home):'—'}</span></div>
+      <div class="ko-vs-pill">VS</div>
+      <div class="ko-side away"><span class="ko-match-num">${esc(mm.venue)}</span><span class="ko-qualifier winner">${awayName}</span>${awayNote}</div>`;
+    wrap.appendChild(row);
+  });
+  return wrap;
+}
+
 function buildKOSection(){
   const now=new Date();
   const sec=mk('div','ko-section');
   sec.innerHTML=`<div class="ko-sec-title">⚡ Knockout Bracket</div>
     <div class="ko-sec-sub">Official FIFA bracket — fills in as the group stage finishes. Once the matchups are confirmed, you'll be able to tip the knockout games right here.</div>`;
+
+  sec.appendChild(buildPredictedR32());
 
   KO_ROUNDS.forEach(r=>{
     const open=new Date(r.open)<=now;
