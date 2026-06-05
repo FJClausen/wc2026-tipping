@@ -1257,25 +1257,28 @@ function getBolds(){
 
       if(alertType){
         if(hs!==''&&as!=='') score=hs+'–'+as;
-        out.push({user,game,pick,reason,score,alertType});
+        out.push({user,game,pick,reason,score,alertType,goals:totalGoals});
       }
     }
   }
-  out.sort((a,b)=>{
-    const getO=x=>{const o=GAME_ODDS[x.game.id]||[2,3,2];return x.pick===x.game.home?o[0]:x.pick===x.game.away?o[2]:o[1];};
-    return getO(b)-getO(a);
-  });
-  return out.slice(0,10);
+  // Two ranked sub-lists: the 10 bravest picks (by odds) and the 10 wildest
+  // scores (by total goals). A 'both' entry can legitimately appear in each.
+  const oddsOf=x=>{const o=GAME_ODDS[x.game.id]||[2,3,2];return x.pick===x.game.home?o[0]:x.pick===x.game.away?o[2]:o[1];};
+  const brave=out.filter(x=>x.alertType==='upset'||x.alertType==='both').sort((a,b)=>oddsOf(b)-oddsOf(a)).slice(0,10);
+  const wild=out.filter(x=>x.alertType==='wild'||x.alertType==='both').sort((a,b)=>b.goals-a.goals).slice(0,10);
+  return {brave,wild};
 }
 
 // ── BOLD CARD BUILDER ──────────────────────────────────────
-function buildBoldCard(b){
+function buildBoldCard(b,mode){
   const isWild=b.alertType==='wild'||b.alertType==='both';
   const isUpset=b.alertType==='upset'||b.alertType==='both';
-  const card=mk('div','bold-card'+(isWild&&!isUpset?' wild':''));
+  const showUpset=mode?mode==='brave':isUpset;
+  const showWild =mode?mode==='wild' :isWild;
+  const card=mk('div','bold-card'+(showWild&&!showUpset?' wild':''));
   let tagHtml='';
-  if(isUpset) tagHtml+=`<div class="bold-tag"><div class="bold-dot"></div>⚡ BRAVE PICK</div>`;
-  if(isWild)  tagHtml+=`<div class="bold-tag wild-tag" style="margin-top:${isUpset?'3px':'0'}"><div class="bold-dot" style="background:var(--purple)"></div>🎲 WILD SCORE</div>`;
+  if(showUpset) tagHtml+=`<div class="bold-tag"><div class="bold-dot"></div>⚡ BRAVE PICK</div>`;
+  if(showWild)  tagHtml+=`<div class="bold-tag wild-tag" style="margin-top:${showUpset?'3px':'0'}"><div class="bold-dot" style="background:var(--purple)"></div>🎲 WILD SCORE</div>`;
   card.innerHTML=`${tagHtml}
     <div class="bold-text"><strong>${esc(b.user)}</strong> tips <strong>${esc(b.pick)}</strong>${b.score?' · <em>'+esc(b.score)+'</em>':''}</div>
     <div class="bold-meta">${fl(b.game.home)} ${esc(b.game.home)} vs ${fl(b.game.away)} ${esc(b.game.away)} · ${esc(b.game.date)} · ${esc(b.reason)}</div>`;
@@ -1400,9 +1403,15 @@ function renderLB(p1,p2,p3){
 
   p3.appendChild(mk('div','ptitle','⚡ Bold Predictions'));
   p3.appendChild(mk('div','psub','⚡ Brave Pick: backing clear underdogs &nbsp;·&nbsp; 🎲 Wild Score: predicting 7+ goal games'));
-  const bolds=getBolds();
-  if(!bolds.length)p3.appendChild(mk('div','psub','No bold picks yet.'));
-  bolds.forEach(b=>p3.appendChild(buildBoldCard(b)));
+  const {brave,wild}=getBolds();
+  const braveHead=mk('div','pv-subhead','⚡ Bravest Picks');braveHead.style.marginTop='2px';
+  p3.appendChild(braveHead);
+  if(!brave.length)p3.appendChild(mk('div','psub','No brave picks yet.'));
+  brave.forEach(b=>p3.appendChild(buildBoldCard(b,'brave')));
+  const wildHead=mk('div','pv-subhead','🎲 Wildest Scores');wildHead.style.marginTop='10px';
+  p3.appendChild(wildHead);
+  if(!wild.length)p3.appendChild(mk('div','psub','No wild scores yet.'));
+  wild.forEach(b=>p3.appendChild(buildBoldCard(b,'wild')));
 }
 
 // ── ONBOARDING ─────────────────────────────────────────────
