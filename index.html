@@ -683,13 +683,26 @@ const WINNER_BONUS = 15;
 const SCORER_BONUS = 15;
 
 const AVATARS={
-  daredevil:{emoji:'🦁',label:'Daredevil',desc:'Loves the underdog'},
-  oracle:{emoji:'🔮',label:'Oracle',desc:'Always backs the favourite'},
-  chaos:{emoji:'🌪️',label:'Chaos Agent',desc:'Scorelines nobody else would predict'},
-  analyst:{emoji:'📊',label:'Analyst',desc:'Balanced, measured picks'},
-  gambler:{emoji:'🎲',label:'High Roller',desc:'Big odds, big dreams'},
-  cautious:{emoji:'🐢',label:'Safe Pair',desc:'Sensible picks, rarely wrong'},
+  oracle:{emoji:'🔮',label:'The Oracle',desc:'Backs the favourites — trusts the form book'},
+  daredevil:{emoji:'🦁',label:'Daredevil',desc:'Lives for the long-odds upset'},
+  wizard:{emoji:'🧙',label:'Wizard',desc:'Conjures longshots and sneaky draws'},
+  chaos:{emoji:'🌪️',label:'Chaos Agent',desc:'Goals, mayhem and lopsided scorelines'},
+  firestarter:{emoji:'🔥',label:'Firestarter',desc:'Goal-fest forecaster — the more the merrier'},
+  fortress:{emoji:'🧱',label:'Fortress',desc:'Defence wins titles — low scores everywhere'},
+  iceman:{emoji:'🧊',label:'Iceman',desc:'Cool head, tight margins'},
+  diplomat:{emoji:'🤝',label:'Diplomat',desc:'Sees a draw in everything'},
+  gambler:{emoji:'🎲',label:'High Roller',desc:'Big odds, big goals, big dreams'},
+  thrillseeker:{emoji:'🎢',label:'Thrill-Seeker',desc:'Blowouts and wild swings'},
+  maverick:{emoji:'🐉',label:'Maverick',desc:'Backs underdogs, ignores the crowd'},
+  sharpshooter:{emoji:'🎯',label:'Sharpshooter',desc:'Decisive — calls clear, clean winners'},
+  hometown:{emoji:'🏟️',label:'Home Crowd',desc:'Rides with the home side'},
+  frontrunner:{emoji:'👑',label:'Frontrunner',desc:'Crowns the favourite to lift the cup'},
+  dreamer:{emoji:'💫',label:'Dreamer',desc:'Tips a dark horse to win it all'},
+  analyst:{emoji:'📊',label:'Analyst',desc:'Balanced and measured across the board'},
+  statistician:{emoji:'🧮',label:'Statistician',desc:'Thorough — tips just about everything'},
+  professor:{emoji:'🧠',label:'Professor',desc:'Reads the game, weighs every call'},
   wildcard:{emoji:'🃏',label:'Wildcard',desc:'Unpredictable but entertaining'},
+  rookie:{emoji:'🌱',label:'Rookie',desc:'Just getting started'},
   ghost:{emoji:'👻',label:'Ghost',desc:'Picks made, rarely seen'},
 };
 
@@ -786,21 +799,72 @@ function setPick(k,v){
 }
 function assignAvatar(user){
   const p=(predictions[user]&&predictions[user].picks)||{};
-  const keys=Object.keys(p).filter(k=>k.startsWith('g_'));
-  if(keys.length===0)return 'ghost';
-  let ud=0,fav=0,hi=0;
-  const US=new Set(['South Africa','Curaçao','Haiti','Cape Verde','New Zealand','Jordan','Uzbekistan','Panama','Qatar','Saudi Arabia','Bosnia & Herz.','Scotland','Congo DR','Algeria','Czechia','Iraq','Ghana','Morocco','Senegal']);
-  const FS=new Set(['Brazil','France','Argentina','England','Germany','Spain','Netherlands','Portugal','Belgium']);
-  keys.forEach(k=>{
-    const gid=k.replace('g_','');const game=GAMES.find(g=>g.id===gid);if(!game)return;
-    const pick=p[k];if(FS.has(pick))fav++;if(US.has(pick))ud++;
-    const hs=parseInt(p['hs_'+gid]||0),as=parseInt(p['as_'+gid]||0);
-    if(!isNaN(hs)&&!isNaN(as)&&(hs+as)>=5)hi++;
+  // This user's fully-tipped games (both scores present)
+  const tips=[];
+  Object.keys(p).filter(k=>k.startsWith('g_')).forEach(k=>{
+    const gid=k.slice(2);const game=GAMES.find(g=>g.id===gid);if(!game)return;
+    const hs=parseInt(p['hs_'+gid]),as=parseInt(p['as_'+gid]);
+    if(isNaN(hs)||isNaN(as))return;
+    const pick=p[k];const o=GAME_ODDS[gid]||[2.5,3.3,2.7];
+    const po=pick===game.home?o[0]:pick===game.away?o[2]:o[1];   // odds of the side picked
+    tips.push({hs,as,po,total:hs+as,margin:Math.abs(hs-as),isDraw:(pick==='Draw'||hs===as),home:(pick===game.home)});
   });
-  const n=keys.length;const ur=ud/n,fr=fav/n,hr=hi/n;
-  if(hr>0.3)return 'chaos';if(ur>0.4)return 'daredevil';if(ur>0.2&&hr>0.15)return 'gambler';
-  if(fr>0.6)return 'oracle';if(fr>0.4)return 'cautious';if(ur>0.1)return 'analyst';
-  return 'wildcard';
+  const n=tips.length;
+  if(n===0)return 'ghost';
+  if(n<5)return 'rookie';
+  const frac=f=>tips.filter(f).length/n;
+  const s={
+    chalk:    frac(t=>t.po<=1.6&&!t.isDraw),
+    brave:    frac(t=>t.po>=4.0),
+    longshot: frac(t=>t.po>=6.0),
+    draws:    frac(t=>t.isDraw),
+    high:     frac(t=>t.total>=5),
+    fire:     frac(t=>t.total>=6),
+    low:      frac(t=>t.total<=1),
+    tight:    frac(t=>t.margin<=1),
+    blow:     frac(t=>t.margin>=3),
+    home:     frac(t=>t.home),
+  };
+  // Rough population baselines [mean, spread]. z = how far this predictor leans
+  // on each tendency, in spreads. Labelling by the *strongest* lean (rather than
+  // overall balance) keeps high-volume tippers from all collapsing onto Analyst.
+  const BL={chalk:[.25,.12],brave:[.22,.12],longshot:[.07,.06],draws:[.22,.10],high:[.14,.08],
+            fire:[.06,.05],low:[.18,.10],tight:[.50,.13],blow:[.10,.07],home:[.47,.11]};
+  const z={};for(const k in BL){z[k]=Math.max(-3,Math.min(3,(s[k]-BL[k][0])/BL[k][1]));}
+  const comp=n/72;
+  const win=p.winner||'';
+  const TOP=['Spain','France','Argentina','Brazil','England','Germany','Portugal','Netherlands'];
+  const winFav=TOP.indexOf(win)>=0, winDark=!!win&&TOP.indexOf(win)<0;
+  const A={
+    oracle:       z.chalk,
+    daredevil:    z.brave+0.4*z.longshot,
+    wizard:       0.9*z.longshot+0.5*z.draws,
+    diplomat:     z.draws,
+    firestarter:  z.high-0.3*z.fire,
+    chaos:        0.8*z.fire+0.5*z.blow+0.3*z.high,
+    fortress:     z.low,
+    iceman:       0.8*z.tight+0.4*z.low,
+    thrillseeker: z.blow+0.4*z.high,
+    gambler:      0.7*z.brave+0.7*z.high,
+    maverick:     0.7*z.brave-0.5*z.chalk,
+    sharpshooter: 0.7*z.blow-0.4*z.tight,
+    hometown:     z.home,
+    frontrunner:  (winFav?0.9:-2)+0.4*z.chalk,
+    dreamer:      (winDark?1.1:-2),
+    // Generalist outlets for genuinely balanced profiles — modest baseline so a
+    // clear lean always wins; the seeded jitter spreads the flat ones around.
+    analyst:      0.42,
+    statistician: 0.40+0.5*(comp-0.6),
+    professor:    0.42,
+    wildcard:     0.42,
+  };
+  // Stable per-user jitter (seeded by name): variety without flicker, decisive
+  // only among near-equal profiles.
+  let h=2166136261;for(let i=0;i<user.length;i++){h^=user.charCodeAt(i);h=Math.imul(h,16777619);}
+  const jit=k=>(((h^Math.imul(k.length*131+k.charCodeAt(0),2654435761))>>>0)%1000)/1000*0.30;
+  let best='analyst',bv=-1e9;
+  for(const k in A){const v=A[k]+jit(k);if(v>bv){bv=v;best=k;}}
+  return best;
 }
 
 // ── GROUP STANDINGS (FIFA rules) ───────────────────────────
