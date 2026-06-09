@@ -21,7 +21,7 @@
   --shadow:0 1px 4px rgba(0,34,68,.10);--radius:9px;
 }
 html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;height:100%;overflow:hidden}
-#app{display:grid;grid-template-rows:auto auto 1fr;height:100vh}
+#app{display:grid;grid-template-rows:auto auto 1fr auto;height:100vh}
 
 .hdr{background:linear-gradient(135deg,#001d3d 0%,var(--navy) 45%,#003060 100%);padding:14px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;box-shadow:0 3px 14px rgba(0,0,0,.35);border-bottom:4px solid var(--intgold)}
 .hdr-accent{width:6px;height:56px;background:linear-gradient(180deg,var(--wbblue),var(--intgold));border-radius:3px;flex-shrink:0}
@@ -237,7 +237,22 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .ms-empty{font-size:10px;color:var(--text3);font-style:italic;padding:3px 0}
 .ms-foot{font-size:8.5px;color:var(--text3);margin-top:5px;line-height:1.4}
 
-.toast{position:fixed;bottom:16px;right:16px;z-index:9998;background:var(--navy);border:2px solid var(--wbblue);color:#fff;padding:8px 16px;border-radius:7px;font-size:12px;font-weight:600;opacity:0;transform:translateY(6px);transition:all .2s;pointer-events:none;box-shadow:0 4px 18px rgba(0,0,0,.2)}
+.toast{position:fixed;bottom:50px;right:16px;z-index:9998;background:var(--navy);border:2px solid var(--wbblue);color:#fff;padding:8px 16px;border-radius:7px;font-size:12px;font-weight:600;opacity:0;transform:translateY(6px);transition:all .2s;pointer-events:none;box-shadow:0 4px 18px rgba(0,0,0,.2)}
+
+/* HOT TAKES TICKER */
+#ticker{background:linear-gradient(90deg,var(--navy) 0%,#001d3d 100%);border-top:2px solid var(--intgold);height:34px;overflow:hidden;display:flex;align-items:center;position:relative;flex-shrink:0}
+.ticker-label{background:var(--intgold);color:var(--navy);font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;padding:0 12px;height:100%;display:flex;align-items:center;flex-shrink:0;z-index:2;white-space:nowrap}
+.ticker-mask{flex:1;overflow:hidden;height:100%;position:relative}
+.ticker-track{display:flex;align-items:center;height:100%;white-space:nowrap;position:absolute;will-change:transform}
+.ticker-item{display:inline-flex;align-items:center;gap:8px;padding:0 28px;color:rgba(255,255,255,.9);font-size:11.5px;font-weight:500;border-right:1px solid rgba(255,255,255,.12)}
+.ticker-item:last-child{border-right:none}
+.ticker-tag{font-size:9px;font-weight:700;letter-spacing:1px;padding:2px 6px;border-radius:3px;flex-shrink:0}
+.ticker-tag.hot{background:rgba(200,146,10,.25);color:var(--intgold);border:1px solid rgba(200,146,10,.4)}
+.ticker-tag.contested{background:rgba(0,159,218,.2);color:var(--wbblue);border:1px solid rgba(0,159,218,.35)}
+.ticker-tag.recent{background:rgba(240,80,35,.18);color:#f97316;border:1px solid rgba(240,80,35,.3)}
+.ticker-user{font-size:10px;color:rgba(255,255,255,.45);font-weight:600;flex-shrink:0}
+.ticker-text{max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
 /* ONBOARDING OVERLAY */
 #onboarding{position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,var(--navy) 0%,var(--navy2) 50%,var(--green2) 100%);display:flex;align-items:center;justify-content:center;padding:20px}
 .ob-card{background:#fff;border-radius:16px;padding:38px 42px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.4);text-align:center;max-height:94vh;overflow-y:auto}
@@ -293,6 +308,13 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
   <div class="panel on" id="p2"></div>
   <div class="panel on" id="p3"></div>
 </div>
+<!-- HOT TAKES TICKER — hidden on Hot Takes tab -->
+<div id="ticker">
+  <div class="ticker-label">🔥 HOT TAKES</div>
+  <div class="ticker-mask">
+    <div class="ticker-track" id="tickerTrack"></div>
+  </div>
+</div>
 </div>
 <!-- ONBOARDING OVERLAY — shown on first visit only -->
 <div id="onboarding">
@@ -347,8 +369,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 const sb=supabase.createClient('https://qumffmxqezfbrbjbqdxv.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1bWZmbXhxZXpmYnJiamJxZHh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5MDQyNjksImV4cCI6MjA5NTQ4MDI2OX0.WcnR0KWXRlOrwT4bzpBDByt0OmZGRhdcP8QfaQiWEp8');
 const GROUP_CUTOFF=new Date('2026-06-11T19:00:00Z');
 
-// ── FLAGS via flagcdn.com (ISO 3166-1 alpha-2 codes) ──────
-// flaglog.com uses flagcdn.com for images: https://flagcdn.com/w20/{code}.png
 const FLAG_CODES={
   'Mexico':'mx','South Africa':'za','South Korea':'kr','Czechia':'cz',
   'Canada':'ca','Bosnia & Herz.':'ba','Qatar':'qa','Switzerland':'ch',
@@ -364,21 +384,12 @@ const FLAG_CODES={
   'England':'gb-eng','Ghana':'gh','Panama':'pa','Croatia':'hr',
   'Türkiye':'tr',
 };
-// Returns an <img> tag using flagcdn.com — small (20px wide), crisp
 const fl=t=>{
   const code=FLAG_CODES[t];
   if(!code)return '';
   return `<img src="https://flagcdn.com/w20/${code}.png" srcset="https://flagcdn.com/w40/${code}.png 2x" alt="${t}" style="height:13px;width:auto;vertical-align:middle;border-radius:2px;margin-right:3px;display:inline-block;box-shadow:0 0 0 1px rgba(0,0,0,0.08)">`;
 };
 
-// ── SCORING SYSTEM ─────────────────────────────────────────
-// 1 pt  = correct outcome (winner / draw)
-// 3 pts = correct exact scoreline
-// +2 pts upset bonus = correct outcome AND the winning side
-//         was priced at +400 or longer (decimal ≥ 5.00)
-//
-// Pre-match decimal odds [home, draw, away] — Pinnacle opening lines
-// Used ONLY to determine upset bonus eligibility (≥ 5.00 = +400 US odds)
 const GAME_ODDS={
   g01:[2.05,3.40,3.55],g02:[2.10,3.30,3.45],g25:[2.30,3.20,3.10],g28:[2.00,3.30,3.80],
   g53:[3.10,3.10,2.20],g54:[2.60,3.20,2.75],
@@ -386,45 +397,35 @@ const GAME_ODDS={
   g49:[2.00,3.40,3.70],g50:[2.50,3.30,2.85],
   g06:[1.35,5.00,9.00],g07:[8.00,4.50,1.40],g30:[2.40,3.20,3.00],g31:[1.30,5.50,10.0],
   g51:[6.50,4.50,1.50],g52:[1.65,3.80,5.50],
-  // Group D: USA/Paraguay/Australia/Türkiye
   g04:[1.75,3.60,4.80],g08:[3.40,3.40,2.05],g29:[1.55,3.90,6.00],g32:[2.20,3.30,3.20],
   g59:[3.00,3.20,2.35],g60:[2.30,3.30,3.10],
   g09:[1.20,6.50,13.0],g11:[1.80,3.60,4.60],g34:[1.30,5.50,9.50],g35:[1.65,3.80,5.80],
   g55:[3.60,3.20,2.00],g56:[4.50,3.60,1.75],
-  // Group F: Netherlands/Japan/Sweden/Tunisia
   g10:[1.55,4.00,6.00],g12:[1.80,3.50,4.50],g33:[1.40,4.30,8.00],g36:[3.60,3.40,2.00],
   g57:[2.50,3.20,2.80],g58:[5.50,3.80,1.55],
   g14:[1.55,3.90,6.00],g16:[2.50,3.20,2.90],g38:[1.40,4.50,8.00],g40:[2.30,3.20,3.20],
   g65:[2.80,3.20,2.60],g66:[5.00,3.70,1.65],
   g13:[1.20,6.50,14.0],g15:[3.20,3.20,2.25],g37:[1.40,4.50,8.00],g39:[1.55,4.00,6.50],
   g63:[3.50,3.30,2.10],g64:[4.50,3.50,1.75],
-  // Group I: France/Senegal/Iraq/Norway — Iraq are 40-year returnees, big underdogs
   g17:[1.40,4.50,8.00],g18:[5.50,3.80,1.55],g42:[1.25,6.00,12.0],g43:[2.00,3.40,3.70],
   g61:[2.80,3.20,2.55],g62:[1.65,3.80,5.50],
   g19:[1.30,5.50,9.00],g20:[2.00,3.40,3.80],g41:[1.25,6.00,11.0],g44:[4.50,3.50,1.75],
   g71:[2.60,3.20,2.75],g72:[7.00,4.50,1.40],
-  // Group K: Portugal/Congo DR/Uzbekistan/Colombia — Congo DR big underdogs
   g21:[1.20,6.50,14.0],g24:[3.00,3.20,2.40],g45:[1.20,6.50,13.0],g48:[1.65,3.80,5.50],
   g69:[3.40,3.30,2.10],g70:[5.00,3.70,1.65],
   g22:[1.50,4.10,6.50],g23:[2.10,3.20,3.50],g46:[1.35,5.00,9.00],g47:[3.80,3.40,1.90],
   g67:[5.50,3.80,1.50],g68:[2.40,3.20,3.00],
 };
-// Returns true if the correct outcome was a Brave Pick — the side that actually
-// won (or the draw) was a clear underdog priced at decimal ≥ 5.00 (+400 or longer).
-// Draws use the same ≥ 5.00 threshold as underdog wins, so a correctly-called
-// long-odds draw earns the bonus too. Matches getBolds for scoring/display parity.
 function isBravePick(gid, actualW){
   const odds=GAME_ODDS[gid];if(!odds)return false;
   const o=actualW==='home'?odds[0]:actualW==='away'?odds[2]:odds[1];
   return o>=5.00;
 }
-// Returns true if the exact predicted scoreline has 7+ total goals — Wild Score bonus
 function isWildScore(hs, as){
   const h=parseInt(hs), a=parseInt(as);
   return !isNaN(h)&&!isNaN(a)&&(h+a)>=7;
 }
 
-// ── MATCH DATA ─────────────────────────────────────────────
 const GAMES=[
   {id:'g01',date:'Jun 11',time:'15:00 ET',group:'A',home:'Mexico',away:'South Africa',venue:'Mexico City'},
   {id:'g02',date:'Jun 11',time:'18:00 ET',group:'A',home:'South Korea',away:'Czechia',venue:'Guadalajara'},
@@ -500,8 +501,6 @@ const GAMES=[
   {id:'g68',date:'Jun 27',time:'21:00 ET',group:'L',home:'Croatia',away:'Ghana',venue:'Philadelphia'},
 ];
 
-// ── OFFICIAL FIFA ROUND OF 32 BRACKET ──────────────────────
-// Source: Wikipedia / FIFA regulations
 const R32=[
   {m:73,home:'2nd Group A',away:'2nd Group B',venue:'Inglewood'},
   {m:74,home:'1st Group E',away:'Best 3rd (A/B/C/D/F)',venue:'Foxborough'},
@@ -521,13 +520,6 @@ const R32=[
   {m:88,home:'2nd Group D',away:'2nd Group G',venue:'Arlington'},
 ];
 
-// ── KNOCKOUT ROUNDS BEYOND R32 (FIFA matches 89–104) ───────
-// Feeders reference the match that supplies each side: "Winner M74" = the
-// winner of match 74, "Loser M101" = the loser of match 101. The tree is
-// fixed from kickoff, so once results land these labels resolve to real teams.
-// Result rows for every knockout match are keyed 'm'+matchNumber — e.g. m89,
-// m104 — exactly like the Round of 32 (m73–m88). That is the join key the
-// football-data.org sync / Supabase edge function should write back to.
 const R16=[
   {m:89,home:'Winner M74',away:'Winner M77',venue:'Philadelphia',date:'Jul 4'},
   {m:90,home:'Winner M73',away:'Winner M75',venue:'Houston',date:'Jul 4'},
@@ -554,9 +546,6 @@ const THIRD=[
 const FINAL=[
   {m:104,home:'Winner M101',away:'Winner M102',venue:'E. Rutherford',date:'Jul 19'},
 ];
-// Ordered knockout rounds — drives the bracket display and, later, tipping.
-// `open` is when the round becomes relevant (used for the lock indicator today;
-// it can double as the per-round tipping cutoff when knockout picks go live).
 const KO_ROUNDS=[
   {key:'r32',label:'Round of 32',      dates:'Jun 28 – Jul 3',open:'2026-06-27T23:00:00Z',matches:R32},
   {key:'r16',label:'Round of 16',      dates:'Jul 4 – 7',     open:'2026-07-03T23:00:00Z',matches:R16},
@@ -566,7 +555,6 @@ const KO_ROUNDS=[
   {key:'f',  label:'Final',            dates:'Jul 19',        open:'2026-07-15T23:00:00Z',matches:FINAL},
 ];
 
-// All 48 confirmed qualified teams — verified from FIFA/ESPN/Al Jazeera (April 2026)
 const TEAMS=[
   'Algeria','Argentina','Australia','Austria','Belgium','Bosnia & Herz.','Brazil',
   'Canada','Cape Verde','Colombia','Congo DR','Croatia','Czechia','Curaçao',
@@ -576,14 +564,9 @@ const TEAMS=[
   'Senegal','South Africa','South Korea','Spain','Sweden','Switzerland','Tunisia',
   'Türkiye','Uruguay','USA','Uzbekistan'];
 
-// INT teams that users can belong to (one or more) — shown as toggle chips on onboarding
 const INT_TEAMS=['Front Office','INTDI','INTPR','PSU','CDU','FSU','Data','INTEE','AFE','AFW','EAP','ECA','INTEW','MNAAP','LCR','SAR','IFC','INTII','LIT','INTIC','Core Services','Learning','Business Partners','Nairobi Team','Dakar Team','Brussels Team','Managers'];
 
-// Top scorer candidates — confirmed nominated/squad players only (no odds shown)
-// Sources: ESPN, NBC Sports, Yahoo Sports squad confirmations (June 2026)
-// List is limited to players whose nations qualified for the 48-team field.
 const SCORERS=[
-  // Tier 1 — tournament favourites (+600 to +2000)
   'Kylian Mbappé (France)',
   'Harry Kane (England)',
   'Lionel Messi (Argentina)',
@@ -594,7 +577,6 @@ const SCORERS=[
   'Vinicius Jr. (Brazil)',
   'Lautaro Martínez (Argentina)',
   'Ousmane Dembélé (France)',
-  // Tier 2 — strong contenders (+2500 to +5000)
   'Romelu Lukaku (Belgium)',
   'Raphinha (Brazil)',
   'Julián Álvarez (Argentina)',
@@ -611,7 +593,6 @@ const SCORERS=[
   'Kai Havertz (Germany)',
   'Marcus Thuram (France)',
   'Gonçalo Ramos (Portugal)',
-  // Tier 3 — value picks (+5000 to +8000)
   'Darwin Núñez (Uruguay)',
   'Bradley Barcola (France)',
   'Jonathan David (Canada)',
@@ -623,7 +604,6 @@ const SCORERS=[
   'Michael Olise (France)',
   'Desire Doué (France)',
   'Rayan Cherki (France)',
-  // Tier 4 — longer shots (+8000 to +15000)
   'Christian Pulisic (USA)',
   'Sadio Mané (Senegal)',
   'Mohamed Salah (Egypt)',
@@ -669,16 +649,11 @@ const SCORERS=[
   'Evidence Makgopa (South Africa)',
 ];
 
-// No pre-populated takes — Hot Takes section starts empty and fills with real user submissions
 const SEED_TAKES=[];
 const SEED_AVATARS={};
 
-// ── TOURNAMENT RESULT CONSTANTS ────────────────────────────
-// Admin: update these after the final and redeploy to award the 15-pt bonuses.
-// Values must exactly match strings in TEAMS and SCORERS arrays respectively.
-const OFFICIAL_WINNER = null;  // e.g. 'Brazil'
-const OFFICIAL_SCORER = null;  // e.g. 'Kylian Mbappé (France)'
-// Points awarded for a correct tournament winner / top scorer call (see scoring explainer)
+const OFFICIAL_WINNER = null;
+const OFFICIAL_SCORER = null;
 const WINNER_BONUS = 15;
 const SCORER_BONUS = 15;
 
@@ -706,7 +681,6 @@ const AVATARS={
   ghost:{emoji:'👻',label:'Ghost',desc:'Picks made, rarely seen'},
 };
 
-// ── STATE ──────────────────────────────────────────────────
 let currentUser=localStorage.getItem('wc26_user')||'';
 let currentTeam=localStorage.getItem('wc26_team')||'';
 let predictions={};
@@ -731,6 +705,7 @@ async function loadData(){
     const{data:rd}=await sb.from('results').select('game_id,home_score,away_score');
     results={};(rd||[]).forEach(r=>{results[r.game_id]={hs:r.home_score,as:r.away_score};});
     badge('ok','Synced ✓');setTimeout(()=>badge('ok',''),3000);
+    buildTicker();
   }catch(e){
     console.error(e);badge('err','Offline – local only');
     try{predictions=JSON.parse(localStorage.getItem('wc26_preds')||'{}');}catch(_){}
@@ -747,18 +722,12 @@ async function doSave(){
     if(pe)throw pe;
     badge('ok','Saved ✓');setTimeout(()=>badge('ok',''),2500);
   }catch(e){
-    // Real retry: surface the failure honestly and try again shortly. Reusing
-    // saveTimer means a fresh edit (which also calls scheduleSave) supersedes
-    // this pending retry rather than stacking duplicates.
     console.error(e);
     badge('err','Save failed — retrying…');
     clearTimeout(saveTimer);
     saveTimer=setTimeout(doSave,4000);
   }
 }
-// Saves a single hot take, merging with the latest server state first so
-// concurrent voters don't clobber each other's counts. The voters map is the
-// source of truth; up/down are recomputed from it.
 async function saveTake(id){
   const t=hotTakes.find(x=>x.id===id);if(!t)return;
   badge('busy','Saving…');
@@ -767,7 +736,7 @@ async function saveTake(id){
     try{
       const{data}=await sb.from('hottakes').select('voters').eq('id',id).maybeSingle();
       if(data&&data.voters)serverVoters=data.voters;
-    }catch(_){/* new take or offline — fall back to local only */}
+    }catch(_){}
     const merged={...serverVoters};
     const local=t.voters||{};
     for(const u in local){ if(local[u]==null) delete merged[u]; else merged[u]=local[u]; }
@@ -777,6 +746,7 @@ async function saveTake(id){
     const{error}=await sb.from('hottakes').upsert({id:t.id,user:t.user,text:t.text,up,down,voters:merged,ts:t.ts},{onConflict:'id'});
     if(error)throw error;
     badge('ok','Saved ✓');setTimeout(()=>badge('ok',''),2000);
+    buildTicker();
   }catch(e){console.error(e);badge('err','Save failed');}
 }
 setInterval(()=>{if(currentTab==='lb')loadData().then(render);},60000);
@@ -799,14 +769,13 @@ function setPick(k,v){
 }
 function assignAvatar(user){
   const p=(predictions[user]&&predictions[user].picks)||{};
-  // This user's fully-tipped games (both scores present)
   const tips=[];
   Object.keys(p).filter(k=>k.startsWith('g_')).forEach(k=>{
     const gid=k.slice(2);const game=GAMES.find(g=>g.id===gid);if(!game)return;
     const hs=parseInt(p['hs_'+gid]),as=parseInt(p['as_'+gid]);
     if(isNaN(hs)||isNaN(as))return;
     const pick=p[k];const o=GAME_ODDS[gid]||[2.5,3.3,2.7];
-    const po=pick===game.home?o[0]:pick===game.away?o[2]:o[1];   // odds of the side picked
+    const po=pick===game.home?o[0]:pick===game.away?o[2]:o[1];
     tips.push({hs,as,po,total:hs+as,margin:Math.abs(hs-as),isDraw:(pick==='Draw'||hs===as),home:(pick===game.home)});
   });
   const n=tips.length;
@@ -825,9 +794,6 @@ function assignAvatar(user){
     blow:     frac(t=>t.margin>=3),
     home:     frac(t=>t.home),
   };
-  // Rough population baselines [mean, spread]. z = how far this predictor leans
-  // on each tendency, in spreads. Labelling by the *strongest* lean (rather than
-  // overall balance) keeps high-volume tippers from all collapsing onto Analyst.
   const BL={chalk:[.25,.12],brave:[.22,.12],longshot:[.07,.06],draws:[.22,.10],high:[.14,.08],
             fire:[.06,.05],low:[.18,.10],tight:[.50,.13],blow:[.10,.07],home:[.47,.11]};
   const z={};for(const k in BL){z[k]=Math.max(-3,Math.min(3,(s[k]-BL[k][0])/BL[k][1]));}
@@ -851,15 +817,11 @@ function assignAvatar(user){
     hometown:     z.home,
     frontrunner:  (winFav?0.9:-2)+0.4*z.chalk,
     dreamer:      (winDark?1.1:-2),
-    // Generalist outlets for genuinely balanced profiles — modest baseline so a
-    // clear lean always wins; the seeded jitter spreads the flat ones around.
     analyst:      0.42,
     statistician: 0.40+0.5*(comp-0.6),
     professor:    0.42,
     wildcard:     0.42,
   };
-  // Stable per-user jitter (seeded by name): variety without flicker, decisive
-  // only among near-equal profiles.
   let h=2166136261;for(let i=0;i<user.length;i++){h^=user.charCodeAt(i);h=Math.imul(h,16777619);}
   const jit=k=>(((h^Math.imul(k.length*131+k.charCodeAt(0),2654435761))>>>0)%1000)/1000*0.30;
   let best='analyst',bv=-1e9;
@@ -867,10 +829,7 @@ function assignAvatar(user){
   return best;
 }
 
-// ── GROUP STANDINGS (FIFA rules) ───────────────────────────
-// getScore(gid) -> {hs,as} or null. Builds a 4-team table for one group and
-// ranks it by: points → goal difference → goals for → head-to-head among any
-// teams still level (h2h points → h2h GD → h2h GF) → alphabetical.
+// ── GROUP STANDINGS ────────────────────────────────────────
 function groupStandings(group,getScore){
   const gs=GAMES.filter(g=>g.group===group);
   const teams=[...new Set(gs.flatMap(g=>[g.home,g.away]))];
@@ -887,7 +846,6 @@ function groupStandings(group,getScore){
     else{H.D++;A.D++;H.Pts++;A.Pts++;}
   });
   const rows=Object.values(T);rows.forEach(r=>{r.GD=r.GF-r.GA;});
-  // Mini-league among an explicit set of tied teams (for the h2h tiebreak)
   const h2h=set=>{
     const m={};set.forEach(t=>{m[t]={Pts:0,GD:0,GF:0};});
     gs.forEach(g=>{
@@ -940,8 +898,6 @@ function buildGroupStandings(g){
 }
 
 // ── USER ───────────────────────────────────────────────────
-// Registration now handled entirely by obSubmit() on the onboarding overlay.
-// This helper just refreshes the header display after state changes.
 function refreshActiveUser(){
   const au=document.getElementById('activeUser');
   if(currentUser){
@@ -950,11 +906,73 @@ function refreshActiveUser(){
   }
 }
 
+// ── TICKER ─────────────────────────────────────────────────
+// Scrolls hot takes across the bottom bar on all tabs except Hot Takes.
+// Three categories: Hottest (by net score), Most Contested (by total votes),
+// Most Recent (last 5). Refreshes on data load and after new takes are posted.
+let tickerAnim=null;
+function buildTicker(){
+  const track=document.getElementById('tickerTrack');
+  if(!track)return;
+
+  // Gather items: top 5 hottest, top 5 most contested, 5 most recent
+  const sorted_hot=[...hotTakes].sort((a,b)=>(b.up-b.down)-(a.up-a.down)).slice(0,5);
+  const sorted_contested=[...hotTakes].sort((a,b)=>(b.up+b.down)-(a.up+a.down)).slice(0,5);
+  const sorted_recent=[...hotTakes].sort((a,b)=>b.ts-a.ts).slice(0,5);
+
+  const items=[];
+  sorted_hot.forEach(t=>items.push({tag:'HOT',tagClass:'hot',user:t.user,text:t.text}));
+  sorted_contested.forEach(t=>items.push({tag:'CONTESTED',tagClass:'contested',user:t.user,text:t.text}));
+  sorted_recent.forEach(t=>items.push({tag:'RECENT',tagClass:'recent',user:t.user,text:t.text}));
+
+  if(!items.length){
+    track.innerHTML='<div class="ticker-item"><span class="ticker-text" style="color:rgba(255,255,255,.4);font-style:italic">Hot takes will appear here once colleagues start posting…</span></div>';
+  } else {
+    track.innerHTML=items.map(it=>`
+      <div class="ticker-item">
+        <span class="ticker-tag ${it.tagClass}">${it.tag}</span>
+        <span class="ticker-user">${esc(it.user)}:</span>
+        <span class="ticker-text">${esc(it.text)}</span>
+      </div>`).join('');
+  }
+
+  // Duplicate content for seamless loop
+  track.innerHTML+=track.innerHTML;
+
+  // Cancel any previous animation
+  if(tickerAnim)cancelAnimationFrame(tickerAnim);
+
+  const speed=0.55; // px per frame (~33px/s at 60fps)
+  let pos=0;
+  const halfWidth=track.scrollWidth/2;
+
+  function step(){
+    pos+=speed;
+    if(pos>=halfWidth) pos=0;
+    track.style.transform=`translateX(-${pos}px)`;
+    tickerAnim=requestAnimationFrame(step);
+  }
+  // Small delay so layout settles before measuring
+  setTimeout(()=>{
+    const hw=track.scrollWidth/2;
+    function tick(){pos+=speed;if(pos>=hw)pos=0;track.style.transform=`translateX(-${pos}px)`;tickerAnim=requestAnimationFrame(tick);}
+    tickerAnim=requestAnimationFrame(tick);
+  },80);
+}
+
+function updateTickerVisibility(){
+  const ticker=document.getElementById('ticker');
+  if(!ticker)return;
+  // Hide ticker on Hot Takes tab (the content is already there in full)
+  ticker.style.display=currentTab==='hot'?'none':'flex';
+}
+
 // ── TABS ───────────────────────────────────────────────────
 function showTab(t){
   currentTab=t;
   document.querySelectorAll('.tab').forEach(e=>e.classList.remove('on'));
   document.getElementById('tab-'+t).classList.add('on');
+  updateTickerVisibility();
   if(t==='lb')loadData().then(render);
   else render();
 }
@@ -1076,24 +1094,17 @@ function saveScore(inp){
 }
 
 // ── KO BRACKET ─────────────────────────────────────────────
-// ── PREDICTED ROUND OF 32 (FIFA 2026 rules, from the user's group picks) ──
-// Top 2 of each group + the 8 best third-placed teams, slotted into the official
-// R32 bracket. Returns null until all 72 group games have been predicted.
 function predictedR32(){
   const groups=['A','B','C','D','E','F','G','H','I','J','K','L'];
   const pk=myPicks();
   const got=gid=>{const hs=pk['hs_'+gid],as=pk['as_'+gid];return (hs!==''&&hs!=null&&as!==''&&as!=null)?{hs,as}:null;};
-  if(!GAMES.every(g=>got(g.id))) return null;            // need every group game predicted
+  if(!GAMES.every(g=>got(g.id))) return null;
   const st={}; groups.forEach(g=>{st[g]=groupStandings(g,got).rows;});
   const first=g=>st[g][0].team, second=g=>st[g][1].team;
-  // Rank the 12 third-placed teams: points → goal difference → goals for →
-  // (group letter as a deterministic stand-in for FIFA's fair-play / lots steps).
   const thirds=groups.map(g=>Object.assign({group:g}, st[g][2]));
   thirds.sort((a,b)=> b.Pts-a.Pts || b.GD-a.GD || b.GF-a.GF || a.group.localeCompare(b.group));
-  const qual=thirds.slice(0,8).map(t=>t.group);          // the 8 groups whose 3rd qualifies
+  const qual=thirds.slice(0,8).map(t=>t.group);
   const thirdTeam={}; thirds.forEach(t=>{thirdTeam[t.group]=t.team;});
-  // Slot qualifying thirds into the 8 'Best 3rd' positions, honouring each slot's
-  // allowed-group set (FIFA's allocation constraints) via bipartite matching.
   const slots=R32.filter(m=>/Best 3rd/.test(m.away))
                  .map(m=>({m:m.m, allowed:m.away.match(/\(([^)]+)\)/)[1].split('/')}));
   const slotGroup={}, groupSlot={};
@@ -1110,7 +1121,7 @@ function predictedR32(){
   }
   let perfect=true;
   for(let i=0;i<slots.length;i++) if(!aug(i,new Set())) perfect=false;
-  if(!perfect){ // defensive fallback: fill any unmatched slot with a leftover third
+  if(!perfect){
     const used=new Set(Object.values(slotGroup));
     const left=qual.filter(g=>!used.has(g));
     slots.forEach(s=>{ if(slotGroup[s.m]===undefined) slotGroup[s.m]=left.shift(); });
@@ -1151,9 +1162,7 @@ function buildKOSection(){
   const sec=mk('div','ko-section');
   sec.innerHTML=`<div class="ko-sec-title">⚡ Knockout Bracket</div>
     <div class="ko-sec-sub">Official FIFA bracket — fills in as the group stage finishes. Once the matchups are confirmed, you'll be able to tip the knockout games right here.</div>`;
-
   sec.appendChild(buildPredictedR32());
-
   KO_ROUNDS.forEach(r=>{
     const open=new Date(r.open)<=now;
     const rb=mk('div','ko-round-block');
@@ -1164,8 +1173,6 @@ function buildKOSection(){
   return sec;
 }
 
-// Styles a bracket side label: group placeholders (1st/2nd/Best 3rd) stay as
-// they were; "Winner Mxx" / "Loser Mxx" feeders render as italic qualifiers.
 function koSideLabel(txt){
   if(txt.startsWith('Best')) return `<span class="ko-3rd">${esc(txt)}</span>`;
   if(/^(Winner|Loser) M/.test(txt)) return `<span class="ko-qualifier">${esc(txt)}</span>`;
@@ -1214,19 +1221,16 @@ function renderWinner(p1,p2,p3){
   p3.appendChild(mk('div','ptitle','Scoring System'));
   const se=mk('div','scoring-explainer');
   se.innerHTML=`<h4>📋 How Points Work</h4>
-
 <div class="sc-section">
   <div class="sc-section-title">Match Predictions</div>
   <div class="sc-row"><div class="sc-pts">1</div><div class="sc-desc"><strong>Correct outcome</strong> — you picked the right winner, or correctly called a draw.</div></div>
   <div class="sc-row"><div class="sc-pts">3</div><div class="sc-desc"><strong>Exact scoreline</strong> — you got the precise final score right (e.g. you predicted 2–1 and it finished 2–1). This replaces the 1-point outcome award, not added on top.</div></div>
 </div>
-
 <div class="sc-section">
   <div class="sc-section-title">Bonuses (stack on top of outcome or scoreline points)</div>
   <div class="sc-row"><div class="sc-pts">+2</div><div class="sc-desc">⚡ <strong>Brave Pick</strong> — you correctly called a clear underdog: either an underdog <em>win</em>, or a <em>draw</em>, where that result was priced at +400 or longer (decimal odds ≥ 5.00). Long-odds draws count on exactly the same terms as long-odds wins.</div></div>
   <div class="sc-row"><div class="sc-pts">+2</div><div class="sc-desc">🎲 <strong>Wild Score</strong> — you got the exact scoreline right, and the total goals were 7 or more (e.g. 4–3, 5–2). Bonuses stack freely.</div></div>
 </div>
-
 <div class="sc-section">
   <div class="sc-section-title">Examples</div>
   <table class="odds-table">
@@ -1241,13 +1245,11 @@ function renderWinner(p1,p2,p3){
     <tr><td>Wrong outcome</td><td>0 pts</td></tr>
   </table>
 </div>
-
 <div class="sc-section">
   <div class="sc-section-title">Tournament Bonuses (lock in before Jun 11)</div>
   <div class="sc-row"><div class="sc-pts">15</div><div class="sc-desc">Correct tournament winner</div></div>
   <div class="sc-row"><div class="sc-pts">15</div><div class="sc-desc">Correct top goalscorer</div></div>
 </div>
-
 <div class="sc-note">⚡ Brave Pick and 🎲 Wild Score bonuses stack — maximum 7 pts from a single game. Correct winner and scorer are worth 15 pts each, awarded after the final.</div>`;
   p3.appendChild(se);
   const wrap=mk('div','');wrap.id='summaryWrap';p3.appendChild(wrap);
@@ -1271,29 +1273,22 @@ function refreshSummary(){
 }
 
 // ── HOT TAKES ──────────────────────────────────────────────
-// Bold predictions use GAME_ODDS directly (see getBolds)
-
 function renderHot(p1,p2,p3){
   [p1,p2,p3].forEach(p=>p.classList.add('on'));
 
-  // P1 — Top rated
   p1.appendChild(mk('div','ptitle','🔥 Hottest Takes'));
   p1.appendChild(mk('div','psub','Ranked by net upvotes'));
   [...hotTakes].sort((a,b)=>(b.up-b.down)-(a.up-a.down)).forEach(h=>p1.appendChild(buildTakeCard(h)));
 
-  // P2 — Most contested (highest total votes, most divisive)
   p2.appendChild(mk('div','ptitle','⚡ Most Contested'));
   p2.appendChild(mk('div','psub','Most divisive takes by total votes cast'));
   [...hotTakes].sort((a,b)=>(b.up+b.down)-(a.up+a.down)).forEach(h=>p2.appendChild(buildTakeCard(h)));
 
-  // P3 — Submit + Recent (visually separated from lists)
-  const submitTitle=mk('div','ptitle','Submit a Take');
-  p3.appendChild(submitTitle);
+  p3.appendChild(mk('div','ptitle','Submit a Take'));
   const form=mk('div','take-input-wrap');
   form.innerHTML=`<textarea id="takeTextarea" placeholder="Your World Cup prediction… be specific! (min 15 chars)"></textarea>
     <div class="post-row"><span>Visible to all colleagues</span><button class="btn-post" onclick="postTake()">Post 🔥</button></div>`;
   p3.appendChild(form);
-  // Visual divider before recent list
   const divider=mk('div','');
   divider.style.cssText='height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin:6px 0';
   p3.appendChild(divider);
@@ -1353,12 +1348,7 @@ function postTake(){
   hotTakes.unshift({id:newId,user:currentUser,text,up:0,down:0,voters:{},ts:Date.now()});
   saveTake(newId);ta.value='';toast('Hot take posted! 🔥');render();
 }
-// Bold predictions: purely odds-based, no home/away distinction (neutral venues)
-// Bold predictions:
-// BRAVE PICK   = backing a side priced at decimal ≥ 5.00 (+400 or longer),
-//                OR a draw priced at ≥ 5.00 — same threshold as the scoring engine
-// WILD SCORE   = predicted total goals ≥ 7
-// Both tags can apply simultaneously
+
 function getBolds(){
   const out=[];
   for(const user in predictions){
@@ -1375,8 +1365,6 @@ function getBolds(){
       const totalGoals=(hs!==''&&as!=='')?parseInt(hs)+parseInt(as):0;
       const isWild=totalGoals>=7;
 
-      // Brave Pick: picked side (or draw) priced at decimal ≥ 5.00 (+400 or longer).
-      // Identical threshold to isBravePick so the board and the scoring agree.
       if(pick===game.home&&odds[0]>=5.00){
         alertType='upset';
         reason=`+${Math.round((odds[0]-1)*100)} underdog`;
@@ -1399,15 +1387,12 @@ function getBolds(){
       }
     }
   }
-  // Two ranked sub-lists: the 10 bravest picks (by odds) and the 10 wildest
-  // scores (by total goals). A 'both' entry can legitimately appear in each.
   const oddsOf=x=>{const o=GAME_ODDS[x.game.id]||[2,3,2];return x.pick===x.game.home?o[0]:x.pick===x.game.away?o[2]:o[1];};
   const brave=out.filter(x=>x.alertType==='upset'||x.alertType==='both').sort((a,b)=>oddsOf(b)-oddsOf(a)).slice(0,10);
   const wild=out.filter(x=>x.alertType==='wild'||x.alertType==='both').sort((a,b)=>b.goals-a.goals).slice(0,10);
   return {brave,wild};
 }
 
-// ── BOLD CARD BUILDER ──────────────────────────────────────
 function buildBoldCard(b,mode){
   const isWild=b.alertType==='wild'||b.alertType==='both';
   const isUpset=b.alertType==='upset'||b.alertType==='both';
@@ -1424,10 +1409,6 @@ function buildBoldCard(b,mode){
 }
 
 // ── SCORING ENGINE ─────────────────────────────────────────
-// 1 pt  = correct outcome (win / draw)
-// 3 pts = correct exact scoreline
-// +2 pts Brave Pick bonus = correct outcome, underdog (or draw) at decimal odds ≥ 5.00
-// +2 pts Wild Score bonus = correct exact scoreline with 7+ total goals
 function calcPoints(user){
   const p=(predictions[user]&&predictions[user].picks)||{};
   let pts=0;
@@ -1444,7 +1425,6 @@ function calcPoints(user){
     if((exact||outOk)&&isBravePick(gid,actualW)) pts+=2;
     if(exact&&isWildScore(uh,ua)) pts+=2;
   }
-  // Tournament winner and top scorer bonuses
   if(OFFICIAL_WINNER && p.winner===OFFICIAL_WINNER) pts+=WINNER_BONUS;
   if(OFFICIAL_SCORER && p.scorer===OFFICIAL_SCORER) pts+=SCORER_BONUS;
   return pts;
@@ -1455,6 +1435,10 @@ function calcPredCount(user){
 }
 
 // ── LEADERBOARD ────────────────────────────────────────────
+// Team tiebreak order — used when two teams have equal avg pts.
+// Follows the INT_TEAMS array order (index = seniority/membership number).
+const TEAM_ORDER=Object.fromEntries(INT_TEAMS.map((t,i)=>[t,i]));
+
 function renderLB(p1,p2,p3){
   [p1,p2,p3].forEach(p=>p.classList.add('on'));
   const allU=Object.keys(predictions).filter(u=>calcPredCount(u)>0);
@@ -1496,8 +1480,16 @@ function renderLB(p1,p2,p3){
       teamMap[tm].total+=r.pts;teamMap[tm].count++;
     });
   });
+  // Sort: avg pts desc → total pts desc → membership order (INT_TEAMS index)
   const teamRows=Object.entries(teamMap).map(([name,v])=>({name,avg:+(v.total/v.count).toFixed(1),total:v.total,count:v.count}))
-    .sort((a,b)=>b.avg-a.avg||b.total-a.total);
+    .sort((a,b)=>{
+      if(b.avg!==a.avg) return b.avg-a.avg;
+      if(b.total!==a.total) return b.total-a.total;
+      // Tiebreak: membership order from INT_TEAMS array
+      const oa=TEAM_ORDER[a.name]??999;
+      const ob=TEAM_ORDER[b.name]??999;
+      return oa-ob;
+    });
   if(!teamRows.length)p2.appendChild(mk('div','psub','No team registrations yet.'));
   teamRows.forEach((t,i)=>{
     const row=mk('div','ts-row');
@@ -1553,14 +1545,11 @@ function renderLB(p1,p2,p3){
 }
 
 // ── ONBOARDING ─────────────────────────────────────────────
-
-// ── ONBOARDING WITH PASSWORD ───────────────────────────────
 async function sha256(str){
   const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
 
-// Renders the INT team chips into the onboarding overlay (multi-select toggles)
 function buildTeamChips(){
   const box=document.getElementById('ob-teams');if(!box)return;
   box.innerHTML='';
@@ -1571,9 +1560,6 @@ function buildTeamChips(){
   });
 }
 
-// In-app team editor — lets an already-logged-in user change their team(s)
-// without re-entering name/password. Reuses the onboarding chip styling and
-// pre-selects whatever they currently belong to.
 function buildEditorChips(){
   const box=document.getElementById('te-teams');if(!box)return;
   const mine=teamList(currentTeam);
@@ -1666,6 +1652,7 @@ async function obSubmit(){
   setTimeout(()=>{ob.style.display='none';},370);
 
   scheduleSave();
+  buildTicker();
 
   const pickCount=existingPicks?Object.keys(existingPicks).filter(k=>k.startsWith('hs_')).length:0;
   if(isReturning && pickCount>0) toast('Welcome back, '+nm+'! '+pickCount+' picks restored ✓');
@@ -1678,15 +1665,14 @@ async function obSubmit(){
 (async()=>{
   await loadData();
   buildTeamChips();
+  updateTickerVisibility();
   if(currentUser){
-    // Returning user on same device — skip onboarding
     const ob=document.getElementById('onboarding');
     if(ob)ob.style.display='none';
     const au=document.getElementById('activeUser');
     au.textContent='Welcome '+currentUser+(currentTeam?' · '+currentTeam:'');
     au.style.display='';
   } else {
-    // First visit or new device — show onboarding, focus name field
     setTimeout(()=>{ const f=document.getElementById('ob-name');if(f)f.focus(); },120);
   }
   render();
