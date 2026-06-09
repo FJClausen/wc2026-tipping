@@ -251,7 +251,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .ticker-tag.contested{background:rgba(0,159,218,.2);color:var(--wbblue);border:1px solid rgba(0,159,218,.35)}
 .ticker-tag.recent{background:rgba(240,80,35,.18);color:#f97316;border:1px solid rgba(240,80,35,.3)}
 .ticker-user{font-size:10px;color:rgba(255,255,255,.45);font-weight:600;flex-shrink:0}
-.ticker-text{max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ticker-text{white-space:nowrap}
 
 /* ONBOARDING OVERLAY */
 #onboarding{position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,var(--navy) 0%,var(--navy2) 50%,var(--green2) 100%);display:flex;align-items:center;justify-content:center;padding:20px}
@@ -908,16 +908,29 @@ function refreshActiveUser(){
 
 // ── TICKER ─────────────────────────────────────────────────
 // Scrolls hot takes across the bottom bar on all tabs except Hot Takes.
-// Three categories: Hottest (by net score), Most Contested (by total votes),
+// Wilson score lower bound — measures genuine controversy at scale.
+// A 50/50 split with 40 votes ranks above a 50/50 split with 4 votes.
+// z=1.96 (95% confidence). Inputs are up/down vote counts.
+// We treat "contested" as closeness to 50/50: minority share p = min(up,down)/n.
+// Higher return value = more genuinely divisive.
+function wilsonControversy(up, down){
+  const n=up+down;
+  if(n===0)return 0;
+  const z=1.96, z2=z*z;
+  const p=Math.min(up,down)/n;
+  return (p + z2/(2*n) - z*Math.sqrt((p*(1-p)+z2/(4*n))/n)) / (1+z2/n);
+}
+
+// Three categories: Hottest (by net score), Most Contested (Wilson controversy),
 // Most Recent (last 5). Refreshes on data load and after new takes are posted.
 let tickerAnim=null;
 function buildTicker(){
   const track=document.getElementById('tickerTrack');
   if(!track)return;
 
-  // Gather items: top 5 hottest, top 5 most contested, 5 most recent
+  // Gather items: top 5 hottest, top 5 most contested (Wilson), 5 most recent
   const sorted_hot=[...hotTakes].sort((a,b)=>(b.up-b.down)-(a.up-a.down)).slice(0,5);
-  const sorted_contested=[...hotTakes].sort((a,b)=>(b.up+b.down)-(a.up+a.down)).slice(0,5);
+  const sorted_contested=[...hotTakes].sort((a,b)=>wilsonControversy(b.up,b.down)-wilsonControversy(a.up,a.down)).slice(0,5);
   const sorted_recent=[...hotTakes].sort((a,b)=>b.ts-a.ts).slice(0,5);
 
   const items=[];
@@ -1281,8 +1294,8 @@ function renderHot(p1,p2,p3){
   [...hotTakes].sort((a,b)=>(b.up-b.down)-(a.up-a.down)).forEach(h=>p1.appendChild(buildTakeCard(h)));
 
   p2.appendChild(mk('div','ptitle','⚡ Most Contested'));
-  p2.appendChild(mk('div','psub','Most divisive takes by total votes cast'));
-  [...hotTakes].sort((a,b)=>(b.up+b.down)-(a.up+a.down)).forEach(h=>p2.appendChild(buildTakeCard(h)));
+  p2.appendChild(mk('div','psub','Most divisive takes — evenly split votes at volume (Wilson score)'));
+  [...hotTakes].sort((a,b)=>wilsonControversy(b.up,b.down)-wilsonControversy(a.up,a.down)).forEach(h=>p2.appendChild(buildTakeCard(h)));
 
   p3.appendChild(mk('div','ptitle','Submit a Take'));
   const form=mk('div','take-input-wrap');
