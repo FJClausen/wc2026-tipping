@@ -14,6 +14,7 @@
   --orange:#F05023;--orange2:#d43e18;
   --green:#1a6b38;--green2:#14572e;--greenlt:#e6f4ec;
   --gold:#c8920a;--gold2:#e0a812;--goldbg:#fef8e7;
+  --golddim:#a87908;
   --bg:#f0f4f8;--bg2:#e2eaf2;--bg3:#cfdee8;
   --surface:#fff;--border:#c0d0e0;--border2:#90b0cc;
   --text:#0d1f33;--text2:#2d4560;--text3:#5a7a9a;
@@ -22,7 +23,6 @@
 }
 html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;height:100%;overflow:hidden}
 #app{display:grid;grid-template-rows:auto auto 1fr auto;height:100vh}
-
 .hdr{background:linear-gradient(135deg,#001d3d 0%,var(--navy) 45%,#003060 100%);padding:14px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;box-shadow:0 3px 14px rgba(0,0,0,.35);border-bottom:4px solid var(--intgold)}
 .hdr-accent{width:6px;height:56px;background:linear-gradient(180deg,var(--wbblue),var(--intgold));border-radius:3px;flex-shrink:0}
 .hdr-titles{flex:1}
@@ -41,7 +41,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .active-user{font-size:14px;font-weight:700;color:#fff;background:rgba(0,159,218,.22);border:1px solid rgba(0,159,218,.4);padding:7px 14px;border-radius:6px;white-space:nowrap;cursor:pointer;transition:background .12s}
 .active-user:hover{background:rgba(0,159,218,.34)}
 .active-user::after{content:' ✎';opacity:.65;font-size:11px;font-weight:400}
-/* TEAM EDITOR MODAL */
 #teamEditor{display:none;position:fixed;inset:0;z-index:9990;background:rgba(0,20,40,.55);align-items:center;justify-content:center;padding:20px}
 .te-card{background:#fff;border-radius:14px;padding:24px 26px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.4);max-height:90vh;overflow-y:auto}
 .te-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:var(--navy);margin-bottom:4px}
@@ -55,27 +54,21 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .sync-badge.ok{background:rgba(74,222,128,.18);color:#16a34a}
 .sync-badge.busy{background:rgba(0,159,218,.18);color:var(--wbblue)}
 .sync-badge.err{background:rgba(240,80,35,.18);color:var(--orange)}
-
 .tabs{display:flex;background:var(--navy);border-bottom:4px solid var(--intgold);overflow-x:auto;scrollbar-width:none}
 .tabs::-webkit-scrollbar{display:none}
 .tab{padding:13px 22px;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.45);cursor:pointer;border-bottom:4px solid transparent;margin-bottom:-4px;white-space:nowrap;user-select:none;transition:color .12s,border-color .12s,background .12s;border-right:1px solid rgba(255,255,255,.08)}
 .tab:last-child{border-right:none}
 .tab:hover{color:rgba(255,255,255,.9);background:rgba(255,255,255,.05)}
 .tab.on{color:#fff;border-bottom-color:var(--intgold);background:rgba(255,255,255,.09)}
-
 .panels{display:grid;grid-template-columns:1fr 1fr 1fr;overflow:hidden;height:100%}
 .panel{overflow-y:auto;border-right:1px solid var(--border);padding:11px 10px;display:none;flex-direction:column;gap:7px;background:var(--bg)}
 .panel.on{display:flex}
 .panel:last-child{border-right:none}
 .ptitle{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:#fff;background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 70%,#003060 100%);border-radius:7px;padding:8px 14px 7px;flex-shrink:0;box-shadow:0 2px 6px rgba(0,34,68,0.18);border-left:4px solid var(--intgold)}
 .psub{font-size:11px;color:var(--text3);flex-shrink:0;line-height:1.5}
-
-/* GROUP HEADING */
 .grp-heading{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:#fff;background:linear-gradient(135deg,var(--navy),#003060);border-radius:7px;padding:6px 12px 5px;margin-top:8px;flex-shrink:0;border-left:4px solid var(--intgold)}
 .grp-heading:first-of-type{margin-top:2px}
 .grp-teams{font-size:10px;font-weight:500;color:rgba(255,255,255,.7);letter-spacing:.3px;font-family:'Inter',sans-serif;margin-top:1px;line-height:1.4}
-
-/* GAME CARD */
 .game-card{background:var(--surface);border:1.5px solid var(--border);border-radius:7px;padding:7px 10px;flex-shrink:0;box-shadow:var(--shadow)}
 .game-card.has-pick{border-color:var(--wbblue);background:#f0f8fd}
 .game-card.locked{opacity:.55;pointer-events:none}
@@ -91,13 +84,9 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .tbtn.lose{background:#fee2e2;border-color:#dc2626;color:#b91c1c}
 .tbtn.draw-t{background:var(--goldbg);border-color:var(--gold2);color:var(--gold)}
 .vs{font-size:9px;color:var(--text3);font-weight:700}
-
-/* SCORE INPUT */
 .score-inp{width:48px;height:36px;background:var(--bg2);border:2px solid var(--border);border-radius:6px;padding:4px 6px;font-size:18px;font-weight:700;text-align:center;font-family:'Inter',sans-serif;color:var(--text);transition:border-color .12s}
 .score-inp:focus{outline:none;border-color:var(--wbblue);background:#fff}
 .score-dash{font-size:18px;font-weight:700;color:var(--text3)}
-
-/* RESULT ROW */
 .result-row{display:flex;align-items:center;gap:6px;padding:3px 7px;border-radius:5px;background:var(--bg2);border:1px solid var(--border);font-size:11px}
 .result-row.has-result{background:#e8f8ee;border-color:var(--green)}
 .result-lbl{color:var(--text3);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;white-space:nowrap}
@@ -108,12 +97,8 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .result-pts.pts-low{background:#ffe4e6;color:#9f1239}
 .result-pts.pts0{background:#fee2e2;color:#dc2626}
 .result-pending{color:var(--text3);font-style:italic}
-
-/* CUTOFF */
 .cutoff-bar{background:var(--goldbg);border:1.5px solid var(--gold2);border-radius:6px;padding:6px 10px;font-size:11px;color:var(--gold);font-weight:500;flex-shrink:0}
 .cutoff-bar.closed{background:#fff1f0;border-color:var(--orange);color:var(--orange2)}
-
-/* KNOCKOUT BRACKET */
 .ko-section{background:var(--surface);border:2px dashed var(--border2);border-radius:var(--radius);padding:12px;flex-shrink:0}
 .ko-sec-title{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;color:var(--navy);margin-bottom:3px}
 .ko-sec-sub{font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.4}
@@ -131,22 +116,16 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .ko-qualifier{color:var(--text3);font-style:italic;font-size:10px;font-weight:400}
 .ko-qualifier.winner{color:var(--green);font-style:normal;font-weight:600}
 .ko-3rd{color:var(--gold);font-style:italic;font-size:10px}
-
-/* PICK GRID */
 .pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:5px}
 .pbtn{background:var(--surface);border:1.5px solid var(--border);color:var(--text);border-radius:7px;padding:7px 5px;font-size:11px;font-weight:500;text-align:center;cursor:pointer;transition:all .1s;font-family:'Inter',sans-serif;user-select:none;line-height:1.3}
 .pbtn:hover:not(.sel){background:var(--greenlt);border-color:var(--green)}
 .pbtn.sel{background:var(--green);color:#fff;border-color:var(--green);font-weight:700}
-
-/* SUMMARY + RULES */
 .summary-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:12px;flex-shrink:0;box-shadow:var(--shadow)}
 .summary-card h4{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:7px;font-weight:700}
 .pick-pill{display:inline-block;background:var(--navy);color:#fff;border-radius:4px;padding:3px 10px;font-size:11px;font-weight:600;margin:2px 3px}
 .pick-pill.blue{background:var(--wbblue2)}
 .prog-wrap{background:var(--bg2);border-radius:4px;height:6px;overflow:hidden;margin:4px 0 10px}
 .prog-bar{background:var(--green);height:100%;border-radius:4px;transition:width .4s}
-
-/* SCORING EXPLAINER */
 .scoring-explainer{background:linear-gradient(135deg,#e8f4fd,#f0f8ff);border:1.5px solid var(--wbblue);border-radius:var(--radius);padding:13px;flex-shrink:0}
 .scoring-explainer h4{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;color:var(--navy);margin-bottom:10px;border-bottom:1px solid var(--wbblue);padding-bottom:4px}
 .sc-section{margin-bottom:10px}
@@ -160,8 +139,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .odds-table tr:last-child td{border-bottom:none}
 .odds-table tr:nth-child(even) td{background:var(--bg2)}
 .sc-note{font-size:10px;color:var(--text3);margin-top:6px;line-height:1.5;border-top:1px solid var(--border);padding-top:5px}
-
-/* HOT TAKES */
 .take-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:9px 11px;flex-shrink:0;box-shadow:var(--shadow)}
 .take-hdr{display:flex;align-items:center;gap:6px;margin-bottom:5px;flex-wrap:wrap}
 .take-avatar{font-size:18px;flex-shrink:0}
@@ -189,8 +166,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .bold-dot{width:5px;height:5px;border-radius:50%;background:var(--orange);flex-shrink:0}
 .bold-text{font-size:12px;line-height:1.5;margin-bottom:2px}
 .bold-meta{font-size:10px;color:var(--text3)}
-
-/* LEADERBOARD */
 .stats-row{display:flex;gap:7px;flex-shrink:0}
 .stat-c{flex:1;background:var(--surface);border:1.5px solid var(--border);border-radius:6px;padding:7px 6px;text-align:center;box-shadow:var(--shadow)}
 .stat-n{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--navy);line-height:1}
@@ -212,7 +187,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .ts-name{flex:1;font-size:12px;font-weight:700;color:var(--navy)}
 .ts-avg{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--wbblue2)}
 .ts-count{font-size:10px;color:var(--text3)}
-/* POPULAR VERDICT */
 .pv-section{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;box-shadow:var(--shadow);flex-shrink:0}
 .pv-subhead{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);margin-bottom:6px;padding-bottom:5px;border-bottom:2px solid var(--intgold)}
 .pv-row{display:flex;align-items:center;gap:7px;padding:4px 0;border-bottom:1px solid var(--border);font-size:11px}
@@ -220,8 +194,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .pv-rank{font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--text3);width:22px;flex-shrink:0}
 .pv-name{flex:1;font-weight:600;color:var(--text)}
 .pv-pct{font-size:10px;color:var(--text3);font-weight:500;white-space:nowrap}
-
-/* MINI GROUP STANDINGS */
 .mini-standings{background:var(--surface);border:1.5px solid var(--border);border-radius:7px;padding:8px 9px;flex-shrink:0;box-shadow:var(--shadow);margin-top:2px}
 .ms-cap{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--navy);margin-bottom:4px;padding-bottom:3px;border-bottom:2px solid var(--intgold);display:flex;align-items:center;gap:4px}
 .ms-table{width:100%;border-collapse:collapse;font-size:10.5px}
@@ -236,8 +208,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .ms-table tr.ms-qual .ms-pos{color:var(--green2)}
 .ms-empty{font-size:10px;color:var(--text3);font-style:italic;padding:3px 0}
 .ms-foot{font-size:8.5px;color:var(--text3);margin-top:5px;line-height:1.4}
-
-/* MATCH-DAY LEADERBOARD */
 .md-nav{display:flex;align-items:center;justify-content:space-between;gap:6px;background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:7px;padding:7px 10px;flex-shrink:0}
 .md-nav-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);color:#fff;border-radius:5px;width:26px;height:26px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s;flex-shrink:0;font-family:'Inter',sans-serif}
 .md-nav-btn:hover:not(:disabled){background:rgba(255,255,255,.22)}
@@ -263,10 +233,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .md-try-user{font-weight:700;color:var(--navy)}
 .md-try-detail{font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
 .md-no-results{background:var(--goldbg);border:1.5px solid var(--gold2);border-radius:7px;padding:8px 11px;font-size:11px;color:var(--golddim);flex-shrink:0}
-
 .toast{position:fixed;bottom:50px;right:16px;z-index:9998;background:var(--navy);border:2px solid var(--wbblue);color:#fff;padding:8px 16px;border-radius:7px;font-size:12px;font-weight:600;opacity:0;transform:translateY(6px);transition:all .2s;pointer-events:none;box-shadow:0 4px 18px rgba(0,0,0,.2)}
-
-/* HOT TAKES TICKER */
 #ticker{background:linear-gradient(90deg,var(--navy) 0%,#001d3d 100%);border-top:2px solid var(--intgold);height:34px;overflow:hidden;display:flex;align-items:center;position:relative;flex-shrink:0}
 .ticker-label{background:var(--intgold);color:var(--navy);font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;padding:0 12px;height:100%;display:flex;align-items:center;flex-shrink:0;z-index:2;white-space:nowrap}
 .ticker-mask{flex:1;overflow:hidden;height:100%;position:relative}
@@ -279,8 +246,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .ticker-tag.recent{background:rgba(240,80,35,.18);color:#f97316;border:1px solid rgba(240,80,35,.3)}
 .ticker-user{font-size:10px;color:rgba(255,255,255,.45);font-weight:600;flex-shrink:0}
 .ticker-text{white-space:nowrap}
-
-/* ONBOARDING OVERLAY */
 #onboarding{position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,var(--navy) 0%,var(--navy2) 50%,var(--green2) 100%);display:flex;align-items:center;justify-content:center;padding:20px}
 .ob-card{background:#fff;border-radius:16px;padding:38px 42px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.4);text-align:center;max-height:94vh;overflow-y:auto}
 .ob-brandmark{margin-bottom:14px;display:flex;justify-content:center}
@@ -304,7 +269,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .ob-btn{width:100%;background:linear-gradient(135deg,var(--wbblue),var(--wbblue2));color:#fff;border:none;border-radius:8px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;letter-spacing:.3px;transition:opacity .15s;margin-top:2px}
 .ob-btn:hover{opacity:.88}
 .ob-note{font-size:11px;color:var(--text3);margin-top:16px;line-height:1.6;padding-top:14px;border-top:1px solid var(--border)}
-/* Wild score bold card */
 .bold-card.wild{background:#f5f0ff;border-color:var(--purple)}
 .bold-tag.wild-tag{color:var(--purple)}
 .bold-tag.wild-tag .bold-dot{background:var(--purple)}
@@ -335,7 +299,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
   <div class="panel on" id="p2"></div>
   <div class="panel on" id="p3"></div>
 </div>
-<!-- HOT TAKES TICKER — hidden on Hot Takes tab -->
 <div id="ticker">
   <div class="ticker-label">🔥 HOT TAKES</div>
   <div class="ticker-mask">
@@ -343,7 +306,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
   </div>
 </div>
 </div>
-<!-- ONBOARDING OVERLAY — shown on first visit only -->
 <div id="onboarding">
   <div class="ob-card">
     <div class="ob-brandmark">
@@ -379,7 +341,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
     <div class="ob-note">Already registered on another device? Enter the same name and password — your picks load automatically.<br><br>🔑 <strong>Forgot your password?</strong> Ask the challenge admin to reset it. Your name and all your picks stay safely in the database — only the password changes. The admin can reset it in seconds in the Supabase dashboard.</div>
   </div>
 </div>
-
 <div class="toast" id="toastEl"></div>
 <div id="teamEditor" onclick="if(event.target===this)closeTeamEditor()">
   <div class="te-card">
@@ -594,86 +555,26 @@ const TEAMS=[
 const INT_TEAMS=['Front Office','INTDI','INTPR','PSU','CDU','FSU','Data','INTEE','AFE','AFW','EAP','ECA','INTEW','MNAAP','LCR','SAR','IFC','INTII','LIT','INTIC','Core Services','Learning','Business Partners','Nairobi Team','Dakar Team','Brussels Team','Managers'];
 
 const SCORERS=[
-  'Kylian Mbappé (France)',
-  'Harry Kane (England)',
-  'Lionel Messi (Argentina)',
-  'Erling Haaland (Norway)',
-  'Lamine Yamal (Spain)',
-  'Mikel Oyarzabal (Spain)',
-  'Cristiano Ronaldo (Portugal)',
-  'Vinicius Jr. (Brazil)',
-  'Lautaro Martínez (Argentina)',
-  'Ousmane Dembélé (France)',
-  'Romelu Lukaku (Belgium)',
-  'Raphinha (Brazil)',
-  'Julián Álvarez (Argentina)',
-  'Nick Woltemade (Germany)',
-  'Deniz Undav (Germany)',
-  'Cody Gakpo (Netherlands)',
-  'Ferran Torres (Spain)',
-  'Bukayo Saka (England)',
-  'Memphis Depay (Netherlands)',
-  'Mikel Merino (Spain)',
-  'Jean-Philippe Mateta (France)',
-  'Jude Bellingham (England)',
-  'Florian Wirtz (Germany)',
-  'Kai Havertz (Germany)',
-  'Marcus Thuram (France)',
-  'Gonçalo Ramos (Portugal)',
-  'Darwin Núñez (Uruguay)',
-  'Bradley Barcola (France)',
-  'Jonathan David (Canada)',
-  'Luis Díaz (Colombia)',
-  'Son Heung-min (South Korea)',
-  'Ollie Watkins (England)',
-  'Bruno Fernandes (Portugal)',
-  'Jamal Musiala (Germany)',
-  'Michael Olise (France)',
-  'Desire Doué (France)',
-  'Rayan Cherki (France)',
-  'Christian Pulisic (USA)',
-  'Sadio Mané (Senegal)',
-  'Mohamed Salah (Egypt)',
-  'Matheus Cunha (Brazil)',
-  'Scott McTominay (Scotland)',
-  'Takefusa Kubo (Japan)',
-  'Raúl Jiménez (Mexico)',
-  'Petar Musa (Croatia)',
-  'Federico Valverde (Uruguay)',
-  'Germán Berterame (Mexico)',
-  'Alphonso Davies (Canada)',
-  'Andrej Kramarić (Croatia)',
-  'Ivan Perišić (Croatia)',
-  'Marcus Rashford (England)',
-  'Anthony Gordon (England)',
-  'Noni Madueke (England)',
-  'Ivan Toney (England)',
-  'Rafael Leão (Portugal)',
-  'João Félix (Portugal)',
-  'Pedro Neto (Portugal)',
-  'Francisco Conceição (Portugal)',
-  'Iliman Ndiaye (Senegal)',
-  'Nicolas Jackson (Senegal)',
-  'Ismaila Sarr (Senegal)',
-  'Achraf Hakimi (Morocco)',
-  'Patrik Schick (Czechia)',
-  'Hwang Hee-chan (South Korea)',
-  'Breel Embolo (Switzerland)',
-  'Granit Xhaka (Switzerland)',
-  'Lyle Foster (South Africa)',
-  'Themba Zwane (South Africa)',
-  'Thomas Partey (Ghana)',
-  'Jordan Ayew (Ghana)',
-  'Lyndon Dykes (Scotland)',
-  'Ryan Christie (Scotland)',
-  'Ritsu Doan (Japan)',
-  'Folarin Balogun (USA)',
-  'Ricardo Pepi (USA)',
-  'Riyad Mahrez (Algeria)',
-  'Cyle Larin (Canada)',
-  'Salem Al-Dawsari (Saudi Arabia)',
-  'Firas Al-Buraikan (Saudi Arabia)',
-  'Evidence Makgopa (South Africa)',
+  'Kylian Mbappé (France)','Harry Kane (England)','Lionel Messi (Argentina)','Erling Haaland (Norway)',
+  'Lamine Yamal (Spain)','Mikel Oyarzabal (Spain)','Cristiano Ronaldo (Portugal)','Vinicius Jr. (Brazil)',
+  'Lautaro Martínez (Argentina)','Ousmane Dembélé (France)','Romelu Lukaku (Belgium)','Raphinha (Brazil)',
+  'Julián Álvarez (Argentina)','Nick Woltemade (Germany)','Deniz Undav (Germany)','Cody Gakpo (Netherlands)',
+  'Ferran Torres (Spain)','Bukayo Saka (England)','Memphis Depay (Netherlands)','Mikel Merino (Spain)',
+  'Jean-Philippe Mateta (France)','Jude Bellingham (England)','Florian Wirtz (Germany)','Kai Havertz (Germany)',
+  'Marcus Thuram (France)','Gonçalo Ramos (Portugal)','Darwin Núñez (Uruguay)','Bradley Barcola (France)',
+  'Jonathan David (Canada)','Luis Díaz (Colombia)','Son Heung-min (South Korea)','Ollie Watkins (England)',
+  'Bruno Fernandes (Portugal)','Jamal Musiala (Germany)','Michael Olise (France)','Desire Doué (France)',
+  'Rayan Cherki (France)','Christian Pulisic (USA)','Sadio Mané (Senegal)','Mohamed Salah (Egypt)',
+  'Matheus Cunha (Brazil)','Scott McTominay (Scotland)','Takefusa Kubo (Japan)','Raúl Jiménez (Mexico)',
+  'Petar Musa (Croatia)','Federico Valverde (Uruguay)','Germán Berterame (Mexico)','Alphonso Davies (Canada)',
+  'Andrej Kramarić (Croatia)','Ivan Perišić (Croatia)','Marcus Rashford (England)','Anthony Gordon (England)',
+  'Noni Madueke (England)','Ivan Toney (England)','Rafael Leão (Portugal)','João Félix (Portugal)',
+  'Pedro Neto (Portugal)','Francisco Conceição (Portugal)','Iliman Ndiaye (Senegal)','Nicolas Jackson (Senegal)',
+  'Ismaila Sarr (Senegal)','Achraf Hakimi (Morocco)','Patrik Schick (Czechia)','Hwang Hee-chan (South Korea)',
+  'Breel Embolo (Switzerland)','Granit Xhaka (Switzerland)','Lyle Foster (South Africa)','Themba Zwane (South Africa)',
+  'Thomas Partey (Ghana)','Jordan Ayew (Ghana)','Lyndon Dykes (Scotland)','Ryan Christie (Scotland)',
+  'Ritsu Doan (Japan)','Folarin Balogun (USA)','Ricardo Pepi (USA)','Riyad Mahrez (Algeria)',
+  'Cyle Larin (Canada)','Salem Al-Dawsari (Saudi Arabia)','Firas Al-Buraikan (Saudi Arabia)','Evidence Makgopa (South Africa)',
 ];
 
 const SEED_TAKES=[];
@@ -924,7 +825,6 @@ function buildGroupStandings(g){
   return wrap;
 }
 
-// ── USER ───────────────────────────────────────────────────
 function refreshActiveUser(){
   const au=document.getElementById('activeUser');
   if(currentUser){
@@ -934,12 +834,6 @@ function refreshActiveUser(){
 }
 
 // ── TICKER ─────────────────────────────────────────────────
-// Scrolls hot takes across the bottom bar on all tabs except Hot Takes.
-// Wilson score lower bound — measures genuine controversy at scale.
-// A 50/50 split with 40 votes ranks above a 50/50 split with 4 votes.
-// z=1.96 (95% confidence). Inputs are up/down vote counts.
-// We treat "contested" as closeness to 50/50: minority share p = min(up,down)/n.
-// Higher return value = more genuinely divisive.
 function wilsonControversy(up, down){
   const n=up+down;
   if(n===0)return 0;
@@ -948,14 +842,10 @@ function wilsonControversy(up, down){
   return (p + z2/(2*n) - z*Math.sqrt((p*(1-p)+z2/(4*n))/n)) / (1+z2/n);
 }
 
-// Three categories: Hottest (by net score), Most Contested (Wilson controversy),
-// Most Recent (last 5). Refreshes on data load and after new takes are posted.
 let tickerAnim=null;
 function buildTicker(){
   const track=document.getElementById('tickerTrack');
   if(!track)return;
-
-  // Gather items: top 5 hottest, top 5 most contested (Wilson), 5 most recent
   const sorted_hot=[...hotTakes].sort((a,b)=>(b.up-b.down)-(a.up-a.down)).slice(0,5);
   const sorted_contested=[...hotTakes].sort((a,b)=>wilsonControversy(b.up,b.down)-wilsonControversy(a.up,a.down)).slice(0,5);
   const sorted_recent=[...hotTakes].sort((a,b)=>b.ts-a.ts).slice(0,5);
@@ -975,24 +865,10 @@ function buildTicker(){
         <span class="ticker-text">${esc(it.text)}</span>
       </div>`).join('');
   }
-
-  // Duplicate content for seamless loop
   track.innerHTML+=track.innerHTML;
-
-  // Cancel any previous animation
   if(tickerAnim)cancelAnimationFrame(tickerAnim);
-
-  const speed=0.55; // px per frame (~33px/s at 60fps)
+  const speed=0.55;
   let pos=0;
-  const halfWidth=track.scrollWidth/2;
-
-  function step(){
-    pos+=speed;
-    if(pos>=halfWidth) pos=0;
-    track.style.transform=`translateX(-${pos}px)`;
-    tickerAnim=requestAnimationFrame(step);
-  }
-  // Small delay so layout settles before measuring
   setTimeout(()=>{
     const hw=track.scrollWidth/2;
     function tick(){pos+=speed;if(pos>=hw)pos=0;track.style.transform=`translateX(-${pos}px)`;tickerAnim=requestAnimationFrame(tick);}
@@ -1003,7 +879,6 @@ function buildTicker(){
 function updateTickerVisibility(){
   const ticker=document.getElementById('ticker');
   if(!ticker)return;
-  // Hide ticker on Hot Takes tab (the content is already there in full)
   ticker.style.display=currentTab==='hot'?'none':'flex';
 }
 
@@ -1034,7 +909,6 @@ function renderGames(p1,p2,p3){
   const notice=mk('div',locked?'cutoff-bar closed':'cutoff-bar',
     locked?'🔒 Group-stage tipping is closed — your picks are locked in. Knockout tipping opens once the bracket is set.'
           :'⏰ Tipping closes <strong>11 Jun 2026, 15:00 ET</strong> — when the first match kicks off.');
-
   p1.appendChild(notice);
   [[0,3],[4,7],[8,11]].forEach(([s,e],pi)=>{
     const p=ps[pi];
@@ -1062,7 +936,6 @@ function buildGameCard(gm,locked){
   if(w==='home'){homeClass=' win';awayClass=' lose';}
   else if(w==='away'){homeClass=' lose';awayClass=' win';}
   else if(w==='draw'){homeClass=' draw-t';awayClass=' draw-t';}
-
   let ptsHtml='';
   if(res&&hasPick){
     const actualW=winnerFrom(res.hs,res.as);const predW=winnerFrom(hs,as);
@@ -1076,7 +949,6 @@ function buildGameCard(gm,locked){
     const cls=pts>=3?'pts-high':pts>=1?'pts-med':'pts0';
     ptsHtml=`<span class="result-pts ${cls}" title="${note}">${pts>0?'+'+pts:0} pts</span>`;
   }
-
   card.innerHTML=`
     <div class="game-meta">
       <span>${esc(gm.date)} · <span class="game-time-lbl">${esc(gm.time)}</span> · ${esc(gm.venue)} · <span class="game-code">${esc(gm.id)}</span></span>
@@ -1315,7 +1187,6 @@ function refreshSummary(){
 // ── HOT TAKES ──────────────────────────────────────────────
 function renderHot(p1,p2,p3){
   [p1,p2,p3].forEach(p=>p.classList.add('on'));
-
   p1.appendChild(mk('div','ptitle','🔥 Hottest Takes'));
   p1.appendChild(mk('div','psub','Ranked by net upvotes'));
   [...hotTakes].sort((a,b)=>(b.up-b.down)-(a.up-a.down)).forEach(h=>p1.appendChild(buildTakeCard(h)));
@@ -1401,10 +1272,8 @@ function getBolds(){
       const hs=p['hs_'+gid]||'';const as=p['as_'+gid]||'';
       const odds=GAME_ODDS[gid];if(!odds)continue;
       let alertType='';let reason='';let score='';
-
       const totalGoals=(hs!==''&&as!=='')?parseInt(hs)+parseInt(as):0;
       const isWild=totalGoals>=7;
-
       if(pick===game.home&&odds[0]>=5.00){
         alertType='upset';
         reason=`+${Math.round((odds[0]-1)*100)} underdog`;
@@ -1415,12 +1284,10 @@ function getBolds(){
         alertType='upset';
         reason=`+${Math.round((odds[1]-1)*100)} draw call`;
       }
-
       if(isWild){
         alertType=alertType?'both':'wild';
         reason=(reason?reason+' · ':'')+`${hs}–${as} scoreline`;
       }
-
       if(alertType){
         if(hs!==''&&as!=='') score=hs+'–'+as;
         out.push({user,game,pick,reason,score,alertType,goals:totalGoals});
@@ -1475,22 +1342,16 @@ function calcPredCount(user){
 }
 
 // ── MATCH-DAY LEADERBOARD ──────────────────────────────────
-// Persists the selected day index across re-renders so navigation sticks.
-let mdDayIndex = -1; // -1 = not yet initialised; set to last game day on first render
-
-// Derive ordered list of unique game days that have at least one result.
-// Returns array of 'Jun 11' style strings in chronological order.
+let mdDayIndex = -1;
 function gameDaysWithResults(){
-  const dayOrder=[...new Set(GAMES.map(g=>g.date))]; // preserves GAMES declaration order
+  const dayOrder=[...new Set(GAMES.map(g=>g.date))];
   return dayOrder.filter(d=>GAMES.filter(g=>g.date===d).some(g=>results[g.id]));
 }
-
-// Points earned by a user for a single game (0 if no result / no pick).
 function calcGamePts(user, gid){
-  const res=results[gid]; if(!res) return null; // no result yet
+  const res=results[gid]; if(!res) return null;
   const p=(predictions[user]&&predictions[user].picks)||{};
   const uh=p['hs_'+gid], ua=p['as_'+gid];
-  if(uh==null||String(uh)===''||ua==null||String(ua)==='') return null; // no pick
+  if(uh==null||String(uh)===''||ua==null||String(ua)==='') return null;
   const actualW=winnerFrom(res.hs,res.as);
   const predW=winnerFrom(uh,ua);
   const exact=parseInt(uh)===res.hs&&parseInt(ua)===res.as;
@@ -1504,20 +1365,15 @@ function calcGamePts(user, gid){
 
 function buildMatchDayLB(container){
   const days=gameDaysWithResults();
-
-  // Initialise index to the most recent day with results on first call
   if(mdDayIndex===-1||mdDayIndex>=days.length) mdDayIndex=Math.max(0,days.length-1);
   if(!days.length){
     container.appendChild(mk('div','md-no-results','⏳ No results in yet — match-day standings will appear here once the first game finishes.'));
     return;
   }
-
   const day=days[mdDayIndex];
   const dayGames=GAMES.filter(g=>g.date===day);
-  // Only games with results count
   const playedGames=dayGames.filter(g=>results[g.id]);
 
-  // ── Nav bar ───────────────────────────────────────────────
   const nav=mk('div','md-nav');
   const prevBtn=mk('button','md-nav-btn','‹');
   prevBtn.disabled=mdDayIndex===0;
@@ -1528,7 +1384,7 @@ function buildMatchDayLB(container){
   const lbl=mk('div','');
   lbl.innerHTML=`<div class="md-nav-label">${esc(day)}</div><span class="md-nav-sub">${playedGames.length} of ${dayGames.length} game${dayGames.length!==1?'s':''} played</span>`;
   nav.appendChild(prevBtn);nav.appendChild(lbl);nav.appendChild(nextBtn);
-  container.innerHTML=''; // clear before rebuild
+  container.innerHTML='';
   container.appendChild(mk('div','ptitle','📅 Match-Day Standings'));
   container.appendChild(nav);
 
@@ -1539,13 +1395,11 @@ function buildMatchDayLB(container){
 
   const allUsers=Object.keys(predictions).filter(u=>calcPredCount(u)>0);
 
-  // ── BIG DAY — top 5 points earned on this calendar day ───
   const dayScores=allUsers.map(u=>{
     const pts=playedGames.reduce((sum,g)=>{
       const p=calcGamePts(u,g.id);
       return sum+(p!==null?p:0);
     },0);
-    // Only count users who actually had a pick on at least one played game
     const hasPick=playedGames.some(g=>{
       const pk=(predictions[u]&&predictions[u].picks)||{};
       return pk['hs_'+g.id]!=null&&String(pk['hs_'+g.id])!==''&&pk['as_'+g.id]!=null&&String(pk['as_'+g.id])!=='';
@@ -1571,20 +1425,19 @@ function buildMatchDayLB(container){
   }
   container.appendChild(bigDay);
 
-  // ── NAILED IT — all correct bold predictions today ────────
   const nailedit=mk('div','md-section');
   nailedit.innerHTML=`<div class="md-section-head">⚡ Nailed It <span style="font-size:9px;font-weight:500;color:var(--text3);text-transform:none;letter-spacing:0"> · bold predictions that paid off</span></div>`;
   const nailedRows=[];
   playedGames.forEach(g=>{
     const res=results[g.id]; if(!res) return;
     const actualW=winnerFrom(res.hs,res.as);
-    if(!isBravePick(g.id,actualW)) return; // result wasn't a brave outcome
+    if(!isBravePick(g.id,actualW)) return;
     allUsers.forEach(u=>{
       const pk=(predictions[u]&&predictions[u].picks)||{};
       const uh=pk['hs_'+g.id], ua=pk['as_'+g.id], pick=pk['g_'+g.id];
       if(uh==null||String(uh)===''||ua==null||String(ua)==='') return;
       const predW=winnerFrom(uh,ua);
-      if(predW!==actualW) return; // didn't call it right
+      if(predW!==actualW) return;
       const exact=parseInt(uh)===res.hs&&parseInt(ua)===res.as;
       const odds=GAME_ODDS[g.id]||[2,3,2];
       const o=actualW==='home'?odds[0]:actualW==='away'?odds[2]:odds[1];
@@ -1607,8 +1460,6 @@ function buildMatchDayLB(container){
   }
   container.appendChild(nailedit);
 
-  // ── EPIC TRY — wrong outcome AND combined goal diff ≥ 5 ──
-  // Combined goal diff = |predicted_home - actual_home| + |predicted_away - actual_away|
   const epictry=mk('div','md-section');
   epictry.innerHTML=`<div class="md-section-head">🌪️ Epic Try <span style="font-size:9px;font-weight:500;color:var(--text3);text-transform:none;letter-spacing:0"> · wrong outcome, 5+ goals off</span></div>`;
   const epicRows=[];
@@ -1620,7 +1471,7 @@ function buildMatchDayLB(container){
       const uh=pk['hs_'+g.id], ua=pk['as_'+g.id];
       if(uh==null||String(uh)===''||ua==null||String(ua)==='') return;
       const predW=winnerFrom(uh,ua);
-      if(predW===actualW) return; // got the outcome right — not an epic try
+      if(predW===actualW) return;
       const diff=Math.abs(parseInt(uh)-res.hs)+Math.abs(parseInt(ua)-res.as);
       if(diff<5) return;
       epicRows.push({user:u,game:g,pred:`${uh}–${ua}`,actual:`${res.hs}–${res.as}`,diff,avatar:assignAvatar(u)});
@@ -1641,7 +1492,10 @@ function buildMatchDayLB(container){
   container.appendChild(epictry);
 }
 
-
+// ── LEADERBOARD ────────────────────────────────────────────
+// Team tiebreak order — used when two teams have equal avg pts.
+// Follows the INT_TEAMS array order (index = membership/seniority number).
+const TEAM_ORDER=Object.fromEntries(INT_TEAMS.map((t,i)=>[t,i]));
 
 function renderLB(p1,p2,p3){
   [p1,p2,p3].forEach(p=>p.classList.add('on'));
@@ -1652,7 +1506,6 @@ function renderLB(p1,p2,p3){
     team:(predictions[u]&&predictions[u].team)||'',avatar:assignAvatar(u),
   })).sort((a,b)=>b.pts-a.pts||b.preds-a.preds||a.name.localeCompare(b.name));
 
-  // Match-day leaderboard — sits above individual standings in P1
   const mdContainer=mk('div','');
   buildMatchDayLB(mdContainer);
   p1.appendChild(mdContainer);
@@ -1689,12 +1542,10 @@ function renderLB(p1,p2,p3){
       teamMap[tm].total+=r.pts;teamMap[tm].count++;
     });
   });
-  // Sort: avg pts desc → total pts desc → membership order (INT_TEAMS index)
   const teamRows=Object.entries(teamMap).map(([name,v])=>({name,avg:+(v.total/v.count).toFixed(1),total:v.total,count:v.count}))
     .sort((a,b)=>{
       if(b.avg!==a.avg) return b.avg-a.avg;
       if(b.total!==a.total) return b.total-a.total;
-      // Tiebreak: membership order from INT_TEAMS array
       const oa=TEAM_ORDER[a.name]??999;
       const ob=TEAM_ORDER[b.name]??999;
       return oa-ob;
@@ -1709,7 +1560,6 @@ function renderLB(p1,p2,p3){
     p2.appendChild(row);
   });
 
-  // ── POPULAR VERDICT ──────────────────────────────────────
   p2.appendChild(mk('div','ptitle','⚖️ Popular Verdict'));
   p2.appendChild(mk('div','psub','Top 10 most-picked winner and scorer across all entries'));
   const winnerPicks=Object.values(predictions).map(p=>p.picks&&p.picks.winner).filter(Boolean);
@@ -1810,20 +1660,15 @@ async function obSubmit(){
   const tm=selectedTeams.join(', ');
   const err=document.getElementById('ob-error');
   const btn=document.getElementById('ob-btn');
-
   if(!nm){err.textContent='Please enter your name.';return;}
   if(nm.length<2){err.textContent='Name must be at least 2 characters.';return;}
   if(!pw||pw.length<4){err.textContent='Please choose a password (minimum 4 characters).';return;}
   err.textContent='';
-
   btn.textContent='Checking…';btn.style.opacity='0.7';btn.disabled=true;
-
   const pwHash=await sha256(nm.toLowerCase()+'::'+pw);
-
   let existingPicks=null;
   let existingTeam=tm;
   let isReturning=false;
-
   try{
     const {data,error}=await sb.from('predictions')
       .select('username,picks,team,password_hash')
@@ -1841,28 +1686,22 @@ async function obSubmit(){
       isReturning=true;
     }
   }catch(e){ console.warn('Supabase lookup failed, continuing offline',e); }
-
   currentUser=nm; currentTeam=existingTeam;
   localStorage.setItem('wc26_user',nm);
   localStorage.setItem('wc26_pwhash',pwHash);
   if(existingTeam) localStorage.setItem('wc26_team',existingTeam);
-
   predictions[nm]={
     picks:existingPicks||{},
     team:existingTeam,
     password_hash:pwHash,
   };
-
   const au=document.getElementById('activeUser');
   au.textContent='Welcome '+nm+(existingTeam?' · '+existingTeam:'');au.style.display='';
-
   const ob=document.getElementById('onboarding');
   ob.style.transition='opacity .35s';ob.style.opacity='0';
   setTimeout(()=>{ob.style.display='none';},370);
-
   scheduleSave();
   buildTicker();
-
   const pickCount=existingPicks?Object.keys(existingPicks).filter(k=>k.startsWith('hs_')).length:0;
   if(isReturning && pickCount>0) toast('Welcome back, '+nm+'! '+pickCount+' picks restored ✓');
   else if(isReturning) toast('Welcome back, '+nm+'!');
