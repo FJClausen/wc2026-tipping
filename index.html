@@ -237,6 +237,33 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .ms-empty{font-size:10px;color:var(--text3);font-style:italic;padding:3px 0}
 .ms-foot{font-size:8.5px;color:var(--text3);margin-top:5px;line-height:1.4}
 
+/* MATCH-DAY LEADERBOARD */
+.md-nav{display:flex;align-items:center;justify-content:space-between;gap:6px;background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:7px;padding:7px 10px;flex-shrink:0}
+.md-nav-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);color:#fff;border-radius:5px;width:26px;height:26px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s;flex-shrink:0;font-family:'Inter',sans-serif}
+.md-nav-btn:hover:not(:disabled){background:rgba(255,255,255,.22)}
+.md-nav-btn:disabled{opacity:.3;cursor:not-allowed}
+.md-nav-label{flex:1;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#fff;line-height:1}
+.md-nav-sub{font-size:9px;font-weight:500;color:rgba(255,255,255,.5);letter-spacing:.5px;font-family:'Inter',sans-serif;display:block;margin-top:1px;text-transform:uppercase}
+.md-section{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:10px 11px;flex-shrink:0;box-shadow:var(--shadow)}
+.md-section-head{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);margin-bottom:6px;padding-bottom:5px;border-bottom:2px solid var(--intgold);display:flex;align-items:center;gap:5px}
+.md-row{display:flex;align-items:center;gap:7px;padding:4px 0;border-bottom:1px solid var(--bg2);font-size:11px}
+.md-row:last-child{border-bottom:none}
+.md-rank{font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--text3);width:20px;flex-shrink:0}
+.md-avatar{font-size:14px;flex-shrink:0}
+.md-name{flex:1;font-weight:600;color:var(--text)}
+.md-pts{font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--navy);white-space:nowrap}
+.md-pts-lbl{font-size:9px;color:var(--text3)}
+.md-empty{font-size:10px;color:var(--text3);font-style:italic;padding:3px 0}
+.md-brave-row{padding:4px 0;border-bottom:1px solid var(--bg2);font-size:11px}
+.md-brave-row:last-child{border-bottom:none}
+.md-brave-user{font-weight:700;color:var(--navy)}
+.md-brave-detail{font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.md-try-row{padding:4px 0;border-bottom:1px solid var(--bg2);font-size:11px}
+.md-try-row:last-child{border-bottom:none}
+.md-try-user{font-weight:700;color:var(--navy)}
+.md-try-detail{font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.md-no-results{background:var(--goldbg);border:1.5px solid var(--gold2);border-radius:7px;padding:8px 11px;font-size:11px;color:var(--golddim);flex-shrink:0}
+
 .toast{position:fixed;bottom:50px;right:16px;z-index:9998;background:var(--navy);border:2px solid var(--wbblue);color:#fff;padding:8px 16px;border-radius:7px;font-size:12px;font-weight:600;opacity:0;transform:translateY(6px);transition:all .2s;pointer-events:none;box-shadow:0 4px 18px rgba(0,0,0,.2)}
 
 /* HOT TAKES TICKER */
@@ -1447,10 +1474,174 @@ function calcPredCount(user){
   return GAMES.filter(g=>p['hs_'+g.id]!==''&&p['hs_'+g.id]!=null&&p['as_'+g.id]!==''&&p['as_'+g.id]!=null).length;
 }
 
-// ── LEADERBOARD ────────────────────────────────────────────
-// Team tiebreak order — used when two teams have equal avg pts.
-// Follows the INT_TEAMS array order (index = seniority/membership number).
-const TEAM_ORDER=Object.fromEntries(INT_TEAMS.map((t,i)=>[t,i]));
+// ── MATCH-DAY LEADERBOARD ──────────────────────────────────
+// Persists the selected day index across re-renders so navigation sticks.
+let mdDayIndex = -1; // -1 = not yet initialised; set to last game day on first render
+
+// Derive ordered list of unique game days that have at least one result.
+// Returns array of 'Jun 11' style strings in chronological order.
+function gameDaysWithResults(){
+  const dayOrder=[...new Set(GAMES.map(g=>g.date))]; // preserves GAMES declaration order
+  return dayOrder.filter(d=>GAMES.filter(g=>g.date===d).some(g=>results[g.id]));
+}
+
+// Points earned by a user for a single game (0 if no result / no pick).
+function calcGamePts(user, gid){
+  const res=results[gid]; if(!res) return null; // no result yet
+  const p=(predictions[user]&&predictions[user].picks)||{};
+  const uh=p['hs_'+gid], ua=p['as_'+gid];
+  if(uh==null||String(uh)===''||ua==null||String(ua)==='') return null; // no pick
+  const actualW=winnerFrom(res.hs,res.as);
+  const predW=winnerFrom(uh,ua);
+  const exact=parseInt(uh)===res.hs&&parseInt(ua)===res.as;
+  const outOk=predW&&predW===actualW;
+  let pts=0;
+  if(exact) pts+=3; else if(outOk) pts+=1;
+  if((exact||outOk)&&isBravePick(gid,actualW)) pts+=2;
+  if(exact&&isWildScore(uh,ua)) pts+=2;
+  return pts;
+}
+
+function buildMatchDayLB(container){
+  const days=gameDaysWithResults();
+
+  // Initialise index to the most recent day with results on first call
+  if(mdDayIndex===-1||mdDayIndex>=days.length) mdDayIndex=Math.max(0,days.length-1);
+  if(!days.length){
+    container.appendChild(mk('div','md-no-results','⏳ No results in yet — match-day standings will appear here once the first game finishes.'));
+    return;
+  }
+
+  const day=days[mdDayIndex];
+  const dayGames=GAMES.filter(g=>g.date===day);
+  // Only games with results count
+  const playedGames=dayGames.filter(g=>results[g.id]);
+
+  // ── Nav bar ───────────────────────────────────────────────
+  const nav=mk('div','md-nav');
+  const prevBtn=mk('button','md-nav-btn','‹');
+  prevBtn.disabled=mdDayIndex===0;
+  prevBtn.onclick=()=>{mdDayIndex--;buildMatchDayLB(container);};
+  const nextBtn=mk('button','md-nav-btn','›');
+  nextBtn.disabled=mdDayIndex===days.length-1;
+  nextBtn.onclick=()=>{mdDayIndex++;buildMatchDayLB(container);};
+  const lbl=mk('div','');
+  lbl.innerHTML=`<div class="md-nav-label">${esc(day)}</div><span class="md-nav-sub">${playedGames.length} of ${dayGames.length} game${dayGames.length!==1?'s':''} played</span>`;
+  nav.appendChild(prevBtn);nav.appendChild(lbl);nav.appendChild(nextBtn);
+  container.innerHTML=''; // clear before rebuild
+  container.appendChild(mk('div','ptitle','📅 Match-Day Standings'));
+  container.appendChild(nav);
+
+  if(!playedGames.length){
+    container.appendChild(mk('div','md-no-results','No results in for this day yet.'));
+    return;
+  }
+
+  const allUsers=Object.keys(predictions).filter(u=>calcPredCount(u)>0);
+
+  // ── BIG DAY — top 5 points earned on this calendar day ───
+  const dayScores=allUsers.map(u=>{
+    const pts=playedGames.reduce((sum,g)=>{
+      const p=calcGamePts(u,g.id);
+      return sum+(p!==null?p:0);
+    },0);
+    // Only count users who actually had a pick on at least one played game
+    const hasPick=playedGames.some(g=>{
+      const pk=(predictions[u]&&predictions[u].picks)||{};
+      return pk['hs_'+g.id]!=null&&String(pk['hs_'+g.id])!==''&&pk['as_'+g.id]!=null&&String(pk['as_'+g.id])!=='';
+    });
+    return {name:u,pts,avatar:assignAvatar(u),hasPick};
+  }).filter(r=>r.hasPick&&r.pts>0).sort((a,b)=>b.pts-a.pts||a.name.localeCompare(b.name));
+
+  const bigDay=mk('div','md-section');
+  bigDay.innerHTML=`<div class="md-section-head">🏆 Big Day <span style="font-size:9px;font-weight:500;color:var(--text3);text-transform:none;letter-spacing:0"> · most points today</span></div>`;
+  const medals=['🥇','🥈','🥉'];
+  if(!dayScores.length){
+    bigDay.appendChild(mk('div','md-empty','No points scored yet today.'));
+  } else {
+    dayScores.slice(0,5).forEach((r,i)=>{
+      const av=AVATARS[r.avatar]||AVATARS.ghost;
+      const row=mk('div','md-row');
+      row.innerHTML=`<div class="md-rank">${medals[i]||i+1}</div>
+        <div class="md-avatar" title="${esc(av.label)}">${av.emoji}</div>
+        <div class="md-name">${esc(r.name)}${r.name===currentUser?' <span class="lb-me">YOU</span>':''}</div>
+        <div><span class="md-pts">${r.pts}</span><span class="md-pts-lbl"> pts</span></div>`;
+      bigDay.appendChild(row);
+    });
+  }
+  container.appendChild(bigDay);
+
+  // ── NAILED IT — all correct bold predictions today ────────
+  const nailedit=mk('div','md-section');
+  nailedit.innerHTML=`<div class="md-section-head">⚡ Nailed It <span style="font-size:9px;font-weight:500;color:var(--text3);text-transform:none;letter-spacing:0"> · bold predictions that paid off</span></div>`;
+  const nailedRows=[];
+  playedGames.forEach(g=>{
+    const res=results[g.id]; if(!res) return;
+    const actualW=winnerFrom(res.hs,res.as);
+    if(!isBravePick(g.id,actualW)) return; // result wasn't a brave outcome
+    allUsers.forEach(u=>{
+      const pk=(predictions[u]&&predictions[u].picks)||{};
+      const uh=pk['hs_'+g.id], ua=pk['as_'+g.id], pick=pk['g_'+g.id];
+      if(uh==null||String(uh)===''||ua==null||String(ua)==='') return;
+      const predW=winnerFrom(uh,ua);
+      if(predW!==actualW) return; // didn't call it right
+      const exact=parseInt(uh)===res.hs&&parseInt(ua)===res.as;
+      const odds=GAME_ODDS[g.id]||[2,3,2];
+      const o=actualW==='home'?odds[0]:actualW==='away'?odds[2]:odds[1];
+      nailedRows.push({user:u,game:g,pick,score:`${uh}–${ua}`,actual:`${res.hs}–${res.as}`,exact,odds:o,avatar:assignAvatar(u)});
+    });
+  });
+  nailedRows.sort((a,b)=>b.odds-a.odds);
+  if(!nailedRows.length){
+    nailedit.appendChild(mk('div','md-empty','No brave picks paid off yet today.'));
+  } else {
+    nailedRows.forEach(r=>{
+      const av=AVATARS[r.avatar]||AVATARS.ghost;
+      const row=mk('div','md-brave-row');
+      const oddsStr=`+${Math.round((r.odds-1)*100)}`;
+      const exactNote=r.exact?` · exact score 🎯`:'';
+      row.innerHTML=`<div class="md-brave-user">${av.emoji} ${esc(r.user)}${r.user===currentUser?' <span class="lb-me">YOU</span>':''}</div>
+        <div class="md-brave-detail">${fl(r.game.home)} ${esc(r.game.home)} vs ${fl(r.game.away)} ${esc(r.game.away)} · tipped ${esc(r.pick)} (${oddsStr}) · result ${esc(r.actual)}${exactNote}</div>`;
+      nailedit.appendChild(row);
+    });
+  }
+  container.appendChild(nailedit);
+
+  // ── EPIC TRY — wrong outcome AND combined goal diff ≥ 5 ──
+  // Combined goal diff = |predicted_home - actual_home| + |predicted_away - actual_away|
+  const epictry=mk('div','md-section');
+  epictry.innerHTML=`<div class="md-section-head">🌪️ Epic Try <span style="font-size:9px;font-weight:500;color:var(--text3);text-transform:none;letter-spacing:0"> · wrong outcome, 5+ goals off</span></div>`;
+  const epicRows=[];
+  playedGames.forEach(g=>{
+    const res=results[g.id]; if(!res) return;
+    const actualW=winnerFrom(res.hs,res.as);
+    allUsers.forEach(u=>{
+      const pk=(predictions[u]&&predictions[u].picks)||{};
+      const uh=pk['hs_'+g.id], ua=pk['as_'+g.id];
+      if(uh==null||String(uh)===''||ua==null||String(ua)==='') return;
+      const predW=winnerFrom(uh,ua);
+      if(predW===actualW) return; // got the outcome right — not an epic try
+      const diff=Math.abs(parseInt(uh)-res.hs)+Math.abs(parseInt(ua)-res.as);
+      if(diff<5) return;
+      epicRows.push({user:u,game:g,pred:`${uh}–${ua}`,actual:`${res.hs}–${res.as}`,diff,avatar:assignAvatar(u)});
+    });
+  });
+  epicRows.sort((a,b)=>b.diff-a.diff||a.user.localeCompare(b.user));
+  if(!epicRows.length){
+    epictry.appendChild(mk('div','md-empty','No epic tries today — surprisingly decent predictions all round.'));
+  } else {
+    epicRows.forEach(r=>{
+      const av=AVATARS[r.avatar]||AVATARS.ghost;
+      const row=mk('div','md-try-row');
+      row.innerHTML=`<div class="md-try-user">${av.emoji} ${esc(r.user)}${r.user===currentUser?' <span class="lb-me">YOU</span>':''}</div>
+        <div class="md-try-detail">${fl(r.game.home)} ${esc(r.game.home)} vs ${fl(r.game.away)} ${esc(r.game.away)} · predicted ${esc(r.pred)}, actual ${esc(r.actual)} · ${r.diff} goals off</div>`;
+      epictry.appendChild(row);
+    });
+  }
+  container.appendChild(epictry);
+}
+
+
 
 function renderLB(p1,p2,p3){
   [p1,p2,p3].forEach(p=>p.classList.add('on'));
@@ -1460,6 +1651,11 @@ function renderLB(p1,p2,p3){
     name:u,pts:calcPoints(u),preds:calcPredCount(u),
     team:(predictions[u]&&predictions[u].team)||'',avatar:assignAvatar(u),
   })).sort((a,b)=>b.pts-a.pts||b.preds-a.preds||a.name.localeCompare(b.name));
+
+  // Match-day leaderboard — sits above individual standings in P1
+  const mdContainer=mk('div','');
+  buildMatchDayLB(mdContainer);
+  p1.appendChild(mdContainer);
 
   p1.appendChild(mk('div','ptitle','🏅 Individual Standings'));
   const sr=mk('div','stats-row');
