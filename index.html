@@ -40,7 +40,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .btn-play:hover{background:var(--wbblue2)}
 .active-user{font-size:14px;font-weight:700;color:#fff;background:rgba(0,159,218,.22);border:1px solid rgba(0,159,218,.4);padding:7px 14px;border-radius:6px;white-space:nowrap;cursor:pointer;transition:background .12s}
 .active-user:hover{background:rgba(0,159,218,.34)}
-.active-user::after{content:' ✎';opacity:.65;font-size:11px;font-weight:400}
+.active-user::after{content:' \u270e';opacity:.65;font-size:11px;font-weight:400}
 #teamEditor{display:none;position:fixed;inset:0;z-index:9990;background:rgba(0,20,40,.55);align-items:center;justify-content:center;padding:20px}
 .te-card{background:#fff;border-radius:14px;padding:24px 26px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.4);max-height:90vh;overflow-y:auto}
 .te-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:var(--navy);margin-bottom:4px}
@@ -97,6 +97,34 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .result-pts.pts-low{background:#ffe4e6;color:#9f1239}
 .result-pts.pts0{background:#fee2e2;color:#dc2626}
 .result-pending{color:var(--text3);font-style:italic}
+/* NEW: crowd stats row */
+.crowd-row{display:flex;align-items:center;gap:5px;padding:3px 7px;border-radius:5px;background:var(--bg2);border:1px solid var(--border);font-size:10px;margin-top:3px;flex-wrap:wrap}
+.crowd-row.has-data{background:#f4f8ff;border-color:#b8cfe8}
+.crowd-lbl{color:var(--text3);font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;flex-shrink:0}
+.crowd-stat{display:inline-flex;align-items:center;gap:3px;border-radius:3px;padding:2px 6px;font-size:10px;font-weight:700}
+.crowd-stat.exact{background:#dcfce7;color:#166534;border:1px solid #86efac}
+.crowd-stat.outcome{background:#dbeafe;color:#1d4ed8;border:1px solid #93c5fd}
+.crowd-stat.none{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
+.crowd-pct{font-size:9px;font-weight:500;opacity:.8;margin-left:1px}
+.crowd-sep{color:var(--border2);font-size:10px;flex-shrink:0}
+/* NEW: crowd pick row (most popular pick before result) */
+.crowd-pick-row{display:flex;align-items:center;gap:5px;padding:3px 7px;border-radius:5px;background:var(--bg2);border:1px solid var(--border);font-size:10px;margin-top:3px;flex-wrap:wrap}
+.crowd-pick-lbl{color:var(--text3);font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;flex-shrink:0}
+.crowd-pick-val{font-size:10px;font-weight:700;color:var(--navy)}
+.crowd-pick-pct{font-size:9px;color:var(--text3);font-weight:500;margin-left:2px}
+/* NEW: player badges on leaderboard */
+.lb-badges{display:flex;gap:3px;flex-shrink:0}
+.lb-badge{font-size:13px;cursor:default;line-height:1;display:inline-block}
+/* NEW: hardest/easiest game section */
+.game-diff-section{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;box-shadow:var(--shadow);flex-shrink:0}
+.game-diff-row{display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid var(--bg2);font-size:11px}
+.game-diff-row:last-child{border-bottom:none}
+.game-diff-pct{font-family:'Bebas Neue',sans-serif;font-size:18px;width:38px;flex-shrink:0;text-align:right}
+.game-diff-pct.easy{color:var(--green)}
+.game-diff-pct.hard{color:var(--red)}
+.game-diff-meta{flex:1;line-height:1.4}
+.game-diff-teams{font-weight:600;color:var(--text)}
+.game-diff-score{font-size:10px;color:var(--text3);margin-top:1px}
 .cutoff-bar{background:var(--goldbg);border:1.5px solid var(--gold2);border-radius:6px;padding:6px 10px;font-size:11px;color:var(--gold);font-weight:500;flex-shrink:0}
 .cutoff-bar.closed{background:#fff1f0;border-color:var(--orange);color:var(--orange2)}
 .ko-section{background:var(--surface);border:2px dashed var(--border2);border-radius:var(--radius);padding:12px;flex-shrink:0}
@@ -328,7 +356,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
       </svg>
     </div>
     <div class="ob-title">INT WORLD CUP 2026<br><span>Bracket Challenge</span></div>
-    <div class="ob-sub">Predict every World Cup game, tip the winner and top scorer, and climb the individual and team INT leaderboards. Enter your name and team(s) to get started.</div>
+    <div class="ob-sub">Predict every World Cup game, predict the winner and top scorer, and climb the individual and team INT leaderboards. Enter your name and team(s) to get started.</div>
     <label class="ob-label" for="ob-name">Your name</label>
     <input class="ob-field" type="text" id="ob-name" placeholder="Your name" maxlength="30" onkeydown="if(event.key==='Enter')document.getElementById('ob-pw').focus()">
     <label class="ob-label" for="ob-pw">Choose a password <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(stops someone casually picking as you)</span></label>
@@ -362,7 +390,7 @@ const FLAG_CODES={
   'Canada':'ca','Bosnia & Herz.':'ba','Qatar':'qa','Switzerland':'ch',
   'Brazil':'br','Morocco':'ma','Haiti':'ht','Scotland':'gb-sct',
   'USA':'us','Paraguay':'py','Australia':'au','Algeria':'dz',
-  'Germany':'de','Curaçao':'cw','Ivory Coast':'ci','Ecuador':'ec',
+  'Germany':'de','Cura\u00e7ao':'cw','Ivory Coast':'ci','Ecuador':'ec',
   'Netherlands':'nl','Japan':'jp','Sweden':'se','Tunisia':'tn',
   'Spain':'es','Cape Verde':'cv','Saudi Arabia':'sa','Uruguay':'uy',
   'Belgium':'be','Egypt':'eg','Iran':'ir','New Zealand':'nz',
@@ -370,7 +398,7 @@ const FLAG_CODES={
   'Argentina':'ar','Austria':'at','Jordan':'jo',
   'Portugal':'pt','Congo DR':'cd','Uzbekistan':'uz','Colombia':'co',
   'England':'gb-eng','Ghana':'gh','Panama':'pa','Croatia':'hr',
-  'Türkiye':'tr',
+  'T\u00fcrkiye':'tr',
 };
 const fl=t=>{
   const code=FLAG_CODES[t];
@@ -404,16 +432,15 @@ const GAME_ODDS={
   g22:[1.50,4.10,6.50],g23:[2.10,3.20,3.50],g46:[1.35,5.00,9.00],g47:[3.80,3.40,1.90],
   g67:[5.50,3.80,1.50],g68:[2.40,3.20,3.00],
 };
-function isBravePick(gid, actualW){
+function isBravePick(gid,actualW){
   const odds=GAME_ODDS[gid];if(!odds)return false;
   const o=actualW==='home'?odds[0]:actualW==='away'?odds[2]:odds[1];
   return o>=5.00;
 }
-function isWildScore(hs, as){
-  const h=parseInt(hs), a=parseInt(as);
+function isWildScore(hs,as){
+  const h=parseInt(hs),a=parseInt(as);
   return !isNaN(h)&&!isNaN(a)&&(h+a)>=7;
 }
-
 const GAMES=[
   {id:'g01',date:'Jun 11',time:'15:00 ET',group:'A',home:'Mexico',away:'South Africa',venue:'Mexico City'},
   {id:'g02',date:'Jun 11',time:'18:00 ET',group:'A',home:'South Korea',away:'Czechia',venue:'Guadalajara'},
@@ -434,17 +461,17 @@ const GAMES=[
   {id:'g51',date:'Jun 24',time:'18:00 ET',group:'C',home:'Scotland',away:'Brazil',venue:'Miami'},
   {id:'g52',date:'Jun 24',time:'18:00 ET',group:'C',home:'Morocco',away:'Haiti',venue:'Atlanta'},
   {id:'g04',date:'Jun 12',time:'21:00 ET',group:'D',home:'USA',away:'Paraguay',venue:'Inglewood'},
-  {id:'g08',date:'Jun 13',time:'00:00 ET',group:'D',home:'Australia',away:'Türkiye',venue:'Vancouver'},
+  {id:'g08',date:'Jun 13',time:'00:00 ET',group:'D',home:'Australia',away:'T\u00fcrkiye',venue:'Vancouver'},
   {id:'g29',date:'Jun 19',time:'15:00 ET',group:'D',home:'USA',away:'Australia',venue:'Seattle'},
-  {id:'g32',date:'Jun 19',time:'00:00 ET',group:'D',home:'Türkiye',away:'Paraguay',venue:'Santa Clara'},
-  {id:'g59',date:'Jun 25',time:'22:00 ET',group:'D',home:'Türkiye',away:'USA',venue:'Inglewood'},
+  {id:'g32',date:'Jun 19',time:'00:00 ET',group:'D',home:'T\u00fcrkiye',away:'Paraguay',venue:'Santa Clara'},
+  {id:'g59',date:'Jun 25',time:'22:00 ET',group:'D',home:'T\u00fcrkiye',away:'USA',venue:'Inglewood'},
   {id:'g60',date:'Jun 25',time:'22:00 ET',group:'D',home:'Paraguay',away:'Australia',venue:'Santa Clara'},
-  {id:'g09',date:'Jun 14',time:'12:00 ET',group:'E',home:'Germany',away:'Curaçao',venue:'Houston'},
+  {id:'g09',date:'Jun 14',time:'12:00 ET',group:'E',home:'Germany',away:'Cura\u00e7ao',venue:'Houston'},
   {id:'g11',date:'Jun 14',time:'15:00 ET',group:'E',home:'Ivory Coast',away:'Ecuador',venue:'Philadelphia'},
   {id:'g34',date:'Jun 20',time:'12:00 ET',group:'E',home:'Germany',away:'Ivory Coast',venue:'Toronto'},
-  {id:'g35',date:'Jun 20',time:'15:00 ET',group:'E',home:'Ecuador',away:'Curaçao',venue:'Kansas City'},
+  {id:'g35',date:'Jun 20',time:'15:00 ET',group:'E',home:'Ecuador',away:'Cura\u00e7ao',venue:'Kansas City'},
   {id:'g55',date:'Jun 25',time:'15:00 ET',group:'E',home:'Ecuador',away:'Germany',venue:'E. Rutherford'},
-  {id:'g56',date:'Jun 25',time:'15:00 ET',group:'E',home:'Curaçao',away:'Ivory Coast',venue:'Philadelphia'},
+  {id:'g56',date:'Jun 25',time:'15:00 ET',group:'E',home:'Cura\u00e7ao',away:'Ivory Coast',venue:'Philadelphia'},
   {id:'g10',date:'Jun 14',time:'16:00 ET',group:'F',home:'Netherlands',away:'Japan',venue:'Arlington'},
   {id:'g12',date:'Jun 14',time:'22:00 ET',group:'F',home:'Sweden',away:'Tunisia',venue:'Monterrey'},
   {id:'g33',date:'Jun 20',time:'13:00 ET',group:'F',home:'Netherlands',away:'Sweden',venue:'Houston'},
@@ -488,7 +515,6 @@ const GAMES=[
   {id:'g67',date:'Jun 27',time:'21:00 ET',group:'L',home:'Panama',away:'England',venue:'E. Rutherford'},
   {id:'g68',date:'Jun 27',time:'21:00 ET',group:'L',home:'Croatia',away:'Ghana',venue:'Philadelphia'},
 ];
-
 const R32=[
   {m:73,home:'2nd Group A',away:'2nd Group B',venue:'Inglewood'},
   {m:74,home:'1st Group E',away:'Best 3rd (A/B/C/D/F)',venue:'Foxborough'},
@@ -507,7 +533,6 @@ const R32=[
   {m:87,home:'1st Group K',away:'Best 3rd (D/E/I/J/L)',venue:'Kansas City'},
   {m:88,home:'2nd Group D',away:'2nd Group G',venue:'Arlington'},
 ];
-
 const R16=[
   {m:89,home:'Winner M74',away:'Winner M77',venue:'Philadelphia',date:'Jul 4'},
   {m:90,home:'Winner M73',away:'Winner M75',venue:'Houston',date:'Jul 4'},
@@ -528,87 +553,76 @@ const SF=[
   {m:101,home:'Winner M97',away:'Winner M98',venue:'Arlington',date:'Jul 14'},
   {m:102,home:'Winner M99',away:'Winner M100',venue:'Atlanta',date:'Jul 15'},
 ];
-const THIRD=[
-  {m:103,home:'Loser M101',away:'Loser M102',venue:'Miami',date:'Jul 18'},
-];
-const FINAL=[
-  {m:104,home:'Winner M101',away:'Winner M102',venue:'E. Rutherford',date:'Jul 19'},
-];
+const THIRD=[{m:103,home:'Loser M101',away:'Loser M102',venue:'Miami',date:'Jul 18'}];
+const FINAL=[{m:104,home:'Winner M101',away:'Winner M102',venue:'E. Rutherford',date:'Jul 19'}];
 const KO_ROUNDS=[
-  {key:'r32',label:'Round of 32',      dates:'Jun 28 – Jul 3',open:'2026-06-27T23:00:00Z',matches:R32},
-  {key:'r16',label:'Round of 16',      dates:'Jul 4 – 7',     open:'2026-07-03T23:00:00Z',matches:R16},
-  {key:'qf', label:'Quarter-Finals',   dates:'Jul 9 – 11',    open:'2026-07-07T23:00:00Z',matches:QF},
-  {key:'sf', label:'Semi-Finals',      dates:'Jul 14 – 15',   open:'2026-07-11T23:00:00Z',matches:SF},
-  {key:'tp', label:'Third-Place Play-Off',dates:'Jul 18',     open:'2026-07-15T23:00:00Z',matches:THIRD},
-  {key:'f',  label:'Final',            dates:'Jul 19',        open:'2026-07-15T23:00:00Z',matches:FINAL},
+  {key:'r32',label:'Round of 32',      dates:'Jun 28 \u2013 Jul 3',open:'2026-06-27T23:00:00Z',matches:R32},
+  {key:'r16',label:'Round of 16',      dates:'Jul 4 \u2013 7',     open:'2026-07-03T23:00:00Z',matches:R16},
+  {key:'qf', label:'Quarter-Finals',   dates:'Jul 9 \u2013 11',    open:'2026-07-07T23:00:00Z',matches:QF},
+  {key:'sf', label:'Semi-Finals',      dates:'Jul 14 \u2013 15',   open:'2026-07-11T23:00:00Z',matches:SF},
+  {key:'tp', label:'Third-Place Play-Off',dates:'Jul 18',          open:'2026-07-15T23:00:00Z',matches:THIRD},
+  {key:'f',  label:'Final',            dates:'Jul 19',             open:'2026-07-15T23:00:00Z',matches:FINAL},
 ];
-
 const TEAMS=[
   'Algeria','Argentina','Australia','Austria','Belgium','Bosnia & Herz.','Brazil',
-  'Canada','Cape Verde','Colombia','Congo DR','Croatia','Czechia','Curaçao',
+  'Canada','Cape Verde','Colombia','Congo DR','Croatia','Czechia','Cura\u00e7ao',
   'Ecuador','Egypt','England','France','Germany','Ghana','Haiti','Iran',
   'Iraq','Ivory Coast','Japan','Jordan','Mexico','Morocco','Netherlands','New Zealand',
   'Norway','Panama','Paraguay','Portugal','Qatar','Saudi Arabia','Scotland',
   'Senegal','South Africa','South Korea','Spain','Sweden','Switzerland','Tunisia',
-  'Türkiye','Uruguay','USA','Uzbekistan'];
-
+  'T\u00fcrkiye','Uruguay','USA','Uzbekistan'];
 const INT_TEAMS=['Front Office','INTDI','INTPR','PSU','CDU','FSU','Data','INTEE','AFE','AFW','EAP','ECA','INTEW','MNAAP','LCR','SAR','IFC','INTII','LIT','INTIC','Core Services','Learning','Business Partners','Nairobi Team','Dakar Team','Brussels Team','Managers'];
-
 const SCORERS=[
-  'Kylian Mbappé (France)','Harry Kane (England)','Lionel Messi (Argentina)','Erling Haaland (Norway)',
+  'Kylian Mbapp\u00e9 (France)','Harry Kane (England)','Lionel Messi (Argentina)','Erling Haaland (Norway)',
   'Lamine Yamal (Spain)','Mikel Oyarzabal (Spain)','Cristiano Ronaldo (Portugal)','Vinicius Jr. (Brazil)',
-  'Lautaro Martínez (Argentina)','Ousmane Dembélé (France)','Romelu Lukaku (Belgium)','Raphinha (Brazil)',
-  'Julián Álvarez (Argentina)','Nick Woltemade (Germany)','Deniz Undav (Germany)','Cody Gakpo (Netherlands)',
+  'Lautaro Mart\u00ednez (Argentina)','Ousmane Demb\u00e9l\u00e9 (France)','Romelu Lukaku (Belgium)','Raphinha (Brazil)',
+  'Juli\u00e1n \u00c1lvarez (Argentina)','Nick Woltemade (Germany)','Deniz Undav (Germany)','Cody Gakpo (Netherlands)',
   'Ferran Torres (Spain)','Bukayo Saka (England)','Memphis Depay (Netherlands)','Mikel Merino (Spain)',
   'Jean-Philippe Mateta (France)','Jude Bellingham (England)','Florian Wirtz (Germany)','Kai Havertz (Germany)',
-  'Marcus Thuram (France)','Gonçalo Ramos (Portugal)','Darwin Núñez (Uruguay)','Bradley Barcola (France)',
-  'Jonathan David (Canada)','Luis Díaz (Colombia)','Son Heung-min (South Korea)','Ollie Watkins (England)',
-  'Bruno Fernandes (Portugal)','Jamal Musiala (Germany)','Michael Olise (France)','Desire Doué (France)',
-  'Rayan Cherki (France)','Christian Pulisic (USA)','Sadio Mané (Senegal)','Mohamed Salah (Egypt)',
-  'Matheus Cunha (Brazil)','Scott McTominay (Scotland)','Takefusa Kubo (Japan)','Raúl Jiménez (Mexico)',
-  'Petar Musa (Croatia)','Federico Valverde (Uruguay)','Germán Berterame (Mexico)','Alphonso Davies (Canada)',
-  'Andrej Kramarić (Croatia)','Ivan Perišić (Croatia)','Marcus Rashford (England)','Anthony Gordon (England)',
-  'Noni Madueke (England)','Ivan Toney (England)','Rafael Leão (Portugal)','João Félix (Portugal)',
-  'Pedro Neto (Portugal)','Francisco Conceição (Portugal)','Iliman Ndiaye (Senegal)','Nicolas Jackson (Senegal)',
+  'Marcus Thuram (France)','Gon\u00e7alo Ramos (Portugal)','Darwin N\u00fa\u00f1ez (Uruguay)','Bradley Barcola (France)',
+  'Jonathan David (Canada)','Luis D\u00edaz (Colombia)','Son Heung-min (South Korea)','Ollie Watkins (England)',
+  'Bruno Fernandes (Portugal)','Jamal Musiala (Germany)','Michael Olise (France)','Desire Dou\u00e9 (France)',
+  'Rayan Cherki (France)','Christian Pulisic (USA)','Sadio Man\u00e9 (Senegal)','Mohamed Salah (Egypt)',
+  'Matheus Cunha (Brazil)','Scott McTominay (Scotland)','Takefusa Kubo (Japan)','Ra\u00fal Jim\u00e9nez (Mexico)',
+  'Petar Musa (Croatia)','Federico Valverde (Uruguay)','Germ\u00e1n Berterame (Mexico)','Alphonso Davies (Canada)',
+  'Andrej Kramar\u0069\u0107 (Croatia)','Ivan Pere\u0161i\u0107 (Croatia)','Marcus Rashford (England)','Anthony Gordon (England)',
+  'Noni Madueke (England)','Ivan Toney (England)','Rafael Le\u00e3o (Portugal)','Jo\u00e3o F\u00e9lix (Portugal)',
+  'Pedro Neto (Portugal)','Francisco Concei\u00e7\u00e3o (Portugal)','Iliman Ndiaye (Senegal)','Nicolas Jackson (Senegal)',
   'Ismaila Sarr (Senegal)','Achraf Hakimi (Morocco)','Patrik Schick (Czechia)','Hwang Hee-chan (South Korea)',
   'Breel Embolo (Switzerland)','Granit Xhaka (Switzerland)','Lyle Foster (South Africa)','Themba Zwane (South Africa)',
   'Thomas Partey (Ghana)','Jordan Ayew (Ghana)','Lyndon Dykes (Scotland)','Ryan Christie (Scotland)',
   'Ritsu Doan (Japan)','Folarin Balogun (USA)','Ricardo Pepi (USA)','Riyad Mahrez (Algeria)',
   'Cyle Larin (Canada)','Salem Al-Dawsari (Saudi Arabia)','Firas Al-Buraikan (Saudi Arabia)','Evidence Makgopa (South Africa)',
 ];
-
 const SEED_TAKES=[];
 const SEED_AVATARS={};
-
-const OFFICIAL_WINNER = null;
-const OFFICIAL_SCORER = null;
-const WINNER_BONUS = 15;
-const SCORER_BONUS = 15;
-
+const OFFICIAL_WINNER=null;
+const OFFICIAL_SCORER=null;
+const WINNER_BONUS=15;
+const SCORER_BONUS=15;
 const AVATARS={
-  oracle:{emoji:'🔮',label:'The Oracle',desc:'Backs the favourites — trusts the form book'},
-  daredevil:{emoji:'🦁',label:'Daredevil',desc:'Lives for the long-odds upset'},
-  wizard:{emoji:'🧙',label:'Wizard',desc:'Conjures longshots and sneaky draws'},
-  chaos:{emoji:'🌪️',label:'Chaos Agent',desc:'Goals, mayhem and lopsided scorelines'},
-  firestarter:{emoji:'🔥',label:'Firestarter',desc:'Goal-fest forecaster — the more the merrier'},
-  fortress:{emoji:'🧱',label:'Fortress',desc:'Defence wins titles — low scores everywhere'},
-  iceman:{emoji:'🧊',label:'Iceman',desc:'Cool head, tight margins'},
-  diplomat:{emoji:'🤝',label:'Diplomat',desc:'Sees a draw in everything'},
-  gambler:{emoji:'🎲',label:'High Roller',desc:'Big odds, big goals, big dreams'},
-  thrillseeker:{emoji:'🎢',label:'Thrill-Seeker',desc:'Blowouts and wild swings'},
-  maverick:{emoji:'🐉',label:'Maverick',desc:'Backs underdogs, ignores the crowd'},
-  sharpshooter:{emoji:'🎯',label:'Sharpshooter',desc:'Decisive — calls clear, clean winners'},
-  hometown:{emoji:'🏟️',label:'Home Crowd',desc:'Rides with the home side'},
-  frontrunner:{emoji:'👑',label:'Frontrunner',desc:'Crowns the favourite to lift the cup'},
-  dreamer:{emoji:'💫',label:'Dreamer',desc:'Tips a dark horse to win it all'},
-  analyst:{emoji:'📊',label:'Analyst',desc:'Balanced and measured across the board'},
-  statistician:{emoji:'🧮',label:'Statistician',desc:'Thorough — tips just about everything'},
-  professor:{emoji:'🧠',label:'Professor',desc:'Reads the game, weighs every call'},
-  wildcard:{emoji:'🃏',label:'Wildcard',desc:'Unpredictable but entertaining'},
-  rookie:{emoji:'🌱',label:'Rookie',desc:'Just getting started'},
-  ghost:{emoji:'👻',label:'Ghost',desc:'Picks made, rarely seen'},
+  oracle:{emoji:'\u{1F52E}',label:'The Oracle',desc:'Backs the favourites \u2014 trusts the form book'},
+  daredevil:{emoji:'\u{1F981}',label:'Daredevil',desc:'Lives for the long-odds upset'},
+  wizard:{emoji:'\u{1F9D9}',label:'Wizard',desc:'Conjures longshots and sneaky draws'},
+  chaos:{emoji:'\u{1F32A}\uFE0F',label:'Chaos Agent',desc:'Goals, mayhem and lopsided scorelines'},
+  firestarter:{emoji:'\u{1F525}',label:'Firestarter',desc:'Goal-fest forecaster \u2014 the more the merrier'},
+  fortress:{emoji:'\u{1F9F1}',label:'Fortress',desc:'Defence wins titles \u2014 low scores everywhere'},
+  iceman:{emoji:'\u{1F9CA}',label:'Iceman',desc:'Cool head, tight margins'},
+  diplomat:{emoji:'\u{1F91D}',label:'Diplomat',desc:'Sees a draw in everything'},
+  gambler:{emoji:'\u{1F3B2}',label:'High Roller',desc:'Big odds, big goals, big dreams'},
+  thrillseeker:{emoji:'\u{1F3A2}',label:'Thrill-Seeker',desc:'Blowouts and wild swings'},
+  maverick:{emoji:'\u{1F409}',label:'Maverick',desc:'Backs underdogs, ignores the crowd'},
+  sharpshooter:{emoji:'\u{1F3AF}',label:'Sharpshooter',desc:'Decisive \u2014 calls clear, clean winners'},
+  hometown:{emoji:'\u{1F3DF}\uFE0F',label:'Home Crowd',desc:'Rides with the home side'},
+  frontrunner:{emoji:'\u{1F451}',label:'Frontrunner',desc:'Crowns the favourite to lift the cup'},
+  dreamer:{emoji:'\u{1F4AB}',label:'Dreamer',desc:'Picks a dark horse to win it all'},
+  analyst:{emoji:'\u{1F4CA}',label:'Analyst',desc:'Balanced and measured across the board'},
+  statistician:{emoji:'\u{1F9EE}',label:'Statistician',desc:'Thorough \u2014 predicts just about everything'},
+  professor:{emoji:'\u{1F9E0}',label:'Professor',desc:'Reads the game, weighs every call'},
+  wildcard:{emoji:'\u{1F0CF}',label:'Wildcard',desc:'Unpredictable but entertaining'},
+  rookie:{emoji:'\u{1F331}',label:'Rookie',desc:'Just getting started'},
+  ghost:{emoji:'\u{1F47B}',label:'Ghost',desc:'Picks made, rarely seen'},
 };
-
 let currentUser=localStorage.getItem('wc26_user')||'';
 let currentTeam=localStorage.getItem('wc26_team')||'';
 let predictions={};
@@ -620,7 +634,7 @@ let saveTimer=null;
 // ── SYNC ───────────────────────────────────────────────────
 function badge(s,m){const b=document.getElementById('syncBadge');b.className='sync-badge '+s;b.textContent=m;}
 async function loadData(){
-  badge('busy','Loading…');
+  badge('busy','Loading\u2026');
   try{
     const{data:pd,error:pe}=await sb.from('predictions').select('username,picks,team');
     if(pe)throw pe;
@@ -632,33 +646,33 @@ async function loadData(){
     hotTakes=[...SEED_TAKES.filter(s=>!cids.has(s.id)),...(td||[])].sort((a,b)=>b.ts-a.ts);
     const{data:rd}=await sb.from('results').select('game_id,home_score,away_score');
     results={};(rd||[]).forEach(r=>{results[r.game_id]={hs:r.home_score,as:r.away_score};});
-    badge('ok','Synced ✓');setTimeout(()=>badge('ok',''),3000);
+    badge('ok','Synced \u2713');setTimeout(()=>badge('ok',''),3000);
     buildTicker();
   }catch(e){
-    console.error(e);badge('err','Offline – local only');
+    console.error(e);badge('err','Offline \u2013 local only');
     try{predictions=JSON.parse(localStorage.getItem('wc26_preds')||'{}');}catch(_){}
   }
 }
 function scheduleSave(){clearTimeout(saveTimer);saveTimer=setTimeout(doSave,900);}
 async function doSave(){
-  if(!currentUser)return;badge('busy','Saving…');
+  if(!currentUser)return;badge('busy','Saving\u2026');
   localStorage.setItem('wc26_preds',JSON.stringify(predictions));
   try{
     const u=predictions[currentUser]||{};
     const pwHash=u.password_hash||localStorage.getItem('wc26_pwhash')||'';
     const{error:pe}=await sb.from('predictions').upsert({username:currentUser,picks:u.picks||{},team:u.team||'',password_hash:pwHash},{onConflict:'username'});
     if(pe)throw pe;
-    badge('ok','Saved ✓');setTimeout(()=>badge('ok',''),2500);
+    badge('ok','Saved \u2713');setTimeout(()=>badge('ok',''),2500);
   }catch(e){
     console.error(e);
-    badge('err','Save failed — retrying…');
+    badge('err','Save failed \u2014 retrying\u2026');
     clearTimeout(saveTimer);
     saveTimer=setTimeout(doSave,4000);
   }
 }
 async function saveTake(id){
   const t=hotTakes.find(x=>x.id===id);if(!t)return;
-  badge('busy','Saving…');
+  badge('busy','Saving\u2026');
   try{
     let serverVoters={};
     try{
@@ -667,13 +681,13 @@ async function saveTake(id){
     }catch(_){}
     const merged={...serverVoters};
     const local=t.voters||{};
-    for(const u in local){ if(local[u]==null) delete merged[u]; else merged[u]=local[u]; }
+    for(const u in local){if(local[u]==null)delete merged[u];else merged[u]=local[u];}
     const up=Object.values(merged).filter(v=>v==='up').length;
     const down=Object.values(merged).filter(v=>v==='down').length;
     t.voters=merged;t.up=up;t.down=down;
     const{error}=await sb.from('hottakes').upsert({id:t.id,user:t.user,text:t.text,up,down,voters:merged,ts:t.ts},{onConflict:'id'});
     if(error)throw error;
-    badge('ok','Saved ✓');setTimeout(()=>badge('ok',''),2000);
+    badge('ok','Saved \u2713');setTimeout(()=>badge('ok',''),2000);
     buildTicker();
   }catch(e){console.error(e);badge('err','Save failed');}
 }
@@ -691,7 +705,7 @@ const groupLocked=()=>new Date()>=GROUP_CUTOFF;
 const winnerFrom=(hs,as)=>{const h=parseInt(hs),a=parseInt(as);if(isNaN(h)||isNaN(a)||String(hs)===''||String(as)==='')return null;if(h>a)return 'home';if(a>h)return 'away';return 'draw';};
 function setPick(k,v){
   if(!currentUser){toast('Enter your name first!');return false;}
-  if(groupLocked()){toast('Predictions are locked — the deadline has passed ⏰');return false;}
+  if(groupLocked()){toast('Predictions are locked \u2014 the deadline has passed \u23f0');return false;}
   if(!predictions[currentUser])predictions[currentUser]={picks:{},team:currentTeam};
   predictions[currentUser].picks[k]=v;scheduleSave();return true;
 }
@@ -711,16 +725,9 @@ function assignAvatar(user){
   if(n<5)return 'rookie';
   const frac=f=>tips.filter(f).length/n;
   const s={
-    chalk:    frac(t=>t.po<=1.6&&!t.isDraw),
-    brave:    frac(t=>t.po>=4.0),
-    longshot: frac(t=>t.po>=6.0),
-    draws:    frac(t=>t.isDraw),
-    high:     frac(t=>t.total>=5),
-    fire:     frac(t=>t.total>=6),
-    low:      frac(t=>t.total<=1),
-    tight:    frac(t=>t.margin<=1),
-    blow:     frac(t=>t.margin>=3),
-    home:     frac(t=>t.home),
+    chalk:frac(t=>t.po<=1.6&&!t.isDraw),brave:frac(t=>t.po>=4.0),longshot:frac(t=>t.po>=6.0),
+    draws:frac(t=>t.isDraw),high:frac(t=>t.total>=5),fire:frac(t=>t.total>=6),
+    low:frac(t=>t.total<=1),tight:frac(t=>t.margin<=1),blow:frac(t=>t.margin>=3),home:frac(t=>t.home),
   };
   const BL={chalk:[.25,.12],brave:[.22,.12],longshot:[.07,.06],draws:[.22,.10],high:[.14,.08],
             fire:[.06,.05],low:[.18,.10],tight:[.50,.13],blow:[.10,.07],home:[.47,.11]};
@@ -728,33 +735,211 @@ function assignAvatar(user){
   const comp=n/72;
   const win=p.winner||'';
   const TOP=['Spain','France','Argentina','Brazil','England','Germany','Portugal','Netherlands'];
-  const winFav=TOP.indexOf(win)>=0, winDark=!!win&&TOP.indexOf(win)<0;
+  const winFav=TOP.indexOf(win)>=0,winDark=!!win&&TOP.indexOf(win)<0;
   const A={
-    oracle:       z.chalk,
-    daredevil:    z.brave+0.4*z.longshot,
-    wizard:       0.9*z.longshot+0.5*z.draws,
-    diplomat:     z.draws,
-    firestarter:  z.high-0.3*z.fire,
-    chaos:        0.8*z.fire+0.5*z.blow+0.3*z.high,
-    fortress:     z.low,
-    iceman:       0.8*z.tight+0.4*z.low,
-    thrillseeker: z.blow+0.4*z.high,
-    gambler:      0.7*z.brave+0.7*z.high,
-    maverick:     0.7*z.brave-0.5*z.chalk,
-    sharpshooter: 0.7*z.blow-0.4*z.tight,
-    hometown:     z.home,
-    frontrunner:  (winFav?0.9:-2)+0.4*z.chalk,
-    dreamer:      (winDark?1.1:-2),
-    analyst:      0.42,
-    statistician: 0.40+0.5*(comp-0.6),
-    professor:    0.42,
-    wildcard:     0.42,
+    oracle:z.chalk,daredevil:z.brave+0.4*z.longshot,wizard:0.9*z.longshot+0.5*z.draws,
+    diplomat:z.draws,firestarter:z.high-0.3*z.fire,chaos:0.8*z.fire+0.5*z.blow+0.3*z.high,
+    fortress:z.low,iceman:0.8*z.tight+0.4*z.low,thrillseeker:z.blow+0.4*z.high,
+    gambler:0.7*z.brave+0.7*z.high,maverick:0.7*z.brave-0.5*z.chalk,
+    sharpshooter:0.7*z.blow-0.4*z.tight,hometown:z.home,
+    frontrunner:(winFav?0.9:-2)+0.4*z.chalk,dreamer:(winDark?1.1:-2),
+    analyst:0.42,statistician:0.40+0.5*(comp-0.6),professor:0.42,wildcard:0.42,
   };
   let h=2166136261;for(let i=0;i<user.length;i++){h^=user.charCodeAt(i);h=Math.imul(h,16777619);}
   const jit=k=>(((h^Math.imul(k.length*131+k.charCodeAt(0),2654435761))>>>0)%1000)/1000*0.30;
   let best='analyst',bv=-1e9;
   for(const k in A){const v=A[k]+jit(k);if(v>bv){bv=v;best=k;}}
   return best;
+}
+
+// ── CROWD STATS (after result) ─────────────────────────────
+function calcCrowdStats(gid){
+  const res=results[gid];if(!res)return null;
+  const actualW=winnerFrom(res.hs,res.as);
+  let total=0,outcome=0,exact=0;
+  for(const user in predictions){
+    const p=(predictions[user]&&predictions[user].picks)||{};
+    const uh=p['hs_'+gid],ua=p['as_'+gid];
+    if(uh==null||String(uh)===''||ua==null||String(ua)==='')continue;
+    total++;
+    const isExact=parseInt(uh)===res.hs&&parseInt(ua)===res.as;
+    const predW=winnerFrom(uh,ua);
+    if(isExact){exact++;outcome++;}
+    else if(predW&&predW===actualW){outcome++;}
+  }
+  return{total,outcome,exact};
+}
+
+// ── CROWD PICK (most popular prediction, always visible) ───
+function calcCrowdPick(gid,homeTeam,awayTeam){
+  const votes={home:0,draw:0,away:0};
+  for(const user in predictions){
+    const p=(predictions[user]&&predictions[user].picks)||{};
+    const uh=p['hs_'+gid],ua=p['as_'+gid];
+    if(uh==null||String(uh)===''||ua==null||String(ua)==='')continue;
+    const w=winnerFrom(uh,ua);
+    if(w==='home')votes.home++;
+    else if(w==='away')votes.away++;
+    else if(w==='draw')votes.draw++;
+  }
+  const total=votes.home+votes.draw+votes.away;
+  if(!total)return null;
+  let best='home',bv=votes.home;
+  if(votes.draw>bv){best='draw';bv=votes.draw;}
+  if(votes.away>bv){best='away';bv=votes.away;}
+  const label=best==='home'?homeTeam:best==='away'?awayTeam:'Draw';
+  const pct=Math.round(bv/total*100);
+  return{label,pct,total};
+}
+
+// ── PLAYER BADGES ──────────────────────────────────────────
+// Returns badge emojis for a user. Called once per LB render with pre-computed data.
+// allStats = {exacto, daredevil, onFire, momentum} - each is null or the winning username
+function calcAllBadges(allUsers){
+  const gamesWithResults=Object.keys(results);
+  const minGames=10;
+
+  // ── 🎯 Exacto: most exact scorelines ──
+  let exactCounts={};
+  allUsers.forEach(u=>{
+    const p=(predictions[u]&&predictions[u].picks)||{};
+    let c=0;
+    gamesWithResults.forEach(gid=>{
+      const res=results[gid];
+      const uh=p['hs_'+gid],ua=p['as_'+gid];
+      if(uh==null||String(uh)===''||ua==null||String(ua)==='')return;
+      if(parseInt(uh)===res.hs&&parseInt(ua)===res.as)c++;
+    });
+    exactCounts[u]=c;
+  });
+  const exacto=gamesWithResults.length>0?allUsers.reduce((b,u)=>exactCounts[u]>exactCounts[b]?u:b,allUsers[0]):null;
+
+  // ── 🦁 Daredevil: most brave picks that paid off ──
+  let braveCounts={};
+  allUsers.forEach(u=>{
+    const p=(predictions[u]&&predictions[u].picks)||{};
+    let c=0;
+    gamesWithResults.forEach(gid=>{
+      const res=results[gid];
+      const uh=p['hs_'+gid],ua=p['as_'+gid];
+      if(uh==null||String(uh)===''||ua==null||String(ua)==='')return;
+      const actualW=winnerFrom(res.hs,res.as);
+      const predW=winnerFrom(uh,ua);
+      if(predW===actualW&&isBravePick(gid,actualW))c++;
+    });
+    braveCounts[u]=c;
+  });
+  const daredevil=gamesWithResults.length>0?allUsers.reduce((b,u)=>braveCounts[u]>braveCounts[b]?u:b,allUsers[0]):null;
+
+  // ── 🔥 On Fire: highest outcome correct % (min 10 games) ──
+  let firePct={};
+  allUsers.forEach(u=>{
+    const p=(predictions[u]&&predictions[u].picks)||{};
+    let correct=0,played=0;
+    gamesWithResults.forEach(gid=>{
+      const res=results[gid];
+      const uh=p['hs_'+gid],ua=p['as_'+gid];
+      if(uh==null||String(uh)===''||ua==null||String(ua)==='')return;
+      played++;
+      const actualW=winnerFrom(res.hs,res.as);
+      const predW=winnerFrom(uh,ua);
+      if(predW===actualW)correct++;
+    });
+    firePct[u]=played>=minGames?correct/played:-1;
+  });
+  const qualified=allUsers.filter(u=>firePct[u]>=0);
+  const onFire=qualified.length?qualified.reduce((b,u)=>firePct[u]>firePct[b]?u:b,qualified[0]):null;
+
+  // ── 📈 Momentum: biggest points jump on the most recent match day ──
+  const dayOrder=[...new Set(GAMES.map(g=>g.date))];
+  const daysWithRes=dayOrder.filter(d=>GAMES.filter(g=>g.date===d).some(g=>results[g.id]));
+  let momentum=null;
+  if(daysWithRes.length){
+    const lastDay=daysWithRes[daysWithRes.length-1];
+    const lastGames=GAMES.filter(g=>g.date===lastDay&&results[g.id]);
+    let dayScores={};
+    allUsers.forEach(u=>{
+      const p=(predictions[u]&&predictions[u].picks)||{};
+      let pts=0;
+      lastGames.forEach(g=>{
+        const res=results[g.id];
+        const uh=p['hs_'+g.id],ua=p['as_'+g.id];
+        if(uh==null||String(uh)===''||ua==null||String(ua)==='')return;
+        const actualW=winnerFrom(res.hs,res.as);
+        const predW=winnerFrom(uh,ua);
+        const exact=parseInt(uh)===res.hs&&parseInt(ua)===res.as;
+        const outOk=predW&&predW===actualW;
+        if(exact)pts+=3;else if(outOk)pts+=1;
+        if((exact||outOk)&&isBravePick(g.id,actualW))pts+=2;
+        if(exact&&isWildScore(uh,ua))pts+=2;
+      });
+      dayScores[u]=pts;
+    });
+    const momUser=allUsers.filter(u=>dayScores[u]>0);
+    if(momUser.length)momentum=momUser.reduce((b,u)=>dayScores[u]>dayScores[b]?u:b,momUser[0]);
+  }
+
+  // ── Hot takes badges ──
+  // 🗣️ Pundit: most takes submitted
+  let takeCounts={};
+  allUsers.forEach(u=>{takeCounts[u]=0;});
+  hotTakes.forEach(t=>{if(takeCounts[t.user]!==undefined)takeCounts[t.user]++;});
+  const pundit=hotTakes.length?allUsers.filter(u=>takeCounts[u]>0).reduce((b,u)=>takeCounts[u]>takeCounts[b]?u:b,allUsers.filter(u=>takeCounts[u]>0)[0]||null):null;
+
+  // ⭐ Fan Favourite: highest total net upvotes
+  let netVotes={};
+  allUsers.forEach(u=>{netVotes[u]=0;});
+  hotTakes.forEach(t=>{if(netVotes[t.user]!==undefined)netVotes[t.user]+=(t.up-t.down);});
+  const fanFav=hotTakes.length?allUsers.filter(u=>netVotes[u]>0).reduce((b,u)=>netVotes[u]>netVotes[b]?u:b,allUsers.filter(u=>netVotes[u]>0)[0]||null):null;
+
+  // ⚡ Lightning Rod: most total votes (up+down)
+  let totalVotes={};
+  allUsers.forEach(u=>{totalVotes[u]=0;});
+  hotTakes.forEach(t=>{if(totalVotes[t.user]!==undefined)totalVotes[t.user]+=(t.up+t.down);});
+  const lightningRod=hotTakes.length?allUsers.filter(u=>totalVotes[u]>0).reduce((b,u)=>totalVotes[u]>totalVotes[b]?u:b,allUsers.filter(u=>totalVotes[u]>0)[0]||null):null;
+
+  // Return map of user->badges[]
+  const badgeMap={};
+  allUsers.forEach(u=>{badgeMap[u]=[];});
+  const award=(user,emoji,label)=>{if(user&&badgeMap[user])badgeMap[user].push({emoji,label});};
+
+  // Only award performance badges if enough results exist
+  if(gamesWithResults.length>=5){
+    if(exactCounts[exacto]>0) award(exacto,'\u{1F3AF}','Exacto \u2014 most exact scores');
+    if(braveCounts[daredevil]>0) award(daredevil,'\u{1F981}','Daredevil \u2014 most brave picks paid off');
+    if(onFire) award(onFire,'\u{1F525}','On Fire \u2014 highest correct outcome %');
+    if(momentum) award(momentum,'\u{1F4C8}','Momentum \u2014 top scorer on the last match day');
+  }
+  if(pundit) award(pundit,'\u{1F5E3}\uFE0F','Pundit \u2014 most hot takes submitted');
+  if(fanFav) award(fanFav,'\u2B50','Fan Favourite \u2014 highest total net upvotes');
+  if(lightningRod) award(lightningRod,'\u26A1','Lightning Rod \u2014 most votes received');
+
+  return badgeMap;
+}
+
+// ── HARDEST / EASIEST GAME ─────────────────────────────────
+function calcGameDifficulty(){
+  const played=Object.keys(results);
+  if(!played.length)return{hardest:null,easiest:null};
+  const allU=Object.keys(predictions);
+  const gamePcts=played.map(gid=>{
+    const res=results[gid];
+    const actualW=winnerFrom(res.hs,res.as);
+    let total=0,correct=0;
+    allU.forEach(u=>{
+      const p=(predictions[u]&&predictions[u].picks)||{};
+      const uh=p['hs_'+gid],ua=p['as_'+gid];
+      if(uh==null||String(uh)===''||ua==null||String(ua)==='')return;
+      total++;
+      if(winnerFrom(uh,ua)===actualW)correct++;
+    });
+    if(!total)return null;
+    const game=GAMES.find(g=>g.id===gid);
+    return{gid,game,pct:Math.round(correct/total*100),correct,total,result:`${res.hs}\u2013${res.as}`};
+  }).filter(Boolean);
+  if(!gamePcts.length)return{hardest:null,easiest:null};
+  gamePcts.sort((a,b)=>a.pct-b.pct);
+  return{hardest:gamePcts[0],easiest:gamePcts[gamePcts.length-1]};
 }
 
 // ── GROUP STANDINGS ────────────────────────────────────────
@@ -798,7 +983,7 @@ function groupStandings(group,getScore){
     }
     return a.team.localeCompare(b.team);
   });
-  return {rows,any};
+  return{rows,any};
 }
 function standingsTableHtml(rows){
   let h=`<table class="ms-table"><thead><tr><th></th><th class="ms-l">Team</th><th>P</th><th>GD</th><th>Pts</th></tr></thead><tbody>`;
@@ -810,75 +995,57 @@ function standingsTableHtml(rows){
 function buildGroupStandings(g){
   const gs=GAMES.filter(x=>x.group===g);
   const pk=myPicks();
-  const predGet=gid=>{const hs=pk['hs_'+gid],as=pk['as_'+gid];return (hs!==''&&hs!=null&&as!==''&&as!=null)?{hs,as}:null;};
+  const predGet=gid=>{const hs=pk['hs_'+gid],as=pk['as_'+gid];return(hs!==''&&hs!=null&&as!==''&&as!=null)?{hs,as}:null;};
   const allPicked=gs.every(x=>{const hs=pk['hs_'+x.id],as=pk['as_'+x.id];return hs!==''&&hs!=null&&as!==''&&as!=null;});
   const resGet=gid=>results[gid]?{hs:results[gid].hs,as:results[gid].as}:null;
   const pred=groupStandings(g,predGet);
   const res=groupStandings(g,resGet);
   const wrap=mk('div','mini-standings');
   wrap.innerHTML=
-    `<div class="ms-cap">📋 Your Predicted Table</div>`+
+    `<div class="ms-cap">\u{1F4CB} Your Predicted Table</div>`+
     (allPicked?standingsTableHtml(pred.rows):`<div class="ms-empty">Pick all ${gs.length} group games to generate your table.</div>`)+
-    `<div class="ms-cap" style="margin-top:8px">🏁 Results Table</div>`+
+    `<div class="ms-cap" style="margin-top:8px">\u{1F3C1} Results Table</div>`+
     (res.any?standingsTableHtml(res.rows):`<div class="ms-empty">No results in yet.</div>`)+
     `<div class="ms-foot">Top 2 (highlighted) advance, plus the best third-placed teams. Ranked by FIFA rules: points, goal difference, goals scored, then head-to-head.</div>`;
   return wrap;
 }
-
 function refreshActiveUser(){
   const au=document.getElementById('activeUser');
-  if(currentUser){
-    au.textContent='Welcome '+currentUser+(currentTeam?' · '+currentTeam:'');
-    au.style.display='';
-  }
+  if(currentUser){au.textContent='Welcome '+currentUser+(currentTeam?' \u00b7 '+currentTeam:'');au.style.display='';}
 }
 
 // ── TICKER ─────────────────────────────────────────────────
-function wilsonControversy(up, down){
-  const n=up+down;
-  if(n===0)return 0;
-  const z=1.96, z2=z*z;
-  const p=Math.min(up,down)/n;
-  return (p + z2/(2*n) - z*Math.sqrt((p*(1-p)+z2/(4*n))/n)) / (1+z2/n);
+function wilsonControversy(up,down){
+  const n=up+down;if(n===0)return 0;
+  const z=1.96,z2=z*z;const p=Math.min(up,down)/n;
+  return(p+z2/(2*n)-z*Math.sqrt((p*(1-p)+z2/(4*n))/n))/(1+z2/n);
 }
-
 let tickerAnim=null;
 function buildTicker(){
-  const track=document.getElementById('tickerTrack');
-  if(!track)return;
+  const track=document.getElementById('tickerTrack');if(!track)return;
   const sorted_hot=[...hotTakes].sort((a,b)=>(b.up-b.down)-(a.up-a.down)).slice(0,5);
   const sorted_contested=[...hotTakes].sort((a,b)=>wilsonControversy(b.up,b.down)-wilsonControversy(a.up,a.down)).slice(0,5);
   const sorted_recent=[...hotTakes].sort((a,b)=>b.ts-a.ts).slice(0,5);
-
   const items=[];
   sorted_hot.forEach(t=>items.push({tag:'HOT',tagClass:'hot',user:t.user,text:t.text}));
   sorted_contested.forEach(t=>items.push({tag:'CONTESTED',tagClass:'contested',user:t.user,text:t.text}));
   sorted_recent.forEach(t=>items.push({tag:'RECENT',tagClass:'recent',user:t.user,text:t.text}));
-
   if(!items.length){
-    track.innerHTML='<div class="ticker-item"><span class="ticker-text" style="color:rgba(255,255,255,.4);font-style:italic">Hot takes will appear here once colleagues start posting…</span></div>';
-  } else {
-    track.innerHTML=items.map(it=>`
-      <div class="ticker-item">
-        <span class="ticker-tag ${it.tagClass}">${it.tag}</span>
-        <span class="ticker-user">${esc(it.user)}:</span>
-        <span class="ticker-text">${esc(it.text)}</span>
-      </div>`).join('');
+    track.innerHTML='<div class="ticker-item"><span class="ticker-text" style="color:rgba(255,255,255,.4);font-style:italic">Hot takes will appear here once colleagues start posting\u2026</span></div>';
+  }else{
+    track.innerHTML=items.map(it=>`<div class="ticker-item"><span class="ticker-tag ${it.tagClass}">${it.tag}</span><span class="ticker-user">${esc(it.user)}:</span><span class="ticker-text">${esc(it.text)}</span></div>`).join('');
   }
   track.innerHTML+=track.innerHTML;
   if(tickerAnim)cancelAnimationFrame(tickerAnim);
-  const speed=0.55;
-  let pos=0;
+  const speed=0.55;let pos=0;
   setTimeout(()=>{
     const hw=track.scrollWidth/2;
     function tick(){pos+=speed;if(pos>=hw)pos=0;track.style.transform=`translateX(-${pos}px)`;tickerAnim=requestAnimationFrame(tick);}
     tickerAnim=requestAnimationFrame(tick);
   },80);
 }
-
 function updateTickerVisibility(){
-  const ticker=document.getElementById('ticker');
-  if(!ticker)return;
+  const ticker=document.getElementById('ticker');if(!ticker)return;
   ticker.style.display=currentTab==='hot'?'none':'flex';
 }
 
@@ -895,10 +1062,10 @@ function getPanels(){return[document.getElementById('p1'),document.getElementByI
 function render(){
   const[p1,p2,p3]=getPanels();
   [p1,p2,p3].forEach(p=>{p.innerHTML='';p.className='panel';});
-  if(currentTab==='games')      renderGames(p1,p2,p3);
-  else if(currentTab==='winner')renderWinner(p1,p2,p3);
-  else if(currentTab==='hot')   renderHot(p1,p2,p3);
-  else if(currentTab==='lb')    renderLB(p1,p2,p3);
+  if(currentTab==='games')       renderGames(p1,p2,p3);
+  else if(currentTab==='winner') renderWinner(p1,p2,p3);
+  else if(currentTab==='hot')    renderHot(p1,p2,p3);
+  else if(currentTab==='lb')     renderLB(p1,p2,p3);
 }
 
 // ── GAMES TAB ──────────────────────────────────────────────
@@ -907,8 +1074,8 @@ function renderGames(p1,p2,p3){
   const groups=['A','B','C','D','E','F','G','H','I','J','K','L'];
   const locked=groupLocked();
   const notice=mk('div',locked?'cutoff-bar closed':'cutoff-bar',
-    locked?'🔒 Group-stage tipping is closed — your picks are locked in. Knockout tipping opens once the bracket is set.'
-          :'⏰ Tipping closes <strong>11 Jun 2026, 15:00 ET</strong> — when the first match kicks off.');
+    locked?'\u{1F512} Group-stage predictions are closed \u2014 your picks are locked in. Knockout predictions open once the bracket is set.'
+          :'\u23f0 Predictions close <strong>11 Jun 2026, 15:00 ET</strong> \u2014 when the first match kicks off.');
   p1.appendChild(notice);
   [[0,3],[4,7],[8,11]].forEach(([s,e],pi)=>{
     const p=ps[pi];
@@ -916,7 +1083,7 @@ function renderGames(p1,p2,p3){
       const g=groups[gi];
       const gTeams=[...new Set(GAMES.filter(x=>x.group===g).flatMap(x=>[x.home,x.away]))];
       const gh=mk('div','grp-heading');
-      gh.innerHTML=`GROUP ${g}<div class="grp-teams">${gTeams.map(t=>fl(t)+' '+t).join(' &nbsp;·&nbsp; ')}</div>`;
+      gh.innerHTML=`GROUP ${g}<div class="grp-teams">${gTeams.map(t=>fl(t)+' '+t).join(' &nbsp;\u00b7&nbsp; ')}</div>`;
       p.appendChild(gh);
       GAMES.filter(gm=>gm.group===g).forEach(gm=>p.appendChild(buildGameCard(gm,locked)));
       p.appendChild(buildGroupStandings(g));
@@ -944,37 +1111,68 @@ function buildGameCard(gm,locked){
     const outOk=predW&&predW===actualW;
     if(exact){pts=3;note='Exact score';}
     else if(outOk){pts=1;note='Correct outcome';}
-    if((exact||outOk)&&isBravePick(gm.id,actualW)){pts+=2;note+=' ⚡ Brave Pick';}
-    if(exact&&isWildScore(hs,as)){pts+=2;note+=' 🎲 Wild Score';}
+    if((exact||outOk)&&isBravePick(gm.id,actualW)){pts+=2;note+='\u26a1 Brave Pick';}
+    if(exact&&isWildScore(hs,as)){pts+=2;note+='\u{1F3B2} Wild Score';}
     const cls=pts>=3?'pts-high':pts>=1?'pts-med':'pts0';
     ptsHtml=`<span class="result-pts ${cls}" title="${note}">${pts>0?'+'+pts:0} pts</span>`;
   }
+
+  // crowd stats row (after result exists)
+  const crowd=res?calcCrowdStats(gm.id):null;
+  let crowdHtml='';
+  if(crowd&&crowd.total>0){
+    const outPct=Math.round(crowd.outcome/crowd.total*100);
+    const exPct=Math.round(crowd.exact/crowd.total*100);
+    const noPct=100-outPct;
+    crowdHtml=`<div class="crowd-row has-data">
+      <span class="crowd-lbl">INT crowd:</span>
+      <span class="crowd-stat exact" title="Got the exact scoreline right">\u{1F3AF} ${crowd.exact} exact<span class="crowd-pct">${exPct}%</span></span>
+      <span class="crowd-sep">\u00b7</span>
+      <span class="crowd-stat outcome" title="Got the outcome right (incl. exact scores)">\u2713 ${crowd.outcome} outcome<span class="crowd-pct">${outPct}%</span></span>
+      <span class="crowd-sep">\u00b7</span>
+      <span class="crowd-stat none" title="Missed the outcome">\u2717 ${crowd.total-crowd.outcome} missed<span class="crowd-pct">${noPct}%</span></span>
+    </div>`;
+  }
+
+  // crowd pick row (always, shows most popular prediction)
+  const cp=calcCrowdPick(gm.id,gm.home,gm.away);
+  let crowdPickHtml='';
+  if(cp&&cp.total>=2){
+    crowdPickHtml=`<div class="crowd-pick-row">
+      <span class="crowd-pick-lbl">INT picks:</span>
+      <span class="crowd-pick-val">${esc(cp.label)}</span>
+      <span class="crowd-pick-pct">${cp.pct}% (${cp.total} players)</span>
+    </div>`;
+  }
+
   card.innerHTML=`
     <div class="game-meta">
-      <span>${esc(gm.date)} · <span class="game-time-lbl">${esc(gm.time)}</span> · ${esc(gm.venue)} · <span class="game-code">${esc(gm.id)}</span></span>
+      <span>${esc(gm.date)} \u00b7 <span class="game-time-lbl">${esc(gm.time)}</span> \u00b7 ${esc(gm.venue)} \u00b7 <span class="game-code">${esc(gm.id)}</span></span>
     </div>
     <div class="matchup">
       <div class="team-col">
         <div class="tbtn${homeClass}" id="hbtn_${gm.id}">${fl(gm.home)} ${esc(gm.home)}</div>
-        <input class="score-inp" type="number" min="0" max="20" placeholder="–"
+        <input class="score-inp" type="number" min="0" max="20" placeholder="\u2013"
           value="${esc(hs)}" data-gid="${gm.id}" data-side="home"
           oninput="liveScore(this)" onchange="saveScore(this)">
       </div>
       <div class="vs-col">
         <div class="vs">VS</div>
-        <span class="score-dash">–</span>
+        <span class="score-dash">\u2013</span>
       </div>
       <div class="team-col">
         <div class="tbtn${awayClass}" id="abtn_${gm.id}">${fl(gm.away)} ${esc(gm.away)}</div>
-        <input class="score-inp" type="number" min="0" max="20" placeholder="–"
+        <input class="score-inp" type="number" min="0" max="20" placeholder="\u2013"
           value="${esc(as)}" data-gid="${gm.id}" data-side="away"
           oninput="liveScore(this)" onchange="saveScore(this)">
       </div>
     </div>
     <div class="result-row${res?' has-result':''}" id="res_${gm.id}">
       <span class="result-lbl">Result:</span>
-      ${res?`<span class="result-score">${res.hs} – ${res.as}</span>${ptsHtml}`:'<span class="result-pending">Not yet played</span>'}
-    </div>`;
+      ${res?`<span class="result-score">${res.hs} \u2013 ${res.as}</span>${ptsHtml}`:'<span class="result-pending">Not yet played</span>'}
+    </div>
+    ${crowdHtml}
+    ${crowdPickHtml}`;
   return card;
 }
 
@@ -991,9 +1189,8 @@ function liveScore(inp){
   else if(w==='away'){hb.classList.add('lose');ab.classList.add('win');}
   else if(w==='draw'){hb.classList.add('draw-t');ab.classList.add('draw-t');}
 }
-
 function saveScore(inp){
-  if(groupLocked()){toast('Group stage tipping closed ⏰');return;}
+  if(groupLocked()){toast('Group stage predictions closed \u23f0');return;}
   const card=inp.closest('.game-card');const gid=inp.dataset.gid;
   const gm=GAMES.find(g=>g.id===gid);if(!gm)return;
   const hs=card.querySelector('[data-side="home"]').value;
@@ -1002,100 +1199,84 @@ function saveScore(inp){
   setPick('hs_'+gid,hs);setPick('as_'+gid,as);
   const w=winnerFrom(hs,as);
   setPick('g_'+gid,w?(w==='home'?gm.home:w==='away'?gm.away:'Draw'):'');
-  card.classList.toggle('has-pick',hs!==''&&as!=='');toast('Saved ✓');
+  card.classList.toggle('has-pick',hs!==''&&as!=='');toast('Saved \u2713');
 }
 
 // ── KO BRACKET ─────────────────────────────────────────────
 function predictedR32(){
   const groups=['A','B','C','D','E','F','G','H','I','J','K','L'];
   const pk=myPicks();
-  const got=gid=>{const hs=pk['hs_'+gid],as=pk['as_'+gid];return (hs!==''&&hs!=null&&as!==''&&as!=null)?{hs,as}:null;};
-  if(!GAMES.every(g=>got(g.id))) return null;
-  const st={}; groups.forEach(g=>{st[g]=groupStandings(g,got).rows;});
-  const first=g=>st[g][0].team, second=g=>st[g][1].team;
-  const thirds=groups.map(g=>Object.assign({group:g}, st[g][2]));
-  thirds.sort((a,b)=> b.Pts-a.Pts || b.GD-a.GD || b.GF-a.GF || a.group.localeCompare(b.group));
+  const got=gid=>{const hs=pk['hs_'+gid],as=pk['as_'+gid];return(hs!==''&&hs!=null&&as!==''&&as!=null)?{hs,as}:null;};
+  if(!GAMES.every(g=>got(g.id)))return null;
+  const st={};groups.forEach(g=>{st[g]=groupStandings(g,got).rows;});
+  const first=g=>st[g][0].team,second=g=>st[g][1].team;
+  const thirds=groups.map(g=>Object.assign({group:g},st[g][2]));
+  thirds.sort((a,b)=>b.Pts-a.Pts||b.GD-a.GD||b.GF-a.GF||a.group.localeCompare(b.group));
   const qual=thirds.slice(0,8).map(t=>t.group);
-  const thirdTeam={}; thirds.forEach(t=>{thirdTeam[t.group]=t.team;});
-  const slots=R32.filter(m=>/Best 3rd/.test(m.away))
-                 .map(m=>({m:m.m, allowed:m.away.match(/\(([^)]+)\)/)[1].split('/')}));
-  const slotGroup={}, groupSlot={};
+  const thirdTeam={};thirds.forEach(t=>{thirdTeam[t.group]=t.team;});
+  const slots=R32.filter(m=>/Best 3rd/.test(m.away)).map(m=>({m:m.m,allowed:m.away.match(/\(([^)]+)\)/)[1].split('/')}));
+  const slotGroup={},groupSlot={};
   function aug(i,seen){
     for(const g of slots[i].allowed){
-      if(qual.includes(g) && !seen.has(g)){
+      if(qual.includes(g)&&!seen.has(g)){
         seen.add(g);
-        if(groupSlot[g]===undefined || aug(groupSlot[g],seen)){
-          groupSlot[g]=i; slotGroup[slots[i].m]=g; return true;
-        }
+        if(groupSlot[g]===undefined||aug(groupSlot[g],seen)){groupSlot[g]=i;slotGroup[slots[i].m]=g;return true;}
       }
     }
     return false;
   }
   let perfect=true;
-  for(let i=0;i<slots.length;i++) if(!aug(i,new Set())) perfect=false;
+  for(let i=0;i<slots.length;i++)if(!aug(i,new Set()))perfect=false;
   if(!perfect){
     const used=new Set(Object.values(slotGroup));
     const left=qual.filter(g=>!used.has(g));
-    slots.forEach(s=>{ if(slotGroup[s.m]===undefined) slotGroup[s.m]=left.shift(); });
+    slots.forEach(s=>{if(slotGroup[s.m]===undefined)slotGroup[s.m]=left.shift();});
   }
-  const resolve=l=>{ let m=l.match(/^1st Group ([A-L])$/); if(m) return first(m[1]);
-                     m=l.match(/^2nd Group ([A-L])$/); if(m) return second(m[1]); return null; };
+  const resolve=l=>{let m=l.match(/^1st Group ([A-L])$/);if(m)return first(m[1]);m=l.match(/^2nd Group ([A-L])$/);if(m)return second(m[1]);return null;};
   return R32.map(mt=>{
-    const home=resolve(mt.home);
-    let away, note='';
-    if(/Best 3rd/.test(mt.away)){ const g=slotGroup[mt.m]; away=g?thirdTeam[g]:null; note=g?('3rd · Grp '+g):''; }
+    const home=resolve(mt.home);let away,note='';
+    if(/Best 3rd/.test(mt.away)){const g=slotGroup[mt.m];away=g?thirdTeam[g]:null;note=g?('3rd \u00b7 Grp '+g):'';}
     else away=resolve(mt.away);
-    return {m:mt.m, venue:mt.venue, home, away, note};
+    return{m:mt.m,venue:mt.venue,home,away,note};
   });
 }
-
 function buildPredictedR32(){
   const wrap=mk('div','ko-round-block ko-predicted');
-  wrap.appendChild(mk('div','ko-round-label','🔮 Your Predicted Round of 32'));
+  wrap.appendChild(mk('div','ko-round-label','\u{1F52E} Your Predicted Round of 32'));
   const r32=predictedR32();
-  if(!r32){
-    wrap.appendChild(mk('div','ms-empty','Predict all 72 group games and this fills in automatically — the top 2 of every group plus the 8 best third-placed teams, ranked by FIFA tie-breaks (points, goal difference, then goals scored).'));
-    return wrap;
-  }
+  if(!r32){wrap.appendChild(mk('div','ms-empty','Predict all 72 group games and this fills in automatically \u2014 the top 2 of every group plus the 8 best third-placed teams, ranked by FIFA tie-breaks (points, goal difference, then goals scored).'));return wrap;}
   r32.forEach(mm=>{
     const row=mk('div','ko-match');
     const awayName=mm.away?`${fl(mm.away)} ${esc(mm.away)}`:'—';
     const awayNote=mm.note?` <span class="ko-3rd">${esc(mm.note)}</span>`:'';
-    row.innerHTML=`<div class="ko-side home"><span class="ko-match-num">M${mm.m}</span><span class="ko-qualifier winner">${mm.home?fl(mm.home)+' '+esc(mm.home):'—'}</span></div>
-      <div class="ko-vs-pill">VS</div>
-      <div class="ko-side away"><span class="ko-match-num">${esc(mm.venue)}</span><span class="ko-qualifier winner">${awayName}</span>${awayNote}</div>`;
+    row.innerHTML=`<div class="ko-side home"><span class="ko-match-num">M${mm.m}</span><span class="ko-qualifier winner">${mm.home?fl(mm.home)+' '+esc(mm.home):'—'}</span></div><div class="ko-vs-pill">VS</div><div class="ko-side away"><span class="ko-match-num">${esc(mm.venue)}</span><span class="ko-qualifier winner">${awayName}</span>${awayNote}</div>`;
     wrap.appendChild(row);
   });
   return wrap;
 }
-
 function buildKOSection(){
   const now=new Date();
   const sec=mk('div','ko-section');
-  sec.innerHTML=`<div class="ko-sec-title">⚡ Knockout Bracket</div>
-    <div class="ko-sec-sub">Official FIFA bracket — fills in as the group stage finishes. Once the matchups are confirmed, you'll be able to tip the knockout games right here.</div>`;
+  sec.innerHTML=`<div class="ko-sec-title">\u26a1 Knockout Bracket</div><div class="ko-sec-sub">Official FIFA bracket \u2014 fills in as the group stage finishes. Once the matchups are confirmed, you'll be able to predict the knockout games right here.</div>`;
   sec.appendChild(buildPredictedR32());
   KO_ROUNDS.forEach(r=>{
     const open=new Date(r.open)<=now;
     const rb=mk('div','ko-round-block');
-    rb.innerHTML=`<div class="ko-round-label">${open?'🟢':'🔒'} ${esc(r.label)} <span class="ko-round-dates">${esc(r.dates)}</span></div>`;
+    rb.innerHTML=`<div class="ko-round-label">${open?'\u{1F7E2}':'\u{1F512}'} ${esc(r.label)} <span class="ko-round-dates">${esc(r.dates)}</span></div>`;
     r.matches.forEach(m=>rb.appendChild(buildKOMatchRow(m)));
     sec.appendChild(rb);
   });
   return sec;
 }
-
 function koSideLabel(txt){
-  if(txt.startsWith('Best')) return `<span class="ko-3rd">${esc(txt)}</span>`;
-  if(/^(Winner|Loser) M/.test(txt)) return `<span class="ko-qualifier">${esc(txt)}</span>`;
+  if(txt.startsWith('Best'))return `<span class="ko-3rd">${esc(txt)}</span>`;
+  if(/^(Winner|Loser) M/.test(txt))return `<span class="ko-qualifier">${esc(txt)}</span>`;
   return `<span>${esc(txt)}</span>`;
 }
 function buildKOMatchRow(m){
-  const meta=m.venue+(m.date?' · '+m.date:'');
+  const meta=m.venue+(m.date?' \u00b7 '+m.date:'');
   const row=mk('div','ko-match');
-  row.innerHTML=`<div class="ko-side home"><span class="ko-match-num">M${m.m}</span>${koSideLabel(m.home)}</div>
-    <div class="ko-vs-pill">VS</div>
-    <div class="ko-side away"><span class="ko-match-num">${esc(meta)}</span>${koSideLabel(m.away)}</div>`;
+  row.innerHTML=`<div class="ko-side home"><span class="ko-match-num">M${m.m}</span>${koSideLabel(m.home)}</div><div class="ko-vs-pill">VS</div><div class="ko-side away"><span class="ko-match-num">${esc(meta)}</span>${koSideLabel(m.away)}</div>`;
   return row;
 }
 
@@ -1103,10 +1284,7 @@ function buildKOMatchRow(m){
 function renderWinner(p1,p2,p3){
   [p1,p2,p3].forEach(p=>p.classList.add('on'));
   const locked=groupLocked();
-  if(locked){
-    const lb=mk('div','cutoff-bar closed','🔒 Winner &amp; scorer picks are locked — the deadline has passed. Your last saved picks are final.');
-    p1.appendChild(lb);
-  }
+  if(locked){p1.appendChild(mk('div','cutoff-bar closed','\u{1F512} Winner &amp; scorer picks are locked \u2014 the deadline has passed. Your last saved picks are final.'));}
   p1.appendChild(mk('div','ptitle','Tournament Winner'));
   p1.appendChild(mk('div','psub','Who lifts the trophy on 19 July in New Jersey?'));
   const wc=myPick('winner');
@@ -1114,60 +1292,47 @@ function renderWinner(p1,p2,p3){
   if(locked)wGrid.style.cssText='pointer-events:none;opacity:.65';
   TEAMS.forEach(t=>{
     const b=mk('div','pbtn'+(wc===t?' sel':''),fl(t)+' '+esc(t));
-    b.onclick=()=>{if(!setPick('winner',t))return;toast('🏆 '+t);wGrid.querySelectorAll('.pbtn').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');refreshSummary();};
+    b.onclick=()=>{if(!setPick('winner',t))return;toast('\u{1F3C6} '+t);wGrid.querySelectorAll('.pbtn').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');refreshSummary();};
     wGrid.appendChild(b);
   });
   p1.appendChild(wGrid);
-
   p2.appendChild(mk('div','ptitle','Top Goalscorer'));
   const sc=myPick('scorer');
   const sGrid=mk('div','pick-grid');
   if(locked)sGrid.style.cssText='pointer-events:none;opacity:.65';
   SCORERS.forEach(s=>{
     const b=mk('div','pbtn'+(sc===s?' sel':''),esc(s));
-    b.onclick=()=>{if(!setPick('scorer',s))return;toast('⚽ '+s.split(' (')[0]);sGrid.querySelectorAll('.pbtn').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');refreshSummary();};
+    b.onclick=()=>{if(!setPick('scorer',s))return;toast('\u26bd '+s.split(' (')[0]);sGrid.querySelectorAll('.pbtn').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');refreshSummary();};
     sGrid.appendChild(b);
   });
   p2.appendChild(sGrid);
-
   p3.appendChild(mk('div','ptitle','Scoring System'));
   const se=mk('div','scoring-explainer');
-  se.innerHTML=`<h4>📋 How Points Work</h4>
-<div class="sc-section">
-  <div class="sc-section-title">Match Predictions</div>
-  <div class="sc-row"><div class="sc-pts">1</div><div class="sc-desc"><strong>Correct outcome</strong> — you picked the right winner, or correctly called a draw.</div></div>
-  <div class="sc-row"><div class="sc-pts">3</div><div class="sc-desc"><strong>Exact scoreline</strong> — you got the precise final score right (e.g. you predicted 2–1 and it finished 2–1). This replaces the 1-point outcome award, not added on top.</div></div>
-</div>
-<div class="sc-section">
-  <div class="sc-section-title">Bonuses (stack on top of outcome or scoreline points)</div>
-  <div class="sc-row"><div class="sc-pts">+2</div><div class="sc-desc">⚡ <strong>Brave Pick</strong> — you correctly called a clear underdog: either an underdog <em>win</em>, or a <em>draw</em>, where that result was priced at +400 or longer (decimal odds ≥ 5.00). Long-odds draws count on exactly the same terms as long-odds wins.</div></div>
-  <div class="sc-row"><div class="sc-pts">+2</div><div class="sc-desc">🎲 <strong>Wild Score</strong> — you got the exact scoreline right, and the total goals were 7 or more (e.g. 4–3, 5–2). Bonuses stack freely.</div></div>
-</div>
-<div class="sc-section">
-  <div class="sc-section-title">Examples</div>
-  <table class="odds-table">
-    <tr><th>Situation</th><th>Points</th></tr>
-    <tr><td>Predicted Brazil win, Brazil win</td><td>1 pt</td></tr>
-    <tr><td>Predicted Brazil 3–0 Haiti, result is 3–0</td><td>3 pts</td></tr>
-    <tr><td>Predicted Haiti win (clear underdog), Haiti win</td><td>1 + 2 = <strong>3 pts</strong> ⚡</td></tr>
-    <tr><td>Predicted a long-odds draw (≥ 5.00), it finishes level</td><td>1 + 2 = <strong>3 pts</strong> ⚡</td></tr>
-    <tr><td>Predicted Haiti 1–0 Brazil, result is 1–0</td><td>3 + 2 = <strong>5 pts</strong> ⚡</td></tr>
-    <tr><td>Predicted Brazil 5–2 Germany, result is 5–2</td><td>3 + 2 = <strong>5 pts</strong> 🎲</td></tr>
-    <tr><td>Predicted Haiti 4–3 Brazil, result is 4–3</td><td>3 + 2 + 2 = <strong>7 pts</strong> ⚡🎲</td></tr>
-    <tr><td>Wrong outcome</td><td>0 pts</td></tr>
-  </table>
-</div>
-<div class="sc-section">
-  <div class="sc-section-title">Tournament Bonuses (lock in before Jun 11)</div>
-  <div class="sc-row"><div class="sc-pts">15</div><div class="sc-desc">Correct tournament winner</div></div>
-  <div class="sc-row"><div class="sc-pts">15</div><div class="sc-desc">Correct top goalscorer</div></div>
-</div>
-<div class="sc-note">⚡ Brave Pick and 🎲 Wild Score bonuses stack — maximum 7 pts from a single game. Correct winner and scorer are worth 15 pts each, awarded after the final.</div>`;
+  se.innerHTML=`<h4>\u{1F4CB} How Points Work</h4>
+<div class="sc-section"><div class="sc-section-title">Match Predictions</div>
+<div class="sc-row"><div class="sc-pts">1</div><div class="sc-desc"><strong>Correct outcome</strong> \u2014 you predicted the right winner, or correctly called a draw.</div></div>
+<div class="sc-row"><div class="sc-pts">3</div><div class="sc-desc"><strong>Exact scoreline</strong> \u2014 you got the precise final score right. This replaces the 1-point outcome award, not added on top.</div></div></div>
+<div class="sc-section"><div class="sc-section-title">Bonuses (stack on top)</div>
+<div class="sc-row"><div class="sc-pts">+2</div><div class="sc-desc">\u26a1 <strong>Brave Pick</strong> \u2014 you correctly called a clear underdog at decimal odds \u2265 5.00.</div></div>
+<div class="sc-row"><div class="sc-pts">+2</div><div class="sc-desc">\u{1F3B2} <strong>Wild Score</strong> \u2014 you got the exact scoreline right and the total goals were 7 or more.</div></div></div>
+<div class="sc-section"><div class="sc-section-title">Examples</div>
+<table class="odds-table">
+<tr><th>Situation</th><th>Points</th></tr>
+<tr><td>Predicted Brazil win, Brazil win</td><td>1 pt</td></tr>
+<tr><td>Predicted Brazil 3\u20130 Haiti, result is 3\u20130</td><td>3 pts</td></tr>
+<tr><td>Predicted Haiti win (clear underdog), Haiti win</td><td>1 + 2 = <strong>3 pts</strong> \u26a1</td></tr>
+<tr><td>Predicted a long-odds draw (\u2265 5.00), it finishes level</td><td>1 + 2 = <strong>3 pts</strong> \u26a1</td></tr>
+<tr><td>Predicted Haiti 4\u20133 Brazil, result is 4\u20133</td><td>3 + 2 + 2 = <strong>7 pts</strong> \u26a1\u{1F3B2}</td></tr>
+<tr><td>Wrong outcome</td><td>0 pts</td></tr>
+</table></div>
+<div class="sc-section"><div class="sc-section-title">Tournament Bonuses (locked in before Jun 11)</div>
+<div class="sc-row"><div class="sc-pts">15</div><div class="sc-desc">Correct tournament winner</div></div>
+<div class="sc-row"><div class="sc-pts">15</div><div class="sc-desc">Correct top goalscorer</div></div></div>
+<div class="sc-note">\u26a1 Brave Pick and \u{1F3B2} Wild Score bonuses stack \u2014 maximum 7 pts from a single game.</div>`;
   p3.appendChild(se);
   const wrap=mk('div','');wrap.id='summaryWrap';p3.appendChild(wrap);
   refreshSummary();
 }
-
 function refreshSummary(){
   const wrap=document.getElementById('summaryWrap');if(!wrap)return;
   wrap.innerHTML='';
@@ -1177,36 +1342,32 @@ function refreshSummary(){
   const pct=Math.round((gp/72)*100);
   const w=picks.winner;const s=picks.scorer;
   const card=mk('div','summary-card');
-  card.innerHTML=`<h4>Score Predictions — ${gp} / 72</h4>
+  card.innerHTML=`<h4>Score Predictions \u2014 ${gp} / 72</h4>
     <div class="prog-wrap"><div class="prog-bar" style="width:${pct}%"></div></div>
-    ${w?`<div style="margin-bottom:8px"><div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:3px">Champion</div><span class="pick-pill blue">${fl(w)} ${esc(w)}</span></div>`:`<div style="font-size:11px;color:var(--text3);margin-bottom:8px">No champion picked yet ←</div>`}
-    ${s?`<div><div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:3px">Top Scorer</div><span class="pick-pill">${esc(s)}</span></div>`:`<div style="font-size:11px;color:var(--text3)">No scorer picked yet ←</div>`}`;
+    ${w?`<div style="margin-bottom:8px"><div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:3px">Champion</div><span class="pick-pill blue">${fl(w)} ${esc(w)}</span></div>`:`<div style="font-size:11px;color:var(--text3);margin-bottom:8px">No champion picked yet \u2190</div>`}
+    ${s?`<div><div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:3px">Top Scorer</div><span class="pick-pill">${esc(s)}</span></div>`:`<div style="font-size:11px;color:var(--text3)">No scorer picked yet \u2190</div>`}`;
   wrap.appendChild(card);
 }
 
 // ── HOT TAKES ──────────────────────────────────────────────
 function renderHot(p1,p2,p3){
   [p1,p2,p3].forEach(p=>p.classList.add('on'));
-  p1.appendChild(mk('div','ptitle','🔥 Hottest Takes'));
+  p1.appendChild(mk('div','ptitle','\u{1F525} Hottest Takes'));
   p1.appendChild(mk('div','psub','Ranked by net upvotes'));
   [...hotTakes].sort((a,b)=>(b.up-b.down)-(a.up-a.down)).forEach(h=>p1.appendChild(buildTakeCard(h)));
-
-  p2.appendChild(mk('div','ptitle','⚡ Most Contested'));
-  p2.appendChild(mk('div','psub','Most divisive takes — evenly split votes at volume (Wilson score)'));
+  p2.appendChild(mk('div','ptitle','\u26a1 Most Contested'));
+  p2.appendChild(mk('div','psub','Most divisive takes \u2014 evenly split votes at volume (Wilson score)'));
   [...hotTakes].sort((a,b)=>wilsonControversy(b.up,b.down)-wilsonControversy(a.up,a.down)).forEach(h=>p2.appendChild(buildTakeCard(h)));
-
   p3.appendChild(mk('div','ptitle','Submit a Take'));
   const form=mk('div','take-input-wrap');
-  form.innerHTML=`<textarea id="takeTextarea" placeholder="Your World Cup prediction… be specific! (min 15 chars)"></textarea>
-    <div class="post-row"><span>Visible to all colleagues</span><button class="btn-post" onclick="postTake()">Post 🔥</button></div>`;
+  form.innerHTML=`<textarea id="takeTextarea" placeholder="Your World Cup prediction\u2026 be specific! (min 15 chars)"></textarea>
+    <div class="post-row"><span>Visible to all colleagues</span><button class="btn-post" onclick="postTake()">Post \u{1F525}</button></div>`;
   p3.appendChild(form);
-  const divider=mk('div','');
-  divider.style.cssText='height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin:6px 0';
+  const divider=mk('div','');divider.style.cssText='height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin:6px 0';
   p3.appendChild(divider);
   const rt=mk('div','ptitle','Most Recent');p3.appendChild(rt);
   [...hotTakes].sort((a,b)=>b.ts-a.ts).slice(0,10).forEach(h=>p3.appendChild(buildTakeCard(h)));
 }
-
 function buildTakeCard(h){
   const net=h.up-h.down;const mv=h.voters&&currentUser?(h.voters[currentUser]||null):null;
   const avKey=SEED_AVATARS[h.user]||(predictions[h.user]?assignAvatar(h.user):'ghost');
@@ -1217,17 +1378,16 @@ function buildTakeCard(h){
     <span class="take-user">${esc(h.user)}</span>
     <span class="take-badge">${esc(av.label)}</span>
     <span class="take-time">${timeAgo(h.ts)}</span>
-    ${net>=5?'<span class="fire-tag">🔥 HOT</span>':''}
+    ${net>=5?'<span class="fire-tag">\u{1F525} HOT</span>':''}
   </div>
   <div class="take-text">${esc(h.text)}</div>
   <div class="vote-row">
-    <button class="vbtn${mv==='up'?' up':''}" data-tid="${h.id}" data-dir="up" onclick="vote(this)">▲ <span class="vc">${h.up}</span></button>
+    <button class="vbtn${mv==='up'?' up':''}" data-tid="${h.id}" data-dir="up" onclick="vote(this)">\u25b2 <span class="vc">${h.up}</span></button>
     <span class="vscore" style="color:${net>0?'#16a34a':net<0?'#dc2626':'var(--text3)'}">${net>0?'+':''}${net}</span>
-    <button class="vbtn${mv==='down'?' dn':''}" data-tid="${h.id}" data-dir="down" onclick="vote(this)">▼ <span class="vc">${h.down}</span></button>
+    <button class="vbtn${mv==='down'?' dn':''}" data-tid="${h.id}" data-dir="down" onclick="vote(this)">\u25bc <span class="vc">${h.down}</span></button>
   </div>`;
   return card;
 }
-
 function vote(btn){
   if(!currentUser){toast('Enter your name first!');return;}
   const id=btn.dataset.tid;const dir=btn.dataset.dir;
@@ -1246,7 +1406,7 @@ function vote(btn){
     const sc=card.querySelector('.vscore');sc.textContent=(net>0?'+':'')+net;
     sc.style.color=net>0?'#16a34a':net<0?'#dc2626':'var(--text3)';
     const hdr=card.querySelector('.take-hdr');let ft=hdr.querySelector('.fire-tag');
-    if(net>=5&&!ft){ft=mk('span','fire-tag','🔥 HOT');hdr.appendChild(ft);}
+    if(net>=5&&!ft){ft=mk('span','fire-tag','\u{1F525} HOT');hdr.appendChild(ft);}
     if(net<5&&ft)ft.remove();
   });
 }
@@ -1257,9 +1417,8 @@ function postTake(){
   if(text.length<15){toast('A bit more detail please!');return;}
   const newId='t'+Date.now();
   hotTakes.unshift({id:newId,user:currentUser,text,up:0,down:0,voters:{},ts:Date.now()});
-  saveTake(newId);ta.value='';toast('Hot take posted! 🔥');render();
+  saveTake(newId);ta.value='';toast('Hot take posted! \u{1F525}');render();
 }
-
 function getBolds(){
   const out=[];
   for(const user in predictions){
@@ -1271,47 +1430,33 @@ function getBolds(){
       const pick=p[key];
       const hs=p['hs_'+gid]||'';const as=p['as_'+gid]||'';
       const odds=GAME_ODDS[gid];if(!odds)continue;
-      let alertType='';let reason='';let score='';
+      let alertType='',reason='',score='';
       const totalGoals=(hs!==''&&as!=='')?parseInt(hs)+parseInt(as):0;
       const isWild=totalGoals>=7;
-      if(pick===game.home&&odds[0]>=5.00){
-        alertType='upset';
-        reason=`+${Math.round((odds[0]-1)*100)} underdog`;
-      } else if(pick===game.away&&odds[2]>=5.00){
-        alertType='upset';
-        reason=`+${Math.round((odds[2]-1)*100)} underdog`;
-      } else if(pick==='Draw'&&odds[1]>=5.00){
-        alertType='upset';
-        reason=`+${Math.round((odds[1]-1)*100)} draw call`;
-      }
-      if(isWild){
-        alertType=alertType?'both':'wild';
-        reason=(reason?reason+' · ':'')+`${hs}–${as} scoreline`;
-      }
-      if(alertType){
-        if(hs!==''&&as!=='') score=hs+'–'+as;
-        out.push({user,game,pick,reason,score,alertType,goals:totalGoals});
-      }
+      if(pick===game.home&&odds[0]>=5.00){alertType='upset';reason=`+${Math.round((odds[0]-1)*100)} underdog`;}
+      else if(pick===game.away&&odds[2]>=5.00){alertType='upset';reason=`+${Math.round((odds[2]-1)*100)} underdog`;}
+      else if(pick==='Draw'&&odds[1]>=5.00){alertType='upset';reason=`+${Math.round((odds[1]-1)*100)} draw call`;}
+      if(isWild){alertType=alertType?'both':'wild';reason=(reason?reason+' \u00b7 ':'')+`${hs}\u2013${as} scoreline`;}
+      if(alertType){if(hs!==''&&as!=='')score=hs+'\u2013'+as;out.push({user,game,pick,reason,score,alertType,goals:totalGoals});}
     }
   }
   const oddsOf=x=>{const o=GAME_ODDS[x.game.id]||[2,3,2];return x.pick===x.game.home?o[0]:x.pick===x.game.away?o[2]:o[1];};
   const brave=out.filter(x=>x.alertType==='upset'||x.alertType==='both').sort((a,b)=>oddsOf(b)-oddsOf(a)).slice(0,10);
   const wild=out.filter(x=>x.alertType==='wild'||x.alertType==='both').sort((a,b)=>b.goals-a.goals).slice(0,10);
-  return {brave,wild};
+  return{brave,wild};
 }
-
 function buildBoldCard(b,mode){
   const isWild=b.alertType==='wild'||b.alertType==='both';
   const isUpset=b.alertType==='upset'||b.alertType==='both';
   const showUpset=mode?mode==='brave':isUpset;
-  const showWild =mode?mode==='wild' :isWild;
+  const showWild=mode?mode==='wild':isWild;
   const card=mk('div','bold-card'+(showWild&&!showUpset?' wild':''));
   let tagHtml='';
-  if(showUpset) tagHtml+=`<div class="bold-tag"><div class="bold-dot"></div>⚡ BRAVE PICK</div>`;
-  if(showWild)  tagHtml+=`<div class="bold-tag wild-tag" style="margin-top:${showUpset?'3px':'0'}"><div class="bold-dot" style="background:var(--purple)"></div>🎲 WILD SCORE</div>`;
+  if(showUpset)tagHtml+=`<div class="bold-tag"><div class="bold-dot"></div>\u26a1 BRAVE PICK</div>`;
+  if(showWild)tagHtml+=`<div class="bold-tag wild-tag" style="margin-top:${showUpset?'3px':'0'}"><div class="bold-dot" style="background:var(--purple)"></div>\u{1F3B2} WILD SCORE</div>`;
   card.innerHTML=`${tagHtml}
-    <div class="bold-text"><strong>${esc(b.user)}</strong> tips <strong>${esc(b.pick)}</strong>${b.score?' · <em>'+esc(b.score)+'</em>':''}</div>
-    <div class="bold-meta">${fl(b.game.home)} ${esc(b.game.home)} vs ${fl(b.game.away)} ${esc(b.game.away)} · ${esc(b.game.date)} · ${esc(b.reason)}</div>`;
+    <div class="bold-text"><strong>${esc(b.user)}</strong> picks <strong>${esc(b.pick)}</strong>${b.score?' \u00b7 <em>'+esc(b.score)+'</em>':''}</div>
+    <div class="bold-meta">${fl(b.game.home)} ${esc(b.game.home)} vs ${fl(b.game.away)} ${esc(b.game.away)} \u00b7 ${esc(b.game.date)} \u00b7 ${esc(b.reason)}</div>`;
   return card;
 }
 
@@ -1327,13 +1472,12 @@ function calcPoints(user){
     const predW=winnerFrom(uh,ua);
     const exact=parseInt(uh)===res.hs&&parseInt(ua)===res.as;
     const outOk=predW&&predW===actualW;
-    if(exact) pts+=3;
-    else if(outOk) pts+=1;
-    if((exact||outOk)&&isBravePick(gid,actualW)) pts+=2;
-    if(exact&&isWildScore(uh,ua)) pts+=2;
+    if(exact)pts+=3;else if(outOk)pts+=1;
+    if((exact||outOk)&&isBravePick(gid,actualW))pts+=2;
+    if(exact&&isWildScore(uh,ua))pts+=2;
   }
-  if(OFFICIAL_WINNER && p.winner===OFFICIAL_WINNER) pts+=WINNER_BONUS;
-  if(OFFICIAL_SCORER && p.scorer===OFFICIAL_SCORER) pts+=SCORER_BONUS;
+  if(OFFICIAL_WINNER&&p.winner===OFFICIAL_WINNER)pts+=WINNER_BONUS;
+  if(OFFICIAL_SCORER&&p.scorer===OFFICIAL_SCORER)pts+=SCORER_BONUS;
   return pts;
 }
 function calcPredCount(user){
@@ -1342,160 +1486,129 @@ function calcPredCount(user){
 }
 
 // ── MATCH-DAY LEADERBOARD ──────────────────────────────────
-let mdDayIndex = -1;
+let mdDayIndex=-1;
 function gameDaysWithResults(){
   const dayOrder=[...new Set(GAMES.map(g=>g.date))];
   return dayOrder.filter(d=>GAMES.filter(g=>g.date===d).some(g=>results[g.id]));
 }
-function calcGamePts(user, gid){
-  const res=results[gid]; if(!res) return null;
+function calcGamePts(user,gid){
+  const res=results[gid];if(!res)return null;
   const p=(predictions[user]&&predictions[user].picks)||{};
-  const uh=p['hs_'+gid], ua=p['as_'+gid];
-  if(uh==null||String(uh)===''||ua==null||String(ua)==='') return null;
+  const uh=p['hs_'+gid],ua=p['as_'+gid];
+  if(uh==null||String(uh)===''||ua==null||String(ua)==='')return null;
   const actualW=winnerFrom(res.hs,res.as);
   const predW=winnerFrom(uh,ua);
   const exact=parseInt(uh)===res.hs&&parseInt(ua)===res.as;
   const outOk=predW&&predW===actualW;
   let pts=0;
-  if(exact) pts+=3; else if(outOk) pts+=1;
-  if((exact||outOk)&&isBravePick(gid,actualW)) pts+=2;
-  if(exact&&isWildScore(uh,ua)) pts+=2;
+  if(exact)pts+=3;else if(outOk)pts+=1;
+  if((exact||outOk)&&isBravePick(gid,actualW))pts+=2;
+  if(exact&&isWildScore(uh,ua))pts+=2;
   return pts;
 }
-
 function buildMatchDayLB(container){
   const days=gameDaysWithResults();
-  if(mdDayIndex===-1||mdDayIndex>=days.length) mdDayIndex=Math.max(0,days.length-1);
-  if(!days.length){
-    container.appendChild(mk('div','md-no-results','⏳ No results in yet — match-day standings will appear here once the first game finishes.'));
-    return;
-  }
+  if(mdDayIndex===-1||mdDayIndex>=days.length)mdDayIndex=Math.max(0,days.length-1);
+  if(!days.length){container.appendChild(mk('div','md-no-results','\u23f3 No results in yet \u2014 match-day standings will appear here once the first game finishes.'));return;}
   const day=days[mdDayIndex];
   const dayGames=GAMES.filter(g=>g.date===day);
   const playedGames=dayGames.filter(g=>results[g.id]);
-
   const nav=mk('div','md-nav');
-  const prevBtn=mk('button','md-nav-btn','‹');
-  prevBtn.disabled=mdDayIndex===0;
+  const prevBtn=mk('button','md-nav-btn','\u2039');prevBtn.disabled=mdDayIndex===0;
   prevBtn.onclick=()=>{mdDayIndex--;buildMatchDayLB(container);};
-  const nextBtn=mk('button','md-nav-btn','›');
-  nextBtn.disabled=mdDayIndex===days.length-1;
+  const nextBtn=mk('button','md-nav-btn','\u203a');nextBtn.disabled=mdDayIndex===days.length-1;
   nextBtn.onclick=()=>{mdDayIndex++;buildMatchDayLB(container);};
   const lbl=mk('div','');
   lbl.innerHTML=`<div class="md-nav-label">${esc(day)}</div><span class="md-nav-sub">${playedGames.length} of ${dayGames.length} game${dayGames.length!==1?'s':''} played</span>`;
   nav.appendChild(prevBtn);nav.appendChild(lbl);nav.appendChild(nextBtn);
   container.innerHTML='';
-  container.appendChild(mk('div','ptitle','📅 Match-Day Standings'));
+  container.appendChild(mk('div','ptitle','\u{1F4C5} Match-Day Standings'));
   container.appendChild(nav);
-
-  if(!playedGames.length){
-    container.appendChild(mk('div','md-no-results','No results in for this day yet.'));
-    return;
-  }
-
+  if(!playedGames.length){container.appendChild(mk('div','md-no-results','No results in for this day yet.'));return;}
   const allUsers=Object.keys(predictions).filter(u=>calcPredCount(u)>0);
-
   const dayScores=allUsers.map(u=>{
-    const pts=playedGames.reduce((sum,g)=>{
-      const p=calcGamePts(u,g.id);
-      return sum+(p!==null?p:0);
-    },0);
-    const hasPick=playedGames.some(g=>{
-      const pk=(predictions[u]&&predictions[u].picks)||{};
-      return pk['hs_'+g.id]!=null&&String(pk['hs_'+g.id])!==''&&pk['as_'+g.id]!=null&&String(pk['as_'+g.id])!=='';
-    });
-    return {name:u,pts,avatar:assignAvatar(u),hasPick};
+    const pts=playedGames.reduce((sum,g)=>{const p=calcGamePts(u,g.id);return sum+(p!==null?p:0);},0);
+    const hasPick=playedGames.some(g=>{const pk=(predictions[u]&&predictions[u].picks)||{};return pk['hs_'+g.id]!=null&&String(pk['hs_'+g.id])!==''&&pk['as_'+g.id]!=null&&String(pk['as_'+g.id])!=='';});
+    return{name:u,pts,avatar:assignAvatar(u),hasPick};
   }).filter(r=>r.hasPick&&r.pts>0).sort((a,b)=>b.pts-a.pts||a.name.localeCompare(b.name));
-
   const bigDay=mk('div','md-section');
-  bigDay.innerHTML=`<div class="md-section-head">🏆 Big Day <span style="font-size:9px;font-weight:500;color:var(--text3);text-transform:none;letter-spacing:0"> · most points today</span></div>`;
-  const medals=['🥇','🥈','🥉'];
-  if(!dayScores.length){
-    bigDay.appendChild(mk('div','md-empty','No points scored yet today.'));
-  } else {
-    dayScores.slice(0,5).forEach((r,i)=>{
-      const av=AVATARS[r.avatar]||AVATARS.ghost;
-      const row=mk('div','md-row');
-      row.innerHTML=`<div class="md-rank">${medals[i]||i+1}</div>
-        <div class="md-avatar" title="${esc(av.label)}">${av.emoji}</div>
-        <div class="md-name">${esc(r.name)}${r.name===currentUser?' <span class="lb-me">YOU</span>':''}</div>
-        <div><span class="md-pts">${r.pts}</span><span class="md-pts-lbl"> pts</span></div>`;
-      bigDay.appendChild(row);
-    });
-  }
+  bigDay.innerHTML=`<div class="md-section-head">\u{1F3C6} Big Day <span style="font-size:9px;font-weight:500;color:var(--text3);text-transform:none;letter-spacing:0"> \u00b7 most points today</span></div>`;
+  const medals=['\u{1F947}','\u{1F948}','\u{1F949}'];
+  if(!dayScores.length){bigDay.appendChild(mk('div','md-empty','No points scored yet today.'));}
+  else{dayScores.slice(0,5).forEach((r,i)=>{const av=AVATARS[r.avatar]||AVATARS.ghost;const row=mk('div','md-row');row.innerHTML=`<div class="md-rank">${medals[i]||i+1}</div><div class="md-avatar" title="${esc(av.label)}">${av.emoji}</div><div class="md-name">${esc(r.name)}${r.name===currentUser?' <span class="lb-me">YOU</span>':''}</div><div><span class="md-pts">${r.pts}</span><span class="md-pts-lbl"> pts</span></div>`;bigDay.appendChild(row);});}
   container.appendChild(bigDay);
-
   const nailedit=mk('div','md-section');
-  nailedit.innerHTML=`<div class="md-section-head">⚡ Nailed It <span style="font-size:9px;font-weight:500;color:var(--text3);text-transform:none;letter-spacing:0"> · bold predictions that paid off</span></div>`;
+  nailedit.innerHTML=`<div class="md-section-head">\u26a1 Nailed It <span style="font-size:9px;font-weight:500;color:var(--text3);text-transform:none;letter-spacing:0"> \u00b7 bold predictions that paid off</span></div>`;
   const nailedRows=[];
   playedGames.forEach(g=>{
-    const res=results[g.id]; if(!res) return;
+    const res=results[g.id];if(!res)return;
     const actualW=winnerFrom(res.hs,res.as);
-    if(!isBravePick(g.id,actualW)) return;
+    if(!isBravePick(g.id,actualW))return;
     allUsers.forEach(u=>{
       const pk=(predictions[u]&&predictions[u].picks)||{};
-      const uh=pk['hs_'+g.id], ua=pk['as_'+g.id], pick=pk['g_'+g.id];
-      if(uh==null||String(uh)===''||ua==null||String(ua)==='') return;
-      const predW=winnerFrom(uh,ua);
-      if(predW!==actualW) return;
+      const uh=pk['hs_'+g.id],ua=pk['as_'+g.id],pick=pk['g_'+g.id];
+      if(uh==null||String(uh)===''||ua==null||String(ua)==='')return;
+      const predW=winnerFrom(uh,ua);if(predW!==actualW)return;
       const exact=parseInt(uh)===res.hs&&parseInt(ua)===res.as;
       const odds=GAME_ODDS[g.id]||[2,3,2];
       const o=actualW==='home'?odds[0]:actualW==='away'?odds[2]:odds[1];
-      nailedRows.push({user:u,game:g,pick,score:`${uh}–${ua}`,actual:`${res.hs}–${res.as}`,exact,odds:o,avatar:assignAvatar(u)});
+      nailedRows.push({user:u,game:g,pick,score:`${uh}\u2013${ua}`,actual:`${res.hs}\u2013${res.as}`,exact,odds:o,avatar:assignAvatar(u)});
     });
   });
   nailedRows.sort((a,b)=>b.odds-a.odds);
-  if(!nailedRows.length){
-    nailedit.appendChild(mk('div','md-empty','No brave picks paid off yet today.'));
-  } else {
-    nailedRows.forEach(r=>{
-      const av=AVATARS[r.avatar]||AVATARS.ghost;
-      const row=mk('div','md-brave-row');
-      const oddsStr=`+${Math.round((r.odds-1)*100)}`;
-      const exactNote=r.exact?` · exact score 🎯`:'';
-      row.innerHTML=`<div class="md-brave-user">${av.emoji} ${esc(r.user)}${r.user===currentUser?' <span class="lb-me">YOU</span>':''}</div>
-        <div class="md-brave-detail">${fl(r.game.home)} ${esc(r.game.home)} vs ${fl(r.game.away)} ${esc(r.game.away)} · tipped ${esc(r.pick)} (${oddsStr}) · result ${esc(r.actual)}${exactNote}</div>`;
-      nailedit.appendChild(row);
-    });
-  }
+  if(!nailedRows.length){nailedit.appendChild(mk('div','md-empty','No brave picks paid off yet today.'));}
+  else{nailedRows.forEach(r=>{const av=AVATARS[r.avatar]||AVATARS.ghost;const row=mk('div','md-brave-row');const oddsStr=`+${Math.round((r.odds-1)*100)}`;const exactNote=r.exact?' \u00b7 exact score \u{1F3AF}':'';row.innerHTML=`<div class="md-brave-user">${av.emoji} ${esc(r.user)}${r.user===currentUser?' <span class="lb-me">YOU</span>':''}</div><div class="md-brave-detail">${fl(r.game.home)} ${esc(r.game.home)} vs ${fl(r.game.away)} ${esc(r.game.away)} \u00b7 picked ${esc(r.pick)} (${oddsStr}) \u00b7 result ${esc(r.actual)}${exactNote}</div>`;nailedit.appendChild(row);});}
   container.appendChild(nailedit);
-
   const epictry=mk('div','md-section');
-  epictry.innerHTML=`<div class="md-section-head">🌪️ Epic Try <span style="font-size:9px;font-weight:500;color:var(--text3);text-transform:none;letter-spacing:0"> · wrong outcome, 5+ goals off</span></div>`;
+  epictry.innerHTML=`<div class="md-section-head">\u{1F32A}\uFE0F Epic Try <span style="font-size:9px;font-weight:500;color:var(--text3);text-transform:none;letter-spacing:0"> \u00b7 wrong outcome, 5+ goals off</span></div>`;
   const epicRows=[];
   playedGames.forEach(g=>{
-    const res=results[g.id]; if(!res) return;
+    const res=results[g.id];if(!res)return;
     const actualW=winnerFrom(res.hs,res.as);
     allUsers.forEach(u=>{
       const pk=(predictions[u]&&predictions[u].picks)||{};
-      const uh=pk['hs_'+g.id], ua=pk['as_'+g.id];
-      if(uh==null||String(uh)===''||ua==null||String(ua)==='') return;
-      const predW=winnerFrom(uh,ua);
-      if(predW===actualW) return;
+      const uh=pk['hs_'+g.id],ua=pk['as_'+g.id];
+      if(uh==null||String(uh)===''||ua==null||String(ua)==='')return;
+      const predW=winnerFrom(uh,ua);if(predW===actualW)return;
       const diff=Math.abs(parseInt(uh)-res.hs)+Math.abs(parseInt(ua)-res.as);
-      if(diff<5) return;
-      epicRows.push({user:u,game:g,pred:`${uh}–${ua}`,actual:`${res.hs}–${res.as}`,diff,avatar:assignAvatar(u)});
+      if(diff<5)return;
+      epicRows.push({user:u,game:g,pred:`${uh}\u2013${ua}`,actual:`${res.hs}\u2013${res.as}`,diff,avatar:assignAvatar(u)});
     });
   });
   epicRows.sort((a,b)=>b.diff-a.diff||a.user.localeCompare(b.user));
-  if(!epicRows.length){
-    epictry.appendChild(mk('div','md-empty','No epic tries today — surprisingly decent predictions all round.'));
-  } else {
-    epicRows.forEach(r=>{
-      const av=AVATARS[r.avatar]||AVATARS.ghost;
-      const row=mk('div','md-try-row');
-      row.innerHTML=`<div class="md-try-user">${av.emoji} ${esc(r.user)}${r.user===currentUser?' <span class="lb-me">YOU</span>':''}</div>
-        <div class="md-try-detail">${fl(r.game.home)} ${esc(r.game.home)} vs ${fl(r.game.away)} ${esc(r.game.away)} · predicted ${esc(r.pred)}, actual ${esc(r.actual)} · ${r.diff} goals off</div>`;
-      epictry.appendChild(row);
-    });
-  }
+  if(!epicRows.length){epictry.appendChild(mk('div','md-empty','No epic tries today \u2014 surprisingly decent predictions all round.'));}
+  else{epicRows.forEach(r=>{const av=AVATARS[r.avatar]||AVATARS.ghost;const row=mk('div','md-try-row');row.innerHTML=`<div class="md-try-user">${av.emoji} ${esc(r.user)}${r.user===currentUser?' <span class="lb-me">YOU</span>':''}</div><div class="md-try-detail">${fl(r.game.home)} ${esc(r.game.home)} vs ${fl(r.game.away)} ${esc(r.game.away)} \u00b7 predicted ${esc(r.pred)}, actual ${esc(r.actual)} \u00b7 ${r.diff} goals off</div>`;epictry.appendChild(row);});}
   container.appendChild(epictry);
 }
 
 // ── LEADERBOARD ────────────────────────────────────────────
-// Team tiebreak order — used when two teams have equal avg pts.
-// Follows the INT_TEAMS array order (index = membership/seniority number).
 const TEAM_ORDER=Object.fromEntries(INT_TEAMS.map((t,i)=>[t,i]));
+
+function buildGameDiffSection(hardest,easiest){
+  const sec=mk('div','game-diff-section');
+  let html=`<div class="pv-subhead">\u{1F3AF} Easiest vs Hardest Games</div>`;
+  if(easiest){
+    html+=`<div class="game-diff-row">
+      <div class="game-diff-pct easy">${easiest.pct}%</div>
+      <div class="game-diff-meta">
+        <div class="game-diff-teams">\u{2705} Easiest \u00b7 ${fl(easiest.game.home)}${esc(easiest.game.home)} vs ${fl(easiest.game.away)}${esc(easiest.game.away)}</div>
+        <div class="game-diff-score">Result ${easiest.result} \u00b7 ${easiest.correct}/${easiest.total} got the outcome right</div>
+      </div>
+    </div>`;
+  }
+  if(hardest){
+    html+=`<div class="game-diff-row">
+      <div class="game-diff-pct hard">${hardest.pct}%</div>
+      <div class="game-diff-meta">
+        <div class="game-diff-teams">\u{1F9E9} Hardest \u00b7 ${fl(hardest.game.home)}${esc(hardest.game.home)} vs ${fl(hardest.game.away)}${esc(hardest.game.away)}</div>
+        <div class="game-diff-score">Result ${hardest.result} \u00b7 only ${hardest.correct}/${hardest.total} got the outcome right</div>
+      </div>
+    </div>`;
+  }
+  if(!easiest&&!hardest)html+=`<div style="font-size:10px;color:var(--text3);font-style:italic;padding:3px 0">No results yet \u2014 check back after the first games.</div>`;
+  sec.innerHTML=html;
+  return sec;
+}
 
 function renderLB(p1,p2,p3){
   [p1,p2,p3].forEach(p=>p.classList.add('on'));
@@ -1506,98 +1619,88 @@ function renderLB(p1,p2,p3){
     team:(predictions[u]&&predictions[u].team)||'',avatar:assignAvatar(u),
   })).sort((a,b)=>b.pts-a.pts||b.preds-a.preds||a.name.localeCompare(b.name));
 
+  // pre-compute badges and game difficulty
+  const badgeMap=calcAllBadges(allU);
+  const{hardest,easiest}=calcGameDifficulty();
+
   const mdContainer=mk('div','');
   buildMatchDayLB(mdContainer);
   p1.appendChild(mdContainer);
 
-  p1.appendChild(mk('div','ptitle','🏅 Individual Standings'));
+  p1.appendChild(mk('div','ptitle','\u{1F3C5} Individual Standings'));
   const sr=mk('div','stats-row');
   sr.innerHTML=`<div class="stat-c"><div class="stat-n">${allU.length}</div><div class="stat-l">Players</div></div>
     <div class="stat-c"><div class="stat-n">${gamesPlayed}</div><div class="stat-l">Results in</div></div>
-    <div class="stat-c"><div class="stat-n">${rows[0]&&rows[0].pts>0?rows[0].pts:'—'}</div><div class="stat-l">Top score</div></div>`;
+    <div class="stat-c"><div class="stat-n">${rows[0]&&rows[0].pts>0?rows[0].pts:'\u2014'}</div><div class="stat-l">Top score</div></div>`;
   p1.appendChild(sr);
   const lbNote=mk('div','');
   lbNote.style.cssText='margin:2px 0 4px;padding:6px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;font-size:10.5px;color:var(--text3);line-height:1.5';
-  lbNote.textContent='ℹ️ Results are entered after each match, so standings typically update within about two hours of a game finishing.';
+  lbNote.textContent='\u2139\uFE0F Results are entered after each match, so standings typically update within about 15 minutes of a game finishing.';
   p1.appendChild(lbNote);
-  if(!rows.length)p1.appendChild(mk('div','psub','No score predictions yet — be the first!'));
+  if(!rows.length)p1.appendChild(mk('div','psub','No score predictions yet \u2014 be the first!'));
   rows.forEach((r,i)=>{
     const av=AVATARS[r.avatar]||AVATARS.ghost;
+    const badges=badgeMap[r.name]||[];
+    const badgesHtml=badges.length?`<div class="lb-badges">${badges.map(b=>`<span class="lb-badge" title="${esc(b.label)}">${b.emoji}</span>`).join('')}</div>`:'';
     const row=mk('div','lb-row'+(i===0?' r1':i===1?' r2':i===2?' r3':''));
     const teamsHtml=teamList(r.team).map(tm=>`<div class="lb-team-badge">${esc(tm)}</div>`).join('');
-    row.innerHTML=`<div class="lb-rank">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div>
+    row.innerHTML=`<div class="lb-rank">${i===0?'\u{1F947}':i===1?'\u{1F948}':i===2?'\u{1F949}':i+1}</div>
       <div class="lb-avatar" title="${esc(av.label)}: ${esc(av.desc)}">${av.emoji}</div>
       <div class="lb-name">${esc(r.name)} ${r.name===currentUser?'<span class="lb-me">YOU</span>':''}</div>
+      ${badgesHtml}
       ${teamsHtml?`<div class="lb-teams">${teamsHtml}</div>`:''}
-      <div><span class="lb-pts">${r.pts}</span><span class="lb-pts-lbl"> pts · ${r.preds} picks</span></div>`;
+      <div><span class="lb-pts">${r.pts}</span><span class="lb-pts-lbl"> pts \u00b7 ${r.preds} picks</span></div>`;
     p1.appendChild(row);
   });
 
-  p2.appendChild(mk('div','ptitle','👥 Team Standings'));
+  p2.appendChild(mk('div','ptitle','\u{1F465} Team Standings'));
   p2.appendChild(mk('div','psub','Average points per INT team member'));
   const teamMap={};
-  rows.forEach(r=>{
-    teamList(r.team).forEach(tm=>{
-      if(!teamMap[tm])teamMap[tm]={total:0,count:0};
-      teamMap[tm].total+=r.pts;teamMap[tm].count++;
-    });
-  });
+  rows.forEach(r=>{teamList(r.team).forEach(tm=>{if(!teamMap[tm])teamMap[tm]={total:0,count:0};teamMap[tm].total+=r.pts;teamMap[tm].count++;});});
   const teamRows=Object.entries(teamMap).map(([name,v])=>({name,avg:+(v.total/v.count).toFixed(1),total:v.total,count:v.count}))
     .sort((a,b)=>{
-      if(b.avg!==a.avg) return b.avg-a.avg;
-      if(b.total!==a.total) return b.total-a.total;
-      const oa=TEAM_ORDER[a.name]??999;
-      const ob=TEAM_ORDER[b.name]??999;
-      return oa-ob;
+      if(b.avg!==a.avg)return b.avg-a.avg;if(b.total!==a.total)return b.total-a.total;
+      const oa=TEAM_ORDER[a.name]??999,ob=TEAM_ORDER[b.name]??999;return oa-ob;
     });
   if(!teamRows.length)p2.appendChild(mk('div','psub','No team registrations yet.'));
   teamRows.forEach((t,i)=>{
     const row=mk('div','ts-row');
-    row.innerHTML=`<div class="ts-rank">${i+1}</div>
-      <div class="ts-name">${esc(t.name)}</div>
-      <div class="ts-count">${t.count} member${t.count!==1?'s':''}</div>
-      <div class="ts-avg">${t.avg} avg</div>`;
+    row.innerHTML=`<div class="ts-rank">${i+1}</div><div class="ts-name">${esc(t.name)}</div><div class="ts-count">${t.count} member${t.count!==1?'s':''}</div><div class="ts-avg">${t.avg} avg</div>`;
     p2.appendChild(row);
   });
 
-  p2.appendChild(mk('div','ptitle','⚖️ Popular Verdict'));
+  p2.appendChild(mk('div','ptitle','\u2696\uFE0F Popular Verdict'));
   p2.appendChild(mk('div','psub','Top 10 most-picked winner and scorer across all entries'));
   const winnerPicks=Object.values(predictions).map(p=>p.picks&&p.picks.winner).filter(Boolean);
   const scorerPicks=Object.values(predictions).map(p=>p.picks&&p.picks.scorer).filter(Boolean);
-  const totalW=winnerPicks.length||1;
-  const totalS=scorerPicks.length||1;
+  const totalW=winnerPicks.length||1,totalS=scorerPicks.length||1;
   const wC={},sC={};
   winnerPicks.forEach(w=>{wC[w]=(wC[w]||0)+1;});
   scorerPicks.forEach(s=>{sC[s]=(sC[s]||0)+1;});
   const topW=Object.entries(wC).sort((a,b)=>b[1]-a[1]).slice(0,10);
   const topS=Object.entries(sC).sort((a,b)=>b[1]-a[1]).slice(0,10);
-  const medals=['🥇','🥈','🥉'];
+  const medals=['\u{1F947}','\u{1F948}','\u{1F949}'];
   const pv=mk('div','pv-section');
-  let pvHtml=`<div class="pv-subhead">🏆 Favourite to Win</div>`;
-  if(topW.length){
-    topW.forEach(([name,count],i)=>{
-      const pct=Math.round(count/totalW*100);
-      pvHtml+=`<div class="pv-row"><span class="pv-rank">${medals[i]||(i+1)}</span><span class="pv-name">${fl(name)}${esc(name)}</span><span class="pv-pct">${count} pick${count!==1?'s':''} · ${pct}%</span></div>`;
-    });
-  } else { pvHtml+=`<div class="pv-row"><span class="pv-name" style="color:var(--text3);font-style:italic">No winner picks yet</span></div>`; }
-  pvHtml+=`<div class="pv-subhead" style="margin-top:10px">⚽ Favourite Scorer</div>`;
-  if(topS.length){
-    topS.forEach(([name,count],i)=>{
-      const pct=Math.round(count/totalS*100);
-      pvHtml+=`<div class="pv-row"><span class="pv-rank">${medals[i]||(i+1)}</span><span class="pv-name">${esc(name)}</span><span class="pv-pct">${count} pick${count!==1?'s':''} · ${pct}%</span></div>`;
-    });
-  } else { pvHtml+=`<div class="pv-row"><span class="pv-name" style="color:var(--text3);font-style:italic">No scorer picks yet</span></div>`; }
+  let pvHtml=`<div class="pv-subhead">\u{1F3C6} Favourite to Win</div>`;
+  if(topW.length){topW.forEach(([name,count],i)=>{const pct=Math.round(count/totalW*100);pvHtml+=`<div class="pv-row"><span class="pv-rank">${medals[i]||(i+1)}</span><span class="pv-name">${fl(name)}${esc(name)}</span><span class="pv-pct">${count} pick${count!==1?'s':''} \u00b7 ${pct}%</span></div>`;});}
+  else{pvHtml+=`<div class="pv-row"><span class="pv-name" style="color:var(--text3);font-style:italic">No winner picks yet</span></div>`;}
+  pvHtml+=`<div class="pv-subhead" style="margin-top:10px">\u26bd Favourite Scorer</div>`;
+  if(topS.length){topS.forEach(([name,count],i)=>{const pct=Math.round(count/totalS*100);pvHtml+=`<div class="pv-row"><span class="pv-rank">${medals[i]||(i+1)}</span><span class="pv-name">${esc(name)}</span><span class="pv-pct">${count} pick${count!==1?'s':''} \u00b7 ${pct}%</span></div>`;});}
+  else{pvHtml+=`<div class="pv-row"><span class="pv-name" style="color:var(--text3);font-style:italic">No scorer picks yet</span></div>`;}
   pv.innerHTML=pvHtml;
   p2.appendChild(pv);
 
-  p3.appendChild(mk('div','ptitle','⚡ Bold Predictions'));
-  p3.appendChild(mk('div','psub','⚡ Brave Pick: backing clear underdogs &nbsp;·&nbsp; 🎲 Wild Score: predicting 7+ goal games'));
-  const {brave,wild}=getBolds();
-  const braveHead=mk('div','pv-subhead','⚡ Bravest Picks');braveHead.style.marginTop='2px';
+  // hardest/easiest game
+  p2.appendChild(buildGameDiffSection(hardest,easiest));
+
+  p3.appendChild(mk('div','ptitle','\u26a1 Bold Predictions'));
+  p3.appendChild(mk('div','psub','\u26a1 Brave Pick: backing clear underdogs &nbsp;\u00b7&nbsp; \u{1F3B2} Wild Score: predicting 7+ goal games'));
+  const{brave,wild}=getBolds();
+  const braveHead=mk('div','pv-subhead','\u26a1 Bravest Picks');braveHead.style.marginTop='2px';
   p3.appendChild(braveHead);
   if(!brave.length)p3.appendChild(mk('div','psub','No brave picks yet.'));
   brave.forEach(b=>p3.appendChild(buildBoldCard(b,'brave')));
-  const wildHead=mk('div','pv-subhead','🎲 Wildest Scores');wildHead.style.marginTop='10px';
+  const wildHead=mk('div','pv-subhead','\u{1F3B2} Wildest Scores');wildHead.style.marginTop='10px';
   p3.appendChild(wildHead);
   if(!wild.length)p3.appendChild(mk('div','psub','No wild scores yet.'));
   wild.forEach(b=>p3.appendChild(buildBoldCard(b,'wild')));
@@ -1608,35 +1711,18 @@ async function sha256(str){
   const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
-
 function buildTeamChips(){
   const box=document.getElementById('ob-teams');if(!box)return;
   box.innerHTML='';
-  INT_TEAMS.forEach(t=>{
-    const c=mk('div','ob-chip',esc(t));c.dataset.team=t;
-    c.onclick=()=>c.classList.toggle('sel');
-    box.appendChild(c);
-  });
+  INT_TEAMS.forEach(t=>{const c=mk('div','ob-chip',esc(t));c.dataset.team=t;c.onclick=()=>c.classList.toggle('sel');box.appendChild(c);});
 }
-
 function buildEditorChips(){
   const box=document.getElementById('te-teams');if(!box)return;
-  const mine=teamList(currentTeam);
-  box.innerHTML='';
-  INT_TEAMS.forEach(t=>{
-    const c=mk('div','ob-chip'+(mine.includes(t)?' sel':''),esc(t));c.dataset.team=t;
-    c.onclick=()=>c.classList.toggle('sel');
-    box.appendChild(c);
-  });
+  const mine=teamList(currentTeam);box.innerHTML='';
+  INT_TEAMS.forEach(t=>{const c=mk('div','ob-chip'+(mine.includes(t)?' sel':''),esc(t));c.dataset.team=t;c.onclick=()=>c.classList.toggle('sel');box.appendChild(c);});
 }
-function openTeamEditor(){
-  if(!currentUser)return;
-  buildEditorChips();
-  const m=document.getElementById('teamEditor');if(m)m.style.display='flex';
-}
-function closeTeamEditor(){
-  const m=document.getElementById('teamEditor');if(m)m.style.display='none';
-}
+function openTeamEditor(){if(!currentUser)return;buildEditorChips();const m=document.getElementById('teamEditor');if(m)m.style.display='flex';}
+function closeTeamEditor(){const m=document.getElementById('teamEditor');if(m)m.style.display='none';}
 function saveTeamEditor(){
   if(!currentUser){closeTeamEditor();return;}
   const sel=[...document.querySelectorAll('#te-teams .ob-chip.sel')].map(c=>c.dataset.team);
@@ -1646,13 +1732,9 @@ function saveTeamEditor(){
   predictions[currentUser].team=tm;
   if(tm)localStorage.setItem('wc26_team',tm);else localStorage.removeItem('wc26_team');
   const au=document.getElementById('activeUser');
-  if(au)au.textContent='Welcome '+currentUser+(tm?' · '+tm:'');
-  closeTeamEditor();
-  scheduleSave();
-  toast(tm?'Teams updated ✓':'Teams cleared ✓');
-  render();
+  if(au)au.textContent='Welcome '+currentUser+(tm?' \u00b7 '+tm:'');
+  closeTeamEditor();scheduleSave();toast(tm?'Teams updated \u2713':'Teams cleared \u2713');render();
 }
-
 async function obSubmit(){
   const nm=(document.getElementById('ob-name').value||'').trim();
   const pw=(document.getElementById('ob-pw').value||'').trim();
@@ -1663,49 +1745,31 @@ async function obSubmit(){
   if(!nm){err.textContent='Please enter your name.';return;}
   if(nm.length<2){err.textContent='Name must be at least 2 characters.';return;}
   if(!pw||pw.length<4){err.textContent='Please choose a password (minimum 4 characters).';return;}
-  err.textContent='';
-  btn.textContent='Checking…';btn.style.opacity='0.7';btn.disabled=true;
+  err.textContent='';btn.textContent='Checking\u2026';btn.style.opacity='0.7';btn.disabled=true;
   const pwHash=await sha256(nm.toLowerCase()+'::'+pw);
-  let existingPicks=null;
-  let existingTeam=tm;
-  let isReturning=false;
+  let existingPicks=null,existingTeam=tm,isReturning=false;
   try{
-    const {data,error}=await sb.from('predictions')
-      .select('username,picks,team,password_hash')
-      .eq('username',nm)
-      .maybeSingle();
-    if(!error && data){
+    const{data,error}=await sb.from('predictions').select('username,picks,team,password_hash').eq('username',nm).maybeSingle();
+    if(!error&&data){
       const storedHash=data.password_hash||'';
-      if(storedHash && storedHash!==pwHash){
-        err.textContent='Wrong password for "'+nm+'". Try again, or use a different name.';
-        btn.textContent='Enter the Challenge →';btn.style.opacity='1';btn.disabled=false;
-        return;
-      }
-      existingPicks=data.picks||{};
-      existingTeam=tm||data.team||'';
-      isReturning=true;
+      if(storedHash&&storedHash!==pwHash){err.textContent='Wrong password for "'+nm+'". Try again, or use a different name.';btn.textContent='Enter the Challenge \u2192';btn.style.opacity='1';btn.disabled=false;return;}
+      existingPicks=data.picks||{};existingTeam=tm||data.team||'';isReturning=true;
     }
-  }catch(e){ console.warn('Supabase lookup failed, continuing offline',e); }
-  currentUser=nm; currentTeam=existingTeam;
-  localStorage.setItem('wc26_user',nm);
-  localStorage.setItem('wc26_pwhash',pwHash);
-  if(existingTeam) localStorage.setItem('wc26_team',existingTeam);
-  predictions[nm]={
-    picks:existingPicks||{},
-    team:existingTeam,
-    password_hash:pwHash,
-  };
+  }catch(e){console.warn('Supabase lookup failed, continuing offline',e);}
+  currentUser=nm;currentTeam=existingTeam;
+  localStorage.setItem('wc26_user',nm);localStorage.setItem('wc26_pwhash',pwHash);
+  if(existingTeam)localStorage.setItem('wc26_team',existingTeam);
+  predictions[nm]={picks:existingPicks||{},team:existingTeam,password_hash:pwHash};
   const au=document.getElementById('activeUser');
-  au.textContent='Welcome '+nm+(existingTeam?' · '+existingTeam:'');au.style.display='';
+  au.textContent='Welcome '+nm+(existingTeam?' \u00b7 '+existingTeam:'');au.style.display='';
   const ob=document.getElementById('onboarding');
   ob.style.transition='opacity .35s';ob.style.opacity='0';
   setTimeout(()=>{ob.style.display='none';},370);
-  scheduleSave();
-  buildTicker();
+  scheduleSave();buildTicker();
   const pickCount=existingPicks?Object.keys(existingPicks).filter(k=>k.startsWith('hs_')).length:0;
-  if(isReturning && pickCount>0) toast('Welcome back, '+nm+'! '+pickCount+' picks restored ✓');
-  else if(isReturning) toast('Welcome back, '+nm+'!');
-  else toast('Welcome, '+nm+'! Start picking your scores ⚽');
+  if(isReturning&&pickCount>0)toast('Welcome back, '+nm+'! '+pickCount+' picks restored \u2713');
+  else if(isReturning)toast('Welcome back, '+nm+'!');
+  else toast('Welcome, '+nm+'! Start picking your scores \u26bd');
   render();
 }
 
@@ -1715,14 +1779,10 @@ async function obSubmit(){
   buildTeamChips();
   updateTickerVisibility();
   if(currentUser){
-    const ob=document.getElementById('onboarding');
-    if(ob)ob.style.display='none';
+    const ob=document.getElementById('onboarding');if(ob)ob.style.display='none';
     const au=document.getElementById('activeUser');
-    au.textContent='Welcome '+currentUser+(currentTeam?' · '+currentTeam:'');
-    au.style.display='';
-  } else {
-    setTimeout(()=>{ const f=document.getElementById('ob-name');if(f)f.focus(); },120);
-  }
+    au.textContent='Welcome '+currentUser+(currentTeam?' \u00b7 '+currentTeam:'');au.style.display='';
+  }else{setTimeout(()=>{const f=document.getElementById('ob-name');if(f)f.focus();},120);}
   render();
 })();
 </script>
