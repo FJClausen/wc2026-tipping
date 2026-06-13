@@ -125,6 +125,18 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .game-diff-meta{flex:1;line-height:1.4}
 .game-diff-teams{font-weight:600;color:var(--text)}
 .game-diff-score{font-size:10px;color:var(--text3);margin-top:1px}
+.top-scorers-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:6px}
+.top-scorers-table th{background:var(--navy);color:#fff;padding:5px 7px;font-weight:600;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.5px}
+.top-scorers-table td{padding:5px 7px;border-bottom:1px solid var(--border)}
+.top-scorers-table tr:last-child td{border-bottom:none}
+.top-scorers-table tr:nth-child(even) td{background:var(--bg2)}
+.top-scorers-table td.ts-rank-cell{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--text3);width:22px;text-align:center}
+.top-scorers-table td.ts-goals{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--navy);text-align:center;width:28px}
+.top-scorers-table td.ts-assists{font-size:11px;color:var(--text3);text-align:center;width:24px}
+.top-scorers-section{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;flex-shrink:0;box-shadow:var(--shadow);margin-bottom:4px}
+.top-scorers-section h4{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;color:var(--navy);margin-bottom:2px;border-bottom:2px solid var(--intgold);padding-bottom:4px}
+.top-scorers-loading{font-size:11px;color:var(--text3);font-style:italic;padding:6px 0}
+/* END top scorers */
 .cutoff-bar{background:var(--goldbg);border:1.5px solid var(--gold2);border-radius:6px;padding:6px 10px;font-size:11px;color:var(--gold);font-weight:500;flex-shrink:0}
 .cutoff-bar.closed{background:#fff1f0;border-color:var(--orange);color:var(--orange2)}
 .ko-section{background:var(--surface);border:2px dashed var(--border2);border-radius:var(--radius);padding:12px;flex-shrink:0}
@@ -879,25 +891,6 @@ function calcAllBadges(allUsers){
     if(momUser.length)momentum=momUser.reduce((b,u)=>dayScores[u]>dayScores[b]?u:b,momUser[0]);
   }
 
-  // ── Hot takes badges ──
-  // 🗣️ Pundit: most takes submitted
-  let takeCounts={};
-  allUsers.forEach(u=>{takeCounts[u]=0;});
-  hotTakes.forEach(t=>{if(takeCounts[t.user]!==undefined)takeCounts[t.user]++;});
-  const pundit=hotTakes.length?allUsers.filter(u=>takeCounts[u]>0).reduce((b,u)=>takeCounts[u]>takeCounts[b]?u:b,allUsers.filter(u=>takeCounts[u]>0)[0]||null):null;
-
-  // ⭐ Fan Favourite: highest total net upvotes
-  let netVotes={};
-  allUsers.forEach(u=>{netVotes[u]=0;});
-  hotTakes.forEach(t=>{if(netVotes[t.user]!==undefined)netVotes[t.user]+=(t.up-t.down);});
-  const fanFav=hotTakes.length?allUsers.filter(u=>netVotes[u]>0).reduce((b,u)=>netVotes[u]>netVotes[b]?u:b,allUsers.filter(u=>netVotes[u]>0)[0]||null):null;
-
-  // ⚡ Lightning Rod: most total votes (up+down)
-  let totalVotes={};
-  allUsers.forEach(u=>{totalVotes[u]=0;});
-  hotTakes.forEach(t=>{if(totalVotes[t.user]!==undefined)totalVotes[t.user]+=(t.up+t.down);});
-  const lightningRod=hotTakes.length?allUsers.filter(u=>totalVotes[u]>0).reduce((b,u)=>totalVotes[u]>totalVotes[b]?u:b,allUsers.filter(u=>totalVotes[u]>0)[0]||null):null;
-
   // Return map of user->badges[]
   const badgeMap={};
   allUsers.forEach(u=>{badgeMap[u]=[];});
@@ -910,9 +903,6 @@ function calcAllBadges(allUsers){
     if(onFire) award(onFire,'\u{1F525}','On Fire \u2014 highest correct outcome %');
     if(momentum) award(momentum,'\u{1F4C8}','Momentum \u2014 top scorer on the last match day');
   }
-  if(pundit) award(pundit,'\u{1F5E3}\uFE0F','Pundit \u2014 most hot takes submitted');
-  if(fanFav) award(fanFav,'\u2B50','Fan Favourite \u2014 highest total net upvotes');
-  if(lightningRod) award(lightningRod,'\u26A1','Lightning Rod \u2014 most votes received');
 
   return badgeMap;
 }
@@ -1280,6 +1270,61 @@ function buildKOMatchRow(m){
   return row;
 }
 
+
+// ── LIVE TOP SCORERS ───────────────────────────────────────
+const FOOTBALL_KEY='83bab173afed4f01903ca9af7f67c3a3';
+let _scorersCache=null;
+let _scorersFetchedAt=0;
+
+async function fetchTopScorers(){
+  // Cache for 15 minutes to avoid hammering the API
+  if(_scorersCache&&(Date.now()-_scorersFetchedAt)<15*60*1000)return _scorersCache;
+  try{
+    const res=await fetch('https://api.football-data.org/v4/competitions/WC/scorers?limit=5',{
+      headers:{'X-Auth-Token':FOOTBALL_KEY}
+    });
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    _scorersCache=data.scorers||[];
+    _scorersFetchedAt=Date.now();
+    return _scorersCache;
+  }catch(e){
+    console.error('Top scorers fetch failed:',e);
+    return null;
+  }
+}
+
+function buildTopScorersSection(container,scorers){
+  container.innerHTML='';
+  const sec=mk('div','top-scorers-section');
+  sec.innerHTML=`<h4>\u26bd Live Top Scorers</h4>`;
+  if(!scorers||!scorers.length){
+    sec.innerHTML+=`<div class="top-scorers-loading">No scoring data yet \u2014 check back after the first games.</div>`;
+    container.appendChild(sec);
+    return;
+  }
+  let html=`<table class="top-scorers-table">
+    <thead><tr><th></th><th>Player</th><th>Team</th><th style="text-align:center">G</th><th style="text-align:center">A</th></tr></thead><tbody>`;
+  const medals=['\u{1F947}','\u{1F948}','\u{1F949}'];
+  scorers.forEach((s,i)=>{
+    const name=s.player?.name||'—';
+    const team=s.team?.name||'—';
+    const goals=s.goals??0;
+    const assists=s.assists??0;
+    html+=`<tr>
+      <td class="ts-rank-cell">${medals[i]||i+1}</td>
+      <td><strong>${esc(name)}</strong></td>
+      <td style="color:var(--text3)">${esc(team)}</td>
+      <td class="ts-goals">${goals}</td>
+      <td class="ts-assists">${assists}</td>
+    </tr>`;
+  });
+  html+=`</tbody></table>
+    <div style="font-size:9px;color:var(--text3);margin-top:5px;line-height:1.4">Live from football-data.org \u00b7 updates ~15 min after each game</div>`;
+  sec.innerHTML+=html;
+  container.appendChild(sec);
+}
+
 // ── WINNER & SCORER ────────────────────────────────────────
 function renderWinner(p1,p2,p3){
   [p1,p2,p3].forEach(p=>p.classList.add('on'));
@@ -1296,6 +1341,12 @@ function renderWinner(p1,p2,p3){
     wGrid.appendChild(b);
   });
   p1.appendChild(wGrid);
+  // Live top scorers container (fills async)
+  const scorersContainer=mk('div','');
+  scorersContainer.innerHTML=`<div class="top-scorers-section"><h4>\u26bd Live Top Scorers</h4><div class="top-scorers-loading">Loading\u2026</div></div>`;
+  p2.appendChild(scorersContainer);
+  fetchTopScorers().then(s=>buildTopScorersSection(scorersContainer,s));
+
   p2.appendChild(mk('div','ptitle','Top Goalscorer'));
   const sc=myPick('scorer');
   const sGrid=mk('div','pick-grid');
