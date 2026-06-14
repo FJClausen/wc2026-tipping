@@ -40,7 +40,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .btn-play:hover{background:var(--wbblue2)}
 .active-user{font-size:14px;font-weight:700;color:#fff;background:rgba(0,159,218,.22);border:1px solid rgba(0,159,218,.4);padding:7px 14px;border-radius:6px;white-space:nowrap;cursor:pointer;transition:background .12s}
 .active-user:hover{background:rgba(0,159,218,.34)}
-.active-user::after{content:' \u270e';opacity:.65;font-size:11px;font-weight:400}
+
 #teamEditor{display:none;position:fixed;inset:0;z-index:9990;background:rgba(0,20,40,.55);align-items:center;justify-content:center;padding:20px}
 .te-card{background:#fff;border-radius:14px;padding:24px 26px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.4);max-height:90vh;overflow-y:auto}
 .te-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:var(--navy);margin-bottom:4px}
@@ -1398,7 +1398,30 @@ function postTake(){
   hotTakes.unshift({id:newId,user:currentUser,text,up:0,down:0,voters:{},ts:Date.now()});
   saveTake(newId);ta.value='';toast('Hot take posted! \u{1F525}');render();
 }
+function getNextGameDay(){
+  // Next calendar day (by game.date string) that has at least one game scheduled
+  const today=new Date();
+  const todayStr=today.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  const allDays=[...new Set(GAMES.map(g=>g.date))];
+  // Find the first day that is today or in the future
+  // We compare by index in allDays since they're in chronological order
+  // Use a simple approach: find the earliest day not yet fully in the past
+  // by checking if any game on that day hasn't kicked off yet
+  const nowUtc=Date.now();
+  // Build a rough date for each game day using the first game's time
+  // Fall back to just returning the first day with any unfinished game
+  for(const day of allDays){
+    const dayGames=GAMES.filter(g=>g.date===day);
+    // If any game on this day has no result yet, this is a candidate
+    const hasUnplayed=dayGames.some(g=>!results[g.id]);
+    if(hasUnplayed)return day;
+  }
+  // All games played — return last day
+  return allDays[allDays.length-1]||null;
+}
+
 function getBolds(){
+  const nextDay=getNextGameDay();
   const out=[];
   for(const user in predictions){
     const p=(predictions[user]&&predictions[user].picks)||{};
@@ -1406,6 +1429,8 @@ function getBolds(){
       if(!key.startsWith('g_'))continue;
       const gid=key.replace('g_','');
       const game=GAMES.find(g=>g.id===gid);if(!game)continue;
+      // Only include games on the next scheduled day
+      if(game.date!==nextDay)continue;
       const pick=p[key];
       const hs=p['hs_'+gid]||'';const as=p['as_'+gid]||'';
       const odds=GAME_ODDS[gid];if(!odds)continue;
@@ -1420,9 +1445,9 @@ function getBolds(){
     }
   }
   const oddsOf=x=>{const o=GAME_ODDS[x.game.id]||[2,3,2];return x.pick===x.game.home?o[0]:x.pick===x.game.away?o[2]:o[1];};
-  const brave=out.filter(x=>x.alertType==='upset'||x.alertType==='both').sort((a,b)=>oddsOf(b)-oddsOf(a)).slice(0,10);
-  const wild=out.filter(x=>x.alertType==='wild'||x.alertType==='both').sort((a,b)=>b.goals-a.goals).slice(0,10);
-  return{brave,wild};
+  const brave=out.filter(x=>x.alertType==='upset'||x.alertType==='both').sort((a,b)=>oddsOf(b)-oddsOf(a));
+  const wild=out.filter(x=>x.alertType==='wild'||x.alertType==='both').sort((a,b)=>b.goals-a.goals);
+  return{brave,wild,nextDay};
 }
 function buildBoldCard(b,mode){
   const isWild=b.alertType==='wild'||b.alertType==='both';
@@ -1673,15 +1698,16 @@ function renderLB(p1,p2,p3){
   p2.appendChild(buildGameDiffSection(hardest,easiest));
 
   p3.appendChild(mk('div','ptitle','\u26a1 Bold Predictions'));
-  p3.appendChild(mk('div','psub','\u26a1 Brave Pick: backing clear underdogs &nbsp;\u00b7&nbsp; \u{1F3B2} Wild Score: predicting 7+ goal games'));
-  const{brave,wild}=getBolds();
-  const braveHead=mk('div','pv-subhead','\u26a1 Bravest Picks');braveHead.style.marginTop='2px';
+  const{brave,wild,nextDay}=getBolds();
+  const boldDayLabel=nextDay?' \u00b7 '+nextDay:'';
+  p3.appendChild(mk('div','psub','\u26a1 Brave Pick: backing clear underdogs \u00b7 \u{1F3B2} Wild Score: predicting 7+ goal games'+boldDayLabel));
+  const braveHead=mk('div','pv-subhead','\u26a1 Brave Picks'+boldDayLabel);braveHead.style.marginTop='2px';
   p3.appendChild(braveHead);
-  if(!brave.length)p3.appendChild(mk('div','psub','No brave picks yet.'));
+  if(!brave.length)p3.appendChild(mk('div','psub',nextDay?'No brave picks for '+nextDay+'.':'No brave picks yet.'));
   brave.forEach(b=>p3.appendChild(buildBoldCard(b,'brave')));
-  const wildHead=mk('div','pv-subhead','\u{1F3B2} Wildest Scores');wildHead.style.marginTop='10px';
+  const wildHead=mk('div','pv-subhead','\u{1F3B2} Wild Scores'+boldDayLabel);wildHead.style.marginTop='10px';
   p3.appendChild(wildHead);
-  if(!wild.length)p3.appendChild(mk('div','psub','No wild scores yet.'));
+  if(!wild.length)p3.appendChild(mk('div','psub',nextDay?'No wild score picks for '+nextDay+'.':'No wild scores yet.'));
   wild.forEach(b=>p3.appendChild(buildBoldCard(b,'wild')));
 }
 
