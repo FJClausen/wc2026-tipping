@@ -1399,25 +1399,17 @@ function postTake(){
   saveTake(newId);ta.value='';toast('Hot take posted! \u{1F525}');render();
 }
 function getNextGameDay(){
-  // Next calendar day (by game.date string) that has at least one game scheduled
-  const today=new Date();
-  const todayStr=today.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  // Return the first calendar day strictly after today that has games scheduled.
   const allDays=[...new Set(GAMES.map(g=>g.date))];
-  // Find the first day that is today or in the future
-  // We compare by index in allDays since they're in chronological order
-  // Use a simple approach: find the earliest day not yet fully in the past
-  // by checking if any game on that day hasn't kicked off yet
-  const nowUtc=Date.now();
-  // Build a rough date for each game day using the first game's time
-  // Fall back to just returning the first day with any unfinished game
+  const now=new Date();
+  const todayMidnight=new Date(now.getFullYear(),now.getMonth(),now.getDate());
   for(const day of allDays){
-    const dayGames=GAMES.filter(g=>g.date===day);
-    // If any game on this day has no result yet, this is a candidate
-    const hasUnplayed=dayGames.some(g=>!results[g.id]);
-    if(hasUnplayed)return day;
+    const parsed=new Date(day+' 2026');
+    if(isNaN(parsed.getTime()))continue;
+    const dayMidnight=new Date(parsed.getFullYear(),parsed.getMonth(),parsed.getDate());
+    if(dayMidnight>todayMidnight)return day;
   }
-  // All games played — return last day
-  return allDays[allDays.length-1]||null;
+  return null;
 }
 
 function getBolds(){
