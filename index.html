@@ -190,6 +190,18 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .btn-post{background:var(--orange);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:background .12s}
 .btn-post:hover{background:var(--orange2)}
 .toast.on{opacity:1;transform:translateY(0)}
+#ticker{background:linear-gradient(90deg,var(--navy) 0%,#001d3d 100%);border-top:2px solid var(--intgold);height:34px;overflow:hidden;display:flex;align-items:center;position:relative;flex-shrink:0}
+.ticker-label{background:var(--intgold);color:var(--navy);font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;padding:0 12px;height:100%;display:flex;align-items:center;flex-shrink:0;z-index:2;white-space:nowrap}
+.ticker-mask{flex:1;overflow:hidden;height:100%;position:relative}
+.ticker-track{display:flex;align-items:center;height:100%;white-space:nowrap;position:absolute;will-change:transform}
+.ticker-item{display:inline-flex;align-items:center;gap:8px;padding:0 28px;color:rgba(255,255,255,.9);font-size:11.5px;font-weight:500;border-right:1px solid rgba(255,255,255,.12)}
+.ticker-item:last-child{border-right:none}
+.ticker-tag{font-size:9px;font-weight:700;letter-spacing:1px;padding:2px 6px;border-radius:3px;flex-shrink:0}
+.ticker-tag.hot{background:rgba(200,146,10,.25);color:var(--intgold);border:1px solid rgba(200,146,10,.4)}
+.ticker-tag.contested{background:rgba(0,159,218,.2);color:var(--wbblue);border:1px solid rgba(0,159,218,.35)}
+.ticker-tag.recent{background:rgba(240,80,35,.18);color:#f97316;border:1px solid rgba(240,80,35,.3)}
+.ticker-user{font-size:10px;color:rgba(255,255,255,.45);font-weight:600;flex-shrink:0}
+.ticker-text{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -888,6 +900,7 @@ function wilsonControversy(up,down){
   return(p+z2/(2*n)-z*Math.sqrt((p*(1-p)+z2/(4*n))/n))/(1+z2/n);
 }
 let tickerAnim=null;
+let tickerStartTimer=null;
 function buildTicker(){
   const track=document.getElementById('tickerTrack');if(!track)return;
   const sorted_hot=[...hotTakes].sort((a,b)=>(b.up-b.down)-(a.up-a.down)).slice(0,5);
@@ -903,9 +916,12 @@ function buildTicker(){
     track.innerHTML=items.map(it=>`<div class="ticker-item"><span class="ticker-tag ${it.tagClass}">${it.tag}</span><span class="ticker-user">${esc(it.user)}:</span><span class="ticker-text">${esc(it.text)}</span></div>`).join('');
   }
   track.innerHTML+=track.innerHTML;
+  // Cancel any running animation loop AND any pending start timeout so we never
+  // stack multiple loops (which caused items to drift/overlap independently).
   if(tickerAnim)cancelAnimationFrame(tickerAnim);
+  if(tickerStartTimer)clearTimeout(tickerStartTimer);
   const speed=0.55;let pos=0;
-  setTimeout(()=>{
+  tickerStartTimer=setTimeout(()=>{
     const hw=track.scrollWidth/2;
     function tick(){pos+=speed;if(pos>=hw)pos=0;track.style.transform=`translateX(-${pos}px)`;tickerAnim=requestAnimationFrame(tick);}
     tickerAnim=requestAnimationFrame(tick);
