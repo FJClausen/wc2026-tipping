@@ -959,6 +959,19 @@ function renderGames(p1,p2,p3){
   });
 }
 
+function getLeader(){
+  // Returns username of the current leaderboard leader (most points, min 1pt).
+  // Returns null if no results yet or all scores are 0.
+  const allU=Object.keys(predictions).filter(u=>{
+    const p=(predictions[u]&&predictions[u].picks)||{};
+    return Object.keys(p).some(k=>k.startsWith('hs_')&&p[k]!=null&&String(p[k])!=='');
+  });
+  if(!allU.length||!Object.keys(results).length)return null;
+  let best=null,bestPts=0;
+  allU.forEach(u=>{const pts=calcPoints(u);if(pts>bestPts){bestPts=pts;best=u;}});
+  return bestPts>0?best:null;
+}
+
 function buildGameCard(gm,locked){
   const picks=myPicks();
   const hs=picks['hs_'+gm.id]||'';const as=picks['as_'+gm.id]||'';
@@ -1304,21 +1317,6 @@ function postTake(){
   const newId='t'+Date.now();
   hotTakes.unshift({id:newId,user:currentUser,text,up:0,down:0,voters:{},ts:Date.now()});
   saveTake(newId);ta.value='';toast('Hot take posted! \u{1F525}');render();
-}
-      else if(pick===game.away&&odds[2]>=5.00){alertType='upset';reason=`+${Math.round((odds[2]-1)*100)} underdog`;}
-      else if(pick==='Draw'&&odds[1]>=5.00){alertType='upset';reason=`+${Math.round((odds[1]-1)*100)} draw call`;}
-      if(isWild){alertType=alertType?'both':'wild';reason=(reason?reason+' \u00b7 ':'')+`${hs}\u2013${as} scoreline`;}
-      if(alertType){if(hs!==''&&as!=='')score=hs+'\u2013'+as;out.push({user,game,pick,reason,score,alertType,goals:totalGoals});}
-    }
-  }
-  const oddsOf=x=>{const o=GAME_ODDS[x.game.id]||[2,3,2];return x.pick===x.game.home?o[0]:x.pick===x.game.away?o[2]:o[1];};
-  const brave=out.filter(x=>x.alertType==='upset'||x.alertType==='both').sort((a,b)=>oddsOf(b)-oddsOf(a));
-  const wild=out.filter(x=>x.alertType==='wild'||x.alertType==='both').sort((a,b)=>b.goals-a.goals);
-  return{brave,wild,nextDay};
-}
-    <div class="bold-text"><strong>${esc(b.user)}</strong> picks <strong>${esc(b.pick)}</strong>${b.score?' \u00b7 <em>'+esc(b.score)+'</em>':''}</div>
-    <div class="bold-meta">${fl(b.game.home)} ${esc(b.game.home)} vs ${fl(b.game.away)} ${esc(b.game.away)} \u00b7 ${esc(b.game.date)} \u00b7 ${esc(b.reason)}</div>`;
-  return card;
 }
 
 // ── SCORING ENGINE ─────────────────────────────────────────
