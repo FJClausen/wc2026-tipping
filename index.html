@@ -60,7 +60,38 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .tab:last-child{border-right:none}
 .tab:hover{color:rgba(255,255,255,.9);background:rgba(255,255,255,.05)}
 .tab.on{color:#fff;border-bottom-color:var(--intgold);background:rgba(255,255,255,.09)}
-.panels{display:grid;grid-template-columns:1fr 1fr 1fr;overflow:hidden;height:100%}
+.panels{display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr;overflow:hidden;height:100%}
+.panels.has-today{grid-template-rows:auto 1fr}
+.panels.has-today .panel{grid-row:2}
+.today-window{grid-column:1/-1;grid-row:1;background:linear-gradient(135deg,#001d3d,var(--navy));border-bottom:3px solid var(--intgold);padding:8px 12px 10px;overflow-x:auto;overflow-y:hidden}
+.today-window-head{display:flex;align-items:center;gap:8px;margin-bottom:7px;flex-wrap:wrap}
+.today-window-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;line-height:1}
+.today-window-sub{font-size:10px;color:rgba(255,255,255,.55);font-weight:500;letter-spacing:.3px}
+.today-window-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:2px 7px;border-radius:4px;background:var(--intgold);color:var(--navy)}
+.today-window-badge.coming{background:var(--wbblue);color:#fff}
+.today-cards{display:flex;gap:8px;align-items:stretch}
+.today-card{flex:0 0 240px;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:7px 9px;box-shadow:0 2px 8px rgba(0,0,0,.18);display:flex;flex-direction:column;gap:4px}
+.today-card.is-played{opacity:.92;border-color:var(--green)}
+.today-card-meta{font-size:9px;color:var(--text3);display:flex;justify-content:space-between;align-items:center;gap:4px}
+.today-card-time{font-weight:700;color:var(--navy)}
+.today-card-status{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:1px 5px;border-radius:3px}
+.today-card-status.live{background:#fee2e2;color:#dc2626}
+.today-card-status.ft{background:#dcfce7;color:#166534}
+.today-card-status.upcoming{background:var(--bg2);color:var(--text3)}
+.today-teams{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:12px;font-weight:600}
+.today-team{flex:1;display:flex;align-items:center;gap:3px;min-width:0}
+.today-team.away{justify-content:flex-end;text-align:right}
+.today-team-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.today-vs{flex-shrink:0;font-size:10px;color:var(--text3);font-weight:700}
+.today-score{flex-shrink:0;font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--green2);padding:0 4px}
+.today-row{font-size:9.5px;display:flex;align-items:center;gap:4px;padding:2px 5px;border-radius:4px;background:var(--bg2);flex-wrap:wrap}
+.today-row .rk{color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.4px;flex-shrink:0;font-size:8.5px}
+.today-row.you{background:#eef6ff;border:1px solid #c0d8f0}
+.today-row.leader{background:#fffbf0;border:1px solid var(--gold2)}
+.today-row.crowd{background:#f4f8ff}
+.today-row .rv{font-weight:700;color:var(--navy)}
+.today-row .rx{color:var(--text3);font-size:9px}
+.today-card-empty{font-size:9.5px;color:var(--text3);font-style:italic;padding:2px 0}
 .panel{overflow-y:auto;border-right:1px solid var(--border);padding:11px 10px;display:none;flex-direction:column;gap:7px;background:var(--bg)}
 .panel.on{display:flex}
 .panel:last-child{border-right:none}
@@ -1033,6 +1064,14 @@ function getPanels(){return[document.getElementById('p1'),document.getElementByI
 function render(){
   const[p1,p2,p3]=getPanels();
   [p1,p2,p3].forEach(p=>{p.innerHTML='';p.className='panel';});
+  // Clear the today-window when leaving the games tab so it never bleeds
+  // into other tabs' layouts.
+  const panelsEl=document.querySelector('.panels');
+  if(panelsEl&&currentTab!=='games'){
+    const tw=panelsEl.querySelector('.today-window');
+    if(tw)tw.remove();
+    panelsEl.classList.remove('has-today');
+  }
   if(currentTab==='games')       renderGames(p1,p2,p3);
   else if(currentTab==='winner') renderWinner(p1,p2,p3);
   else if(currentTab==='hot')    renderHot(p1,p2,p3);
@@ -1040,8 +1079,144 @@ function render(){
 }
 
 // ── GAMES TAB ──────────────────────────────────────────────
+// ── TODAY'S GAMES WINDOW ───────────────────────────────────
+// Determine "today" in EASTERN TIME so it's identical for every user worldwide,
+// regardless of their device timezone. Format matches the GAMES `date` field
+// exactly (e.g. 'Jun 15', no leading zero).
+function todayET(){
+  return new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',month:'short',day:'numeric'}).format(new Date());
+}
+function dateToComparable(dstr){
+  // Parse a 'Mon D' game-date string into a sortable timestamp (year fixed 2026).
+  const t=new Date(dstr+' 2026 12:00:00').getTime();
+  return isNaN(t)?0:t;
+}
+// Returns {day, isToday}: today's date if it has games, otherwise the next
+// future day that does. day=null if none remain.
+function resolveTodayTarget(){
+  const today=todayET();
+  const todayVal=dateToComparable(today);
+  const uniqueDays=[...new Set(GAMES.map(g=>g.date))].sort((a,b)=>dateToComparable(a)-dateToComparable(b));
+  if(uniqueDays.includes(today))return{day:today,isToday:true};
+  for(const d of uniqueDays){if(dateToComparable(d)>todayVal)return{day:d,isToday:false};}
+  return{day:null,isToday:false};
+}
+// Sort games within a day by kickoff time. Times are 'HH:MM ET'; 00:00 sorts
+// first (it's an early-hours slot listed under this day). We sort numerically.
+function sortByKickoff(a,b){
+  const toMin=t=>{const m=/(\d{2}):(\d{2})/.exec(t);return m?parseInt(m[1])*60+parseInt(m[2]):0;};
+  return toMin(a.time)-toMin(b.time);
+}
+function buildTodayWindow(){
+  const{day,isToday}=resolveTodayTarget();
+  if(!day)return null;
+  const dayGames=GAMES.filter(g=>g.date===day).sort(sortByKickoff);
+  if(!dayGames.length)return null;
+  const win=mk('div','today-window');
+  const head=mk('div','today-window-head');
+  head.innerHTML=`<span class="today-window-title">\u26bd ${isToday?"Today's Matches":'Coming Up'}</span>`+
+    `<span class="today-window-badge${isToday?'':' coming'}">${esc(day)}</span>`+
+    `<span class="today-window-sub">${dayGames.length} match${dayGames.length!==1?'es':''} \u00b7 all times ET</span>`;
+  win.appendChild(head);
+  const cards=mk('div','today-cards');
+  dayGames.forEach(g=>cards.appendChild(buildTodayCard(g)));
+  win.appendChild(cards);
+  return win;
+}
+function buildTodayCard(gm){
+  const res=results[gm.id];
+  const card=mk('div','today-card'+(res?' is-played':''));
+  // status
+  let statusHtml;
+  if(res)statusHtml=`<span class="today-card-status ft">Full Time</span>`;
+  else statusHtml=`<span class="today-card-status upcoming">Upcoming</span>`;
+  // score or vs
+  const centre=res
+    ?`<span class="today-score">${res.hs}\u2013${res.as}</span>`
+    :`<span class="today-vs">vs</span>`;
+  // user's own pick
+  const picks=myPicks();
+  const uh=picks['hs_'+gm.id],ua=picks['as_'+gm.id];
+  const hasOwn=uh!=null&&String(uh)!==''&&ua!=null&&String(ua)!=='';
+  let youHtml='';
+  if(hasOwn){
+    let ptsTxt='';
+    if(res){
+      const aW=winnerFrom(res.hs,res.as),pW=winnerFrom(uh,ua);
+      const exact=parseInt(uh)===res.hs&&parseInt(ua)===res.as;
+      const outOk=pW&&pW===aW;
+      let pts=0;
+      if(exact)pts=3;else if(outOk)pts=1;
+      if((exact||outOk)&&isBravePick(gm.id,aW))pts+=2;
+      if(exact&&isWildScore(uh,ua))pts+=2;
+      ptsTxt=` <span class="rx">\u00b7 ${pts} pt${pts!==1?'s':''}</span>`;
+    }
+    youHtml=`<div class="today-row you"><span class="rk">You</span><span class="rv">${esc(String(uh))}\u2013${esc(String(ua))}</span>${ptsTxt}</div>`;
+  }else{
+    youHtml=`<div class="today-card-empty">No pick from you</div>`;
+  }
+  // crowd most-popular pick
+  const cp=calcCrowdPick(gm.id,gm.home,gm.away);
+  let crowdHtml='';
+  if(cp&&cp.total>=2){
+    crowdHtml=`<div class="today-row crowd"><span class="rk">INT</span><span class="rv">${esc(cp.label)}</span><span class="rx">${cp.pct}% of ${cp.total}</span></div>`;
+  }
+  // crowd accuracy (after result)
+  if(res){
+    const cs=calcCrowdStats(gm.id);
+    if(cs&&cs.total>0){
+      const outPct=Math.round(cs.outcome/cs.total*100);
+      crowdHtml+=`<div class="today-row crowd"><span class="rk">Hit</span><span class="rx">\u{1F3AF} ${cs.exact} exact \u00b7 \u2713 ${cs.outcome} outcome (${outPct}%)</span></div>`;
+    }
+  }
+  // leader's pick
+  let leaderHtml='';
+  const leader=getLeader();
+  if(leader){
+    const lp=(predictions[leader]&&predictions[leader].picks)||{};
+    const lhs=lp['hs_'+gm.id],las=lp['as_'+gm.id];
+    if(lhs!=null&&String(lhs)!==''&&las!=null&&String(las)!==''){
+      const lw=winnerFrom(lhs,las);
+      const lLabel=lw==='home'?gm.home:lw==='away'?gm.away:'Draw';
+      leaderHtml=`<div class="today-row leader"><span class="rk">\u{1F947} ${esc(leader)}</span><span class="rv">${esc(lLabel)}</span><span class="rx">${esc(String(lhs))}\u2013${esc(String(las))}</span></div>`;
+    }
+  }
+  // odds / brave indicator
+  const odds=GAME_ODDS[gm.id];
+  let oddsHtml='';
+  if(odds){
+    const braveOpts=[];
+    if(odds[0]>=5.00)braveOpts.push(gm.home);
+    if(odds[1]>=5.00)braveOpts.push('Draw');
+    if(odds[2]>=5.00)braveOpts.push(gm.away);
+    if(braveOpts.length)oddsHtml=`<div class="today-row"><span class="rk">\u26a1 Brave</span><span class="rx">${braveOpts.map(esc).join(', ')}</span></div>`;
+  }
+  card.innerHTML=`
+    <div class="today-card-meta"><span class="today-card-time">${esc(gm.time)}</span><span>${esc(gm.venue)}</span>${statusHtml}</div>
+    <div class="today-teams">
+      <span class="today-team home"><span class="today-team-name">${fl(gm.home)} ${esc(gm.home)}</span></span>
+      ${centre}
+      <span class="today-team away"><span class="today-team-name">${esc(gm.away)} ${fl(gm.away)}</span></span>
+    </div>
+    ${youHtml}${crowdHtml}${leaderHtml}${oddsHtml}`;
+  return card;
+}
+
 function renderGames(p1,p2,p3){
   const ps=[p1,p2,p3];ps.forEach(p=>p.classList.add('on'));
+  // Full-width "today's games" window spanning all three columns
+  const panelsEl=document.querySelector('.panels');
+  if(panelsEl){
+    const existing=panelsEl.querySelector('.today-window');
+    if(existing)existing.remove();
+    const todayWin=buildTodayWindow();
+    if(todayWin){
+      panelsEl.classList.add('has-today');
+      panelsEl.insertBefore(todayWin,panelsEl.firstChild);
+    }else{
+      panelsEl.classList.remove('has-today');
+    }
+  }
   const groups=['A','B','C','D','E','F','G','H','I','J','K','L'];
   const locked=groupLocked();
   const notice=mk('div',locked?'cutoff-bar closed':'cutoff-bar',
