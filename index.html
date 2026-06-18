@@ -70,7 +70,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .today-window-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:2px 7px;border-radius:4px;background:var(--intgold);color:var(--navy)}
 .today-window-badge.coming{background:var(--wbblue);color:#fff}
 .today-cards{display:flex;gap:8px;align-items:stretch}
-.today-card{flex:0 0 240px;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:7px 9px;box-shadow:0 2px 8px rgba(0,0,0,.18);display:flex;flex-direction:column;gap:4px}
+.today-card{flex:0 0 320px;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;box-shadow:0 2px 8px rgba(0,0,0,.18);display:flex;flex-direction:column;gap:5px}
 .today-card.is-played{opacity:.92;border-color:var(--green)}
 .today-card-meta{font-size:9px;color:var(--text3);display:flex;justify-content:space-between;align-items:center;gap:4px}
 .today-card-time{font-weight:700;color:var(--navy)}
@@ -78,20 +78,22 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .today-card-status.live{background:#fee2e2;color:#dc2626}
 .today-card-status.ft{background:#dcfce7;color:#166534}
 .today-card-status.upcoming{background:var(--bg2);color:var(--text3)}
-.today-teams{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:12px;font-weight:600}
-.today-team{flex:1;display:flex;align-items:center;gap:3px;min-width:0}
+.today-teams{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;font-weight:600;margin:1px 0 2px}
+.today-team{flex:1;display:flex;align-items:center;gap:4px;min-width:0}
 .today-team.away{justify-content:flex-end;text-align:right}
-.today-team-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.today-team-name{white-space:normal;line-height:1.2}
 .today-vs{flex-shrink:0;font-size:10px;color:var(--text3);font-weight:700}
-.today-score{flex-shrink:0;font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--green2);padding:0 4px}
-.today-row{font-size:9.5px;display:flex;align-items:center;gap:4px;padding:2px 5px;border-radius:4px;background:var(--bg2);flex-wrap:wrap}
-.today-row .rk{color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.4px;flex-shrink:0;font-size:8.5px}
+.today-score{flex-shrink:0;font-family:'Bebas Neue',sans-serif;font-size:19px;color:var(--green2);padding:0 6px}
+.today-row{font-size:10.5px;display:flex;align-items:center;gap:5px;padding:3px 6px;border-radius:4px;background:var(--bg2);flex-wrap:wrap}
+.today-row .rk{color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.4px;flex-shrink:0;font-size:9px}
 .today-row.you{background:#eef6ff;border:1px solid #c0d8f0}
 .today-row.leader{background:#fffbf0;border:1px solid var(--gold2)}
 .today-row.crowd{background:#f4f8ff}
 .today-row .rv{font-weight:700;color:var(--navy)}
-.today-row .rx{color:var(--text3);font-size:9px}
+.today-row .rx{color:var(--text3);font-size:9.5px}
 .today-card-empty{font-size:9.5px;color:var(--text3);font-style:italic;padding:2px 0}
+.today-pts-win{color:var(--green2)!important;font-weight:700}
+.today-pts-zero{color:#dc2626!important;font-weight:600}
 .panel{overflow-y:auto;border-right:1px solid var(--border);padding:11px 10px;display:none;flex-direction:column;gap:7px;background:var(--bg)}
 .panel.on{display:flex}
 .panel:last-child{border-right:none}
@@ -1145,11 +1147,12 @@ function buildTodayCard(gm){
       const aW=winnerFrom(res.hs,res.as),pW=winnerFrom(uh,ua);
       const exact=parseInt(uh)===res.hs&&parseInt(ua)===res.as;
       const outOk=pW&&pW===aW;
-      let pts=0;
-      if(exact)pts=3;else if(outOk)pts=1;
-      if((exact||outOk)&&isBravePick(gm.id,aW))pts+=2;
-      if(exact&&isWildScore(uh,ua))pts+=2;
-      ptsTxt=` <span class="rx">\u00b7 ${pts} pt${pts!==1?'s':''}</span>`;
+      let pts=0;const tags=[];
+      if(exact){pts=3;tags.push('exact');}else if(outOk){pts=1;tags.push('outcome');}
+      if((exact||outOk)&&isBravePick(gm.id,aW)){pts+=2;tags.push('\u26a1 brave');}
+      if(exact&&isWildScore(uh,ua)){pts+=2;tags.push('\u{1F3B2} wild');}
+      const tagStr=tags.length?' \u00b7 '+tags.join(' + '):'';
+      ptsTxt=` <span class="rx today-pts-${pts>0?'win':'zero'}">\u00b7 ${pts} pt${pts!==1?'s':''}${tagStr}</span>`;
     }
     youHtml=`<div class="today-row you"><span class="rk">You</span><span class="rv">${esc(String(uh))}\u2013${esc(String(ua))}</span>${ptsTxt}</div>`;
   }else{
