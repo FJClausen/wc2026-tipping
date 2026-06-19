@@ -1633,8 +1633,13 @@ function calcPredCount(user){
 let mdDayIndex=-1;
 let mdUserNavigated=false;  // true once the user clicks prev/next; until then, always snap to latest day
 function gameDaysWithResults(){
-  const dayOrder=[...new Set(GAMES.map(g=>g.date))];
-  return dayOrder.filter(d=>GAMES.filter(g=>g.date===d).some(g=>results[g.id]));
+  // CRITICAL: GAMES is ordered by group, not by date, so the raw date order is
+  // scrambled (Jun 11, Jun 18, Jun 24, Jun 12, ...). We must sort chronologically
+  // so that days.length-1 is genuinely the most recent day and prev/next navigate
+  // in calendar order.
+  const uniqueDays=[...new Set(GAMES.map(g=>g.date))];
+  uniqueDays.sort((a,b)=>dateToComparable(a)-dateToComparable(b));
+  return uniqueDays.filter(d=>GAMES.filter(g=>g.date===d).some(g=>results[g.id]));
 }
 function calcGamePts(user,gid){
   const res=results[gid];if(!res)return null;
