@@ -1059,7 +1059,10 @@ function showTab(t){
   document.querySelectorAll('.tab').forEach(e=>e.classList.remove('on'));
   document.getElementById('tab-'+t).classList.add('on');
   updateTickerVisibility();
-  if(t==='lb')loadData().then(render);
+  // A deliberate click into the Leaderboard resets match-day standings to the
+  // latest day. (The silent 60s auto-refresh calls render() directly, so it
+  // preserves the user's chosen day instead of snapping back.)
+  if(t==='lb'){mdUserNavigated=false;loadData().then(render);}
   else render();
 }
 function getPanels(){return[document.getElementById('p1'),document.getElementById('p2'),document.getElementById('p3')];}
@@ -1628,6 +1631,7 @@ function calcPredCount(user){
 
 // ── MATCH-DAY LEADERBOARD ──────────────────────────────────
 let mdDayIndex=-1;
+let mdUserNavigated=false;  // true once the user clicks prev/next; until then, always snap to latest day
 function gameDaysWithResults(){
   const dayOrder=[...new Set(GAMES.map(g=>g.date))];
   return dayOrder.filter(d=>GAMES.filter(g=>g.date===d).some(g=>results[g.id]));
@@ -1649,16 +1653,21 @@ function calcGamePts(user,gid){
 }
 function buildMatchDayLB(container){
   const days=gameDaysWithResults();
-  if(mdDayIndex===-1||mdDayIndex>=days.length)mdDayIndex=Math.max(0,days.length-1);
+  // Snap to the most recent day with results unless the user has manually
+  // navigated away. This ensures newly-ingested days (e.g. via the 60s refresh)
+  // automatically become the default view instead of staying on a stale day.
+  if(!mdUserNavigated||mdDayIndex<0||mdDayIndex>=days.length){
+    mdDayIndex=Math.max(0,days.length-1);
+  }
   if(!days.length){container.appendChild(mk('div','md-no-results','\u23f3 No results in yet \u2014 match-day standings will appear here once the first game finishes.'));return;}
   const day=days[mdDayIndex];
   const dayGames=GAMES.filter(g=>g.date===day);
   const playedGames=dayGames.filter(g=>results[g.id]);
   const nav=mk('div','md-nav');
   const prevBtn=mk('button','md-nav-btn','\u2039');prevBtn.disabled=mdDayIndex===0;
-  prevBtn.onclick=()=>{mdDayIndex--;buildMatchDayLB(container);};
+  prevBtn.onclick=()=>{mdUserNavigated=true;mdDayIndex--;buildMatchDayLB(container);};
   const nextBtn=mk('button','md-nav-btn','\u203a');nextBtn.disabled=mdDayIndex===days.length-1;
-  nextBtn.onclick=()=>{mdDayIndex++;buildMatchDayLB(container);};
+  nextBtn.onclick=()=>{mdUserNavigated=true;mdDayIndex++;buildMatchDayLB(container);};
   const lbl=mk('div','');
   lbl.innerHTML=`<div class="md-nav-label">${esc(day)}</div><span class="md-nav-sub">${playedGames.length} of ${dayGames.length} game${dayGames.length!==1?'s':''} played</span>`;
   nav.appendChild(prevBtn);nav.appendChild(lbl);nav.appendChild(nextBtn);
