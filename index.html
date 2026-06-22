@@ -335,7 +335,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .md-try-user{font-weight:700;color:var(--navy)}
 .md-try-detail{font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
 .md-no-results{background:var(--goldbg);border:1.5px solid var(--gold2);border-radius:7px;padding:8px 11px;font-size:11px;color:var(--golddim);flex-shrink:0}
-.toast{position:fixed;bottom:50px;right:16px;z-index:9998;background:var(--navy);border:2px solid var(--wbblue);color:#fff;padding:8px 16px;border-radius:7px;font-size:12px;font-weight:600;opacity:0;transform:translateY(6px);transition:all .2s;pointer-events:none;box-shadow:0 4px 18px rgba(0,0,0,.2)}
+.toast{position:fixed;bottom:50px;right:16px;z-index:9998;background:var(--navy);border:2px solid var(--wbblue);color:#fff;padding:8px 16px;border-radius:7px;font-size:12px;font-weight:600;opacity:0;transform:translateY(6px);transition:all .2s;pointer-events:none;box-shadow:0 4px 18px rgba(0,0,0,.2);max-width:360px;white-space:normal;line-height:1.4}
 .toast.on{opacity:1;transform:translateY(0)}
 .ob-card{background:#fff;border-radius:16px;padding:38px 42px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.4);text-align:center;max-height:94vh;overflow-y:auto}
 .ob-brandmark{margin-bottom:14px;display:flex;justify-content:center}
@@ -749,22 +749,19 @@ async function saveTake(id){
     badge('ok','Saved \u2713');setTimeout(()=>badge('ok',''),2000);
     buildTicker();
   }catch(e){
-    console.error(e);
+    console.error('saveTake failed:',e);
     badge('err','Save failed');
-    // Surface schema errors loudly (e.g. a column the table doesn't have yet)
-    // instead of letting the change silently vanish on next reload.
-    const msg=(e&&e.message)||'';
-    if(/column .* does not exist/i.test(msg)){
-      toast('\u26a0\uFE0F DB column missing \u2014 ask admin to add it in Supabase \u26a0\uFE0F');
-    }else{
-      toast('\u26a0\uFE0F Save failed \u2014 check connection \u26a0\uFE0F');
-    }
+    // Show the real error text rather than guessing at Supabase/PostgREST's
+    // exact wording — different error shapes (missing column, RLS denial,
+    // network drop) all read differently, so surface whatever it actually says.
+    const msg=(e&&(e.message||e.details||e.hint))||'Unknown error \u2014 see console';
+    toast('\u26a0\uFE0F Save failed: '+msg,6000);
   }
 }
 setInterval(()=>{if(currentTab==='lb')loadData().then(render);},60000);
 
 // ── HELPERS ────────────────────────────────────────────────
-function toast(msg){const t=document.getElementById('toastEl');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),1900);}
+function toast(msg,durationMs){const t=document.getElementById('toastEl');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),durationMs||1900);}
 const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const mk=(tag,cls,html)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(html!==undefined)e.innerHTML=html;return e;};
 const timeAgo=ts=>{const d=(Date.now()-ts)/1000;if(d<60)return 'just now';if(d<3600)return Math.floor(d/60)+'m ago';if(d<86400)return Math.floor(d/3600)+'h ago';return Math.floor(d/86400)+'d ago';};
