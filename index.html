@@ -222,14 +222,16 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .take-time{font-size:10px;color:var(--text3)}
 .fire-tag{font-size:9px;background:var(--goldbg);border:1px solid var(--gold2);border-radius:3px;padding:2px 6px;color:var(--gold);font-weight:700}
 .take-text{font-size:12px;line-height:1.55;margin-bottom:7px;color:var(--text)}
-/* NEW: settled-take grading tag */
-.take-tag-picker{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap;align-items:center}
-.take-tag-picker select{font-size:10px;border:1.5px solid var(--border);border-radius:5px;padding:3px 6px;background:#fff;color:var(--text2);font-family:'Inter',sans-serif;max-width:160px}
-.take-tag-lbl{font-size:9.5px;color:var(--text3);white-space:nowrap}
+/* NEW: manual admin hit/miss grading */
 .take-graded{font-size:9.5px;font-weight:700;border-radius:3px;padding:2px 7px;display:inline-flex;align-items:center;gap:3px;margin-bottom:6px}
 .take-graded.hit{background:#dcfce7;color:#166534;border:1px solid #86efac}
 .take-graded.miss{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
-.take-graded.pending{background:var(--bg2);color:var(--text3);border:1px solid var(--border)}
+.admin-grade-row{display:flex;align-items:center;gap:5px;margin-bottom:6px;flex-wrap:wrap}
+.admin-grade-lbl{font-size:9px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.admin-grade-btn{font-size:9.5px;font-weight:700;border-radius:3px;padding:2px 8px;cursor:pointer;font-family:'Inter',sans-serif;border:1.5px solid var(--border);background:#fff;color:var(--text3)}
+.admin-grade-btn.hit-btn:hover,.admin-grade-btn.hit-btn.active{background:#dcfce7;border-color:#16a34a;color:#166534}
+.admin-grade-btn.miss-btn:hover,.admin-grade-btn.miss-btn.active{background:#fee2e2;border-color:#dc2626;color:#991b1b}
+.admin-grade-btn.clear-btn:hover{background:var(--bg2)}
 /* NEW: reply-to thread tag */
 .take-reply-tag{font-size:9.5px;color:var(--wbblue2);font-weight:600;margin-bottom:5px;cursor:pointer;display:inline-flex;align-items:center;gap:3px}
 .take-reply-tag:hover{text-decoration:underline}
@@ -237,11 +239,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 @keyframes flashHL{0%{background:#fff7d6}100%{background:var(--surface)}}
 .take-reply-btn{font-size:9.5px;color:var(--text3);font-weight:600;cursor:pointer;background:none;border:none;font-family:'Inter',sans-serif;padding:0}
 .take-reply-btn:hover{color:var(--wbblue2);text-decoration:underline}
-/* NEW: daily prompt banner */
-.take-prompt-banner{background:linear-gradient(135deg,var(--goldbg),#fffceb);border:1.5px solid var(--gold2);border-radius:var(--radius);padding:9px 12px;flex-shrink:0;font-size:11.5px;color:var(--golddim);line-height:1.5}
-.take-prompt-banner strong{color:var(--navy)}
-/* NEW: take streak badge */
-.take-streak{font-size:9px;background:linear-gradient(135deg,var(--orange),var(--orange2));color:#fff;border-radius:3px;padding:2px 6px;font-weight:700;white-space:nowrap}
 .vote-row{display:flex;align-items:center;gap:7px}
 .vbtn{background:var(--bg2);border:1.5px solid var(--border);color:var(--text3);border-radius:4px;padding:3px 10px;font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .1s;user-select:none;font-weight:600}
 .vbtn:hover{background:var(--bg3);color:var(--text)}
@@ -254,9 +251,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .take-input-wrap textarea::placeholder{color:var(--text3)}
 .take-input-wrap .take-replying-banner{background:#fff;border:1px solid #f9c4b4;border-radius:5px;padding:5px 8px;font-size:10.5px;color:var(--text2);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:6px}
 .take-replying-banner button{background:none;border:none;color:var(--orange2);font-weight:700;cursor:pointer;font-size:13px;line-height:1;padding:0 2px}
-.take-tagrow{display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap}
-.take-tagrow select{font-size:10.5px;border:1.5px solid #f9c4b4;border-radius:5px;padding:4px 6px;background:#fff;color:var(--text2);font-family:'Inter',sans-serif}
-.take-tagrow span{font-size:10px;color:var(--orange2);font-weight:600}
 .post-row{display:flex;align-items:center;justify-content:space-between;margin-top:6px;gap:8px}
 .post-row span{font-size:10px;text-transform:uppercase;color:var(--orange2);letter-spacing:.8px;font-weight:600}
 .btn-post{background:var(--orange);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:background .12s}
@@ -750,7 +744,7 @@ async function saveTake(id){
     const up=Object.values(merged).filter(v=>v==='up').length;
     const down=Object.values(merged).filter(v=>v==='down').length;
     t.voters=merged;t.up=up;t.down=down;
-    const{error}=await sb.from('hottakes').upsert({id:t.id,user:t.user,text:t.text,up,down,voters:merged,ts:t.ts,replyTo:t.replyTo||null,tag:t.tag||null},{onConflict:'id'});
+    const{error}=await sb.from('hottakes').upsert({id:t.id,user:t.user,text:t.text,up,down,voters:merged,ts:t.ts,replyTo:t.replyTo||null,manualGrade:t.manualGrade||null},{onConflict:'id'});
     if(error)throw error;
     badge('ok','Saved \u2713');setTimeout(()=>badge('ok',''),2000);
     buildTicker();
@@ -1713,62 +1707,18 @@ function refreshSummary(){
 }
 
 // ── HOT TAKES ──────────────────────────────────────────────
-// Tag options let a take be optionally attached to a team or stage so it can
-// later be auto-graded once results land (see gradeTakeTag below). Purely
-// optional at posting time — untagged takes just never get a grade pill.
-const TAKE_TAGS=[
-  {key:'',label:'No tag (just a take)'},
-  ...TEAMS.map(t=>({key:'team:'+t,label:'\u26bd '+t})),
-  {key:'stage:r32',label:'\u{1F3C6} Round of 32'},
-  {key:'stage:r16',label:'\u{1F3C6} Round of 16'},
-  {key:'stage:qf',label:'\u{1F3C6} Quarter-Finals'},
-  {key:'stage:sf',label:'\u{1F3C6} Semi-Finals'},
-  {key:'stage:final',label:'\u{1F3C6} Final'},
-];
-// Daily rotating prompt — purely a low-effort engagement nudge, cycles by date
-// so everyone sees the same prompt on a given day without needing storage.
-const TAKE_PROMPTS=[
-  "Which group-stage favourite is most likely to crash out early?",
-  "Pick a dark horse to make a deeper run than anyone expects.",
-  "Which INT colleague's predictions are you most worried about going into the knockouts?",
-  "Boldest knockout upset you're willing to call right now?",
-  "Who wins the Golden Boot race that nobody's talking about yet?",
-  "Which team's defence will decide their tournament?",
-  "One prediction you'd bet real money on.",
-];
-function todaysPrompt(){
-  const day=Math.floor(Date.now()/86400000);
-  return TAKE_PROMPTS[day%TAKE_PROMPTS.length];
-}
-// Grades a tagged take against current results. Returns 'hit' | 'miss' | 'pending'.
-// Deliberately simple: team tags grade against whether that team is still alive
-// (group stage exit / knockout elimination) once enough of their games have
-// results; stage tags grade once that stage's matches are complete. This is a
-// light heuristic, not a parser of the take's text — by design, since parsing
-// free text reliably isn't worth the complexity for an office pool.
-function gradeTakeTag(tag){
-  if(!tag)return null;
-  if(tag.startsWith('team:')){
-    const team=tag.slice(5);
-    const teamGames=GAMES.filter(g=>g.home===team||g.away===team).map(g=>g.id);
-    const played=teamGames.filter(id=>results[id]);
-    if(played.length<teamGames.length)return 'pending';
-    // crude "still alive" proxy: did they finish top-2 in their group (group stage only, pre-KO)
-    const game=GAMES.find(g=>g.home===team||g.away===team);
-    if(!game)return null;
-    const{rows,any}=groupStandings(game.group,gid=>results[gid]?{hs:results[gid].hs,as:results[gid].as}:null);
-    if(!any)return 'pending';
-    const idx=rows.findIndex(r=>r.team===team);
-    return idx>=0&&idx<2?'hit':null; // null = ambiguous (could still be a 3rd-place qualifier), leave ungraded
-  }
-  if(tag.startsWith('stage:')){
-    const stageKey=tag.slice(6);
-    const round=KO_ROUNDS.find(r=>r.key===stageKey);
-    if(!round)return null;
-    const allPlayed=round.matches.every(m=>results['m'+m.m]);
-    return allPlayed?'hit':'pending'; // stage tags are informational markers, not predictions — always shown as resolved/pending, never "miss"
-  }
-  return null;
+// Manual hit/miss grading — admin only (you decide, no auto-heuristics).
+// Change this to match your exact display name if it's not "Fabian".
+const ADMIN_NAME='Fabian';
+const isAdmin=()=>currentUser&&currentUser.trim().toLowerCase()===ADMIN_NAME.toLowerCase();
+
+function setManualGrade(id,grade){
+  // grade is 'hit', 'miss', or null (clear)
+  if(!isAdmin())return;
+  const h=hotTakes.find(x=>x.id===id);if(!h)return;
+  h.manualGrade=(h.manualGrade===grade)?null:grade; // click again to clear
+  saveTake(id);
+  render();
 }
 function renderHot(p1,p2,p3){
   [p1,p2,p3].forEach(p=>p.classList.add('on'));
@@ -1779,39 +1729,18 @@ function renderHot(p1,p2,p3){
   p2.appendChild(mk('div','psub','Most divisive takes \u2014 evenly split votes at volume (Wilson score)'));
   [...hotTakes].sort((a,b)=>wilsonControversy(b.up,b.down)-wilsonControversy(a.up,a.down)).forEach(h=>p2.appendChild(buildTakeCard(h)));
   p3.appendChild(mk('div','ptitle','Submit a Take'));
-  const promptBanner=mk('div','take-prompt-banner',`\u{1F4AC} <strong>Today's prompt:</strong> ${esc(todaysPrompt())} <span style="opacity:.7">(or post whatever's on your mind)</span>`);
-  p3.appendChild(promptBanner);
   const form=mk('div','take-input-wrap');
   const replyBanner=replyingTo?(()=>{
     const rt=hotTakes.find(x=>x.id===replyingTo);
     return rt?`<div class="take-replying-banner"><span>\u21a9 Replying to <strong>${esc(rt.user)}</strong>: "${esc(rt.text.slice(0,60))}${rt.text.length>60?'\u2026':''}"</span><button onclick="cancelReply()">\u2715</button></div>`:'';
   })():'';
   form.innerHTML=`${replyBanner}<textarea id="takeTextarea" placeholder="Your World Cup prediction\u2026 be specific! (min 15 chars)"></textarea>
-    <div class="take-tagrow">
-      <span>Optional tag:</span>
-      <select id="takeTagSelect">${TAKE_TAGS.map(t=>`<option value="${esc(t.key)}">${esc(t.label)}</option>`).join('')}</select>
-    </div>
     <div class="post-row"><span>Visible to all colleagues</span><button class="btn-post" onclick="postTake()">Post \u{1F525}</button></div>`;
   p3.appendChild(form);
   const divider=mk('div','');divider.style.cssText='height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin:6px 0';
   p3.appendChild(divider);
   const rt=mk('div','ptitle','Most Recent');p3.appendChild(rt);
   [...hotTakes].sort((a,b)=>b.ts-a.ts).slice(0,10).forEach(h=>p3.appendChild(buildTakeCard(h)));
-}
-function takeStreakFor(user){
-  // Consecutive distinct match-days (by GAMES date, chronological) on which
-  // this user posted at least one take. Cheap engagement badge, no schema change.
-  const userTakes=hotTakes.filter(t=>t.user===user);
-  if(userTakes.length<3)return 0;
-  const days=[...new Set(userTakes.map(t=>new Date(t.ts).toDateString()))]
-    .sort((a,b)=>new Date(a)-new Date(b));
-  let streak=1,best=1;
-  for(let i=1;i<days.length;i++){
-    const gap=(new Date(days[i])-new Date(days[i-1]))/86400000;
-    streak=gap<=1.5?streak+1:1;
-    best=Math.max(best,streak);
-  }
-  return best;
 }
 function buildTakeCard(h){
   const net=h.up-h.down;const mv=h.voters&&currentUser?(h.voters[currentUser]||null):null;
@@ -1823,22 +1752,23 @@ function buildTakeCard(h){
     const parent=hotTakes.find(x=>x.id===h.replyTo);
     if(parent)replyTagHtml=`<div class="take-reply-tag" onclick="scrollToTake('${parent.id}')">\u21a9 replying to ${esc(parent.user)}</div>`;
   }
+  // Manual grade pill — shown to everyone once the admin has set it.
   let gradeHtml='';
-  if(h.tag){
-    const grade=gradeTakeTag(h.tag);
-    const tagInfo=TAKE_TAGS.find(t=>t.key===h.tag);
-    const tagLabel=tagInfo?tagInfo.label:h.tag;
-    if(grade==='hit')gradeHtml=`<div class="take-graded hit">\u2705 ${esc(tagLabel)} \u2014 holding up</div>`;
-    else if(grade==='miss')gradeHtml=`<div class="take-graded miss">\u274c ${esc(tagLabel)} \u2014 didn't hold up</div>`;
-    else gradeHtml=`<div class="take-graded pending">\u23f3 ${esc(tagLabel)} \u2014 not yet settled</div>`;
+  if(h.manualGrade==='hit')gradeHtml=`<div class="take-graded hit">\u2705 Called it</div>`;
+  else if(h.manualGrade==='miss')gradeHtml=`<div class="take-graded miss">\u274c Didn't hold up</div>`;
+  // Admin-only grading controls — invisible to everyone else.
+  let adminRowHtml='';
+  if(isAdmin()){
+    adminRowHtml=`<div class="admin-grade-row">
+      <span class="admin-grade-lbl">Admin:</span>
+      <button class="admin-grade-btn hit-btn${h.manualGrade==='hit'?' active':''}" onclick="setManualGrade('${h.id}','hit')">\u2705 Hit</button>
+      <button class="admin-grade-btn miss-btn${h.manualGrade==='miss'?' active':''}" onclick="setManualGrade('${h.id}','miss')">\u274c Miss</button>
+    </div>`;
   }
-  const streak=takeStreakFor(h.user);
-  const streakHtml=streak>=3?`<span class="take-streak">\u{1F525} ${streak}-day streak</span>`:'';
-  card.innerHTML=`${replyTagHtml}${gradeHtml}<div class="take-hdr">
+  card.innerHTML=`${replyTagHtml}${gradeHtml}${adminRowHtml}<div class="take-hdr">
     <span class="take-avatar" title="${esc(av.label)}: ${esc(av.desc)}">${av.emoji}</span>
     <span class="take-user">${esc(h.user)}</span>
     <span class="take-badge">${esc(av.label)}</span>
-    ${streakHtml}
     <span class="take-time">${timeAgo(h.ts)}</span>
     ${net>=5?'<span class="fire-tag">\u{1F525} HOT</span>':''}
   </div>
@@ -1889,10 +1819,8 @@ function postTake(){
   const ta=document.getElementById('takeTextarea');
   const text=ta?ta.value.trim():'';
   if(text.length<15){toast('A bit more detail please!');return;}
-  const tagSelect=document.getElementById('takeTagSelect');
-  const tag=tagSelect?tagSelect.value:'';
   const newId='t'+Date.now();
-  hotTakes.unshift({id:newId,user:currentUser,text,up:0,down:0,voters:{},ts:Date.now(),replyTo:replyingTo||null,tag:tag||null});
+  hotTakes.unshift({id:newId,user:currentUser,text,up:0,down:0,voters:{},ts:Date.now(),replyTo:replyingTo||null,manualGrade:null});
   saveTake(newId);ta.value='';replyingTo=null;toast('Hot take posted! \u{1F525}');render();
 }
 
