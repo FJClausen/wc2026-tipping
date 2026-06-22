@@ -119,11 +119,16 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .vs{font-size:9px;color:var(--text3);font-weight:700}
 .score-inp{width:48px;height:36px;background:var(--bg2);border:2px solid var(--border);border-radius:6px;padding:4px 6px;font-size:18px;font-weight:700;text-align:center;font-family:'Inter',sans-serif;color:var(--text);transition:border-color .12s}
 .score-inp:focus{outline:none;border-color:var(--wbblue);background:#fff}
+.score-inp.tie-error{border-color:var(--orange);background:#fff1ee;animation:shakeErr .25s}
+@keyframes shakeErr{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
 .score-dash{font-size:18px;font-weight:700;color:var(--text3)}
+.ko-tie-warning{font-size:9.5px;color:var(--orange2);font-weight:600;text-align:center;margin-top:-2px;display:none}
+.ko-tie-warning.show{display:block}
 .result-row{display:flex;align-items:center;gap:6px;padding:3px 7px;border-radius:5px;background:var(--bg2);border:1px solid var(--border);font-size:11px}
 .result-row.has-result{background:#e8f8ee;border-color:var(--green)}
 .result-lbl{color:var(--text3);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;white-space:nowrap}
 .result-score{font-weight:700;color:var(--green2);font-size:13px}
+.result-pens-note{font-size:9.5px;color:var(--text3);font-weight:500;margin-left:2px}
 .result-pts{font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:4px}
 .result-pts.pts-high{background:#dcfce7;color:#166534}
 .result-pts.pts-med{background:#e0f4fd;color:var(--wbblue2)}
@@ -168,6 +173,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .ko-predicted .ko-round-label{color:var(--gold)}
 .ko-round-label{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1.5px;color:var(--wbblue2);margin-bottom:5px;display:flex;align-items:center;gap:6px}
 .ko-round-dates{font-size:10px;font-weight:400;color:var(--text3);letter-spacing:0;font-family:'Inter',sans-serif}
+.ko-round-mult{font-size:9px;font-weight:700;background:var(--intgold);color:var(--navy);border-radius:3px;padding:1px 6px;letter-spacing:.3px}
 .ko-match{display:flex;align-items:center;gap:0;margin-bottom:4px;border-radius:6px;overflow:hidden;border:1px solid var(--border);background:var(--bg2)}
 .ko-side{flex:1;padding:5px 8px;font-size:11px;font-weight:600;color:var(--text2);line-height:1.3;min-width:0}
 .ko-side.home{text-align:right;border-right:1px solid var(--border)}
@@ -177,6 +183,14 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .ko-qualifier{color:var(--text3);font-style:italic;font-size:10px;font-weight:400}
 .ko-qualifier.winner{color:var(--green);font-style:normal;font-weight:600}
 .ko-3rd{color:var(--gold);font-style:italic;font-size:10px}
+/* NEW: knockout prediction card */
+.ko-pred-card{background:var(--surface);border:1.5px solid var(--border);border-radius:7px;padding:7px 10px;flex-shrink:0;box-shadow:var(--shadow);margin-bottom:6px}
+.ko-pred-card.has-pick{border-color:var(--wbblue);background:#f0f8fd}
+.ko-pred-card.locked{opacity:.55;pointer-events:none}
+.ko-pred-card.decided .matchup{opacity:.7}
+.ko-pens-toggle{display:flex;gap:6px;margin-top:5px}
+.ko-pens-btn{flex:1;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);border-radius:6px;padding:5px;font-size:10.5px;font-weight:600;text-align:center;cursor:pointer;font-family:'Inter',sans-serif}
+.ko-pens-btn.sel{background:var(--navy);color:#fff;border-color:var(--navy)}
 .pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:5px}
 .pbtn{background:var(--surface);border:1.5px solid var(--border);color:var(--text);border-radius:7px;padding:7px 5px;font-size:11px;font-weight:500;text-align:center;cursor:pointer;transition:all .1s;font-family:'Inter',sans-serif;user-select:none;line-height:1.3}
 .pbtn:hover:not(.sel){background:var(--greenlt);border-color:var(--green)}
@@ -208,6 +222,26 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .take-time{font-size:10px;color:var(--text3)}
 .fire-tag{font-size:9px;background:var(--goldbg);border:1px solid var(--gold2);border-radius:3px;padding:2px 6px;color:var(--gold);font-weight:700}
 .take-text{font-size:12px;line-height:1.55;margin-bottom:7px;color:var(--text)}
+/* NEW: settled-take grading tag */
+.take-tag-picker{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap;align-items:center}
+.take-tag-picker select{font-size:10px;border:1.5px solid var(--border);border-radius:5px;padding:3px 6px;background:#fff;color:var(--text2);font-family:'Inter',sans-serif;max-width:160px}
+.take-tag-lbl{font-size:9.5px;color:var(--text3);white-space:nowrap}
+.take-graded{font-size:9.5px;font-weight:700;border-radius:3px;padding:2px 7px;display:inline-flex;align-items:center;gap:3px;margin-bottom:6px}
+.take-graded.hit{background:#dcfce7;color:#166534;border:1px solid #86efac}
+.take-graded.miss{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
+.take-graded.pending{background:var(--bg2);color:var(--text3);border:1px solid var(--border)}
+/* NEW: reply-to thread tag */
+.take-reply-tag{font-size:9.5px;color:var(--wbblue2);font-weight:600;margin-bottom:5px;cursor:pointer;display:inline-flex;align-items:center;gap:3px}
+.take-reply-tag:hover{text-decoration:underline}
+.take-card.highlight-flash{animation:flashHL 1.4s ease}
+@keyframes flashHL{0%{background:#fff7d6}100%{background:var(--surface)}}
+.take-reply-btn{font-size:9.5px;color:var(--text3);font-weight:600;cursor:pointer;background:none;border:none;font-family:'Inter',sans-serif;padding:0}
+.take-reply-btn:hover{color:var(--wbblue2);text-decoration:underline}
+/* NEW: daily prompt banner */
+.take-prompt-banner{background:linear-gradient(135deg,var(--goldbg),#fffceb);border:1.5px solid var(--gold2);border-radius:var(--radius);padding:9px 12px;flex-shrink:0;font-size:11.5px;color:var(--golddim);line-height:1.5}
+.take-prompt-banner strong{color:var(--navy)}
+/* NEW: take streak badge */
+.take-streak{font-size:9px;background:linear-gradient(135deg,var(--orange),var(--orange2));color:#fff;border-radius:3px;padding:2px 6px;font-weight:700;white-space:nowrap}
 .vote-row{display:flex;align-items:center;gap:7px}
 .vbtn{background:var(--bg2);border:1.5px solid var(--border);color:var(--text3);border-radius:4px;padding:3px 10px;font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .1s;user-select:none;font-weight:600}
 .vbtn:hover{background:var(--bg3);color:var(--text)}
@@ -218,6 +252,11 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .take-input-wrap textarea{width:100%;background:#fff;border:1.5px solid #f9c4b4;color:var(--text);border-radius:5px;padding:7px 9px;font-size:12px;font-family:'Inter',sans-serif;resize:none;height:56px;line-height:1.5}
 .take-input-wrap textarea:focus{outline:none;border-color:var(--orange)}
 .take-input-wrap textarea::placeholder{color:var(--text3)}
+.take-input-wrap .take-replying-banner{background:#fff;border:1px solid #f9c4b4;border-radius:5px;padding:5px 8px;font-size:10.5px;color:var(--text2);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.take-replying-banner button{background:none;border:none;color:var(--orange2);font-weight:700;cursor:pointer;font-size:13px;line-height:1;padding:0 2px}
+.take-tagrow{display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap}
+.take-tagrow select{font-size:10.5px;border:1.5px solid #f9c4b4;border-radius:5px;padding:4px 6px;background:#fff;color:var(--text2);font-family:'Inter',sans-serif}
+.take-tagrow span{font-size:10px;color:var(--orange2);font-weight:600}
 .post-row{display:flex;align-items:center;justify-content:space-between;margin-top:6px;gap:8px}
 .post-row span{font-size:10px;text-transform:uppercase;color:var(--orange2);letter-spacing:.8px;font-weight:600}
 .btn-post{background:var(--orange);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:background .12s}
@@ -578,13 +617,16 @@ const SF=[
 const THIRD=[{m:103,home:'Loser M101',away:'Loser M102',venue:'Miami',date:'Jul 18'}];
 const FINAL=[{m:104,home:'Winner M101',away:'Winner M102',venue:'E. Rutherford',date:'Jul 19'}];
 const KO_ROUNDS=[
-  {key:'r32',label:'Round of 32',      dates:'Jun 28 \u2013 Jul 3',open:'2026-06-27T23:00:00Z',matches:R32},
-  {key:'r16',label:'Round of 16',      dates:'Jul 4 \u2013 7',     open:'2026-07-03T23:00:00Z',matches:R16},
-  {key:'qf', label:'Quarter-Finals',   dates:'Jul 9 \u2013 11',    open:'2026-07-07T23:00:00Z',matches:QF},
-  {key:'sf', label:'Semi-Finals',      dates:'Jul 14 \u2013 15',   open:'2026-07-11T23:00:00Z',matches:SF},
-  {key:'tp', label:'Third-Place Play-Off',dates:'Jul 18',          open:'2026-07-15T23:00:00Z',matches:THIRD},
-  {key:'f',  label:'Final',            dates:'Jul 19',             open:'2026-07-15T23:00:00Z',matches:FINAL},
+  {key:'r32',label:'Round of 32',      dates:'Jun 28 \u2013 Jul 3',open:'2026-06-27T23:00:00Z',matches:R32,mult:1},
+  {key:'r16',label:'Round of 16',      dates:'Jul 4 \u2013 7',     open:'2026-07-03T23:00:00Z',matches:R16,mult:1},
+  {key:'qf', label:'Quarter-Finals',   dates:'Jul 9 \u2013 11',    open:'2026-07-07T23:00:00Z',matches:QF,mult:2},
+  {key:'sf', label:'Semi-Finals',      dates:'Jul 14 \u2013 15',   open:'2026-07-11T23:00:00Z',matches:SF,mult:3},
+  {key:'tp', label:'Third-Place Play-Off',dates:'Jul 18',          open:'2026-07-15T23:00:00Z',matches:THIRD,mult:2},
+  {key:'f',  label:'Final',            dates:'Jul 19',             open:'2026-07-15T23:00:00Z',matches:FINAL,mult:3},
 ];
+// Flat lookup: match number -> round multiplier (1/1/2/2/3/3)
+const KO_MULT={};
+KO_ROUNDS.forEach(r=>{r.matches.forEach(m=>{KO_MULT[m.m]=r.mult;});});
 const TEAMS=[
   'Algeria','Argentina','Australia','Austria','Belgium','Bosnia & Herz.','Brazil',
   'Canada','Cape Verde','Colombia','Congo DR','Croatia','Czechia','Cura\u00e7ao',
@@ -652,6 +694,7 @@ let hotTakes=[...SEED_TAKES];
 let results={};
 let currentTab='games';
 let saveTimer=null;
+let replyingTo=null; // id of the take currently being replied to, or null
 
 // ── SYNC ───────────────────────────────────────────────────
 function badge(s,m){const b=document.getElementById('syncBadge');b.className='sync-badge '+s;b.textContent=m;}
@@ -707,7 +750,7 @@ async function saveTake(id){
     const up=Object.values(merged).filter(v=>v==='up').length;
     const down=Object.values(merged).filter(v=>v==='down').length;
     t.voters=merged;t.up=up;t.down=down;
-    const{error}=await sb.from('hottakes').upsert({id:t.id,user:t.user,text:t.text,up,down,voters:merged,ts:t.ts},{onConflict:'id'});
+    const{error}=await sb.from('hottakes').upsert({id:t.id,user:t.user,text:t.text,up,down,voters:merged,ts:t.ts,replyTo:t.replyTo||null,tag:t.tag||null},{onConflict:'id'});
     if(error)throw error;
     badge('ok','Saved \u2713');setTimeout(()=>badge('ok',''),2000);
     buildTicker();
@@ -815,13 +858,10 @@ function calcCrowdPick(gid,homeTeam,awayTeam){
 }
 
 // ── PLAYER BADGES ──────────────────────────────────────────
-// Returns badge emojis for a user. Called once per LB render with pre-computed data.
-// allStats = {exacto, daredevil, onFire, momentum} - each is null or the winning username
 function calcAllBadges(allUsers){
   const gamesWithResults=Object.keys(results);
   const minGames=10;
 
-  // ── 🎯 Exacto: most exact scorelines ──
   let exactCounts={};
   allUsers.forEach(u=>{
     const p=(predictions[u]&&predictions[u].picks)||{};
@@ -836,7 +876,6 @@ function calcAllBadges(allUsers){
   });
   const exacto=gamesWithResults.length>0?allUsers.reduce((b,u)=>exactCounts[u]>exactCounts[b]?u:b,allUsers[0]):null;
 
-  // ── 🦁 Daredevil: most brave picks that paid off ──
   let braveCounts={};
   allUsers.forEach(u=>{
     const p=(predictions[u]&&predictions[u].picks)||{};
@@ -853,7 +892,6 @@ function calcAllBadges(allUsers){
   });
   const daredevil=gamesWithResults.length>0?allUsers.reduce((b,u)=>braveCounts[u]>braveCounts[b]?u:b,allUsers[0]):null;
 
-  // ── 🔥 On Fire: highest outcome correct % (min 10 games) ──
   let firePct={};
   allUsers.forEach(u=>{
     const p=(predictions[u]&&predictions[u].picks)||{};
@@ -872,7 +910,6 @@ function calcAllBadges(allUsers){
   const qualified=allUsers.filter(u=>firePct[u]>=0);
   const onFire=qualified.length?qualified.reduce((b,u)=>firePct[u]>firePct[b]?u:b,qualified[0]):null;
 
-  // ── 📈 Momentum: biggest points jump on the most recent match day ──
   const dayOrder=[...new Set(GAMES.map(g=>g.date))];
   const daysWithRes=dayOrder.filter(d=>GAMES.filter(g=>g.date===d).some(g=>results[g.id]));
   let momentum=null;
@@ -901,12 +938,10 @@ function calcAllBadges(allUsers){
     if(momUser.length)momentum=momUser.reduce((b,u)=>dayScores[u]>dayScores[b]?u:b,momUser[0]);
   }
 
-  // Return map of user->badges[]
   const badgeMap={};
   allUsers.forEach(u=>{badgeMap[u]=[];});
   const award=(user,emoji,label)=>{if(user&&badgeMap[user])badgeMap[user].push({emoji,label});};
 
-  // Only award performance badges if enough results exist
   if(gamesWithResults.length>=5){
     if(exactCounts[exacto]>0) award(exacto,'\u{1F3AF}','Exacto \u2014 most exact scores');
     if(braveCounts[daredevil]>0) award(daredevil,'\u{1F981}','Daredevil \u2014 most brave picks paid off');
@@ -1037,8 +1072,6 @@ function buildTicker(){
     track.innerHTML=items.map(it=>`<div class="ticker-item"><span class="ticker-tag ${it.tagClass}">${it.tag}</span><span class="ticker-user">${esc(it.user)}:</span><span class="ticker-text">${esc(it.text)}</span></div>`).join('');
   }
   track.innerHTML+=track.innerHTML;
-  // Cancel any running animation loop AND any pending start timeout so we never
-  // stack multiple loops (which caused items to drift/overlap independently).
   if(tickerAnim)cancelAnimationFrame(tickerAnim);
   if(tickerStartTimer)clearTimeout(tickerStartTimer);
   const speed=0.55;let pos=0;
@@ -1059,9 +1092,6 @@ function showTab(t){
   document.querySelectorAll('.tab').forEach(e=>e.classList.remove('on'));
   document.getElementById('tab-'+t).classList.add('on');
   updateTickerVisibility();
-  // A deliberate click into the Leaderboard resets match-day standings to the
-  // latest day. (The silent 60s auto-refresh calls render() directly, so it
-  // preserves the user's chosen day instead of snapping back.)
   if(t==='lb'){mdUserNavigated=false;loadData().then(render);}
   else render();
 }
@@ -1069,8 +1099,6 @@ function getPanels(){return[document.getElementById('p1'),document.getElementByI
 function render(){
   const[p1,p2,p3]=getPanels();
   [p1,p2,p3].forEach(p=>{p.innerHTML='';p.className='panel';});
-  // Clear the today-window when leaving the games tab so it never bleeds
-  // into other tabs' layouts.
   const panelsEl=document.querySelector('.panels');
   if(panelsEl&&currentTab!=='games'){
     const tw=panelsEl.querySelector('.today-window');
@@ -1084,20 +1112,13 @@ function render(){
 }
 
 // ── GAMES TAB ──────────────────────────────────────────────
-// ── TODAY'S GAMES WINDOW ───────────────────────────────────
-// Determine "today" in EASTERN TIME so it's identical for every user worldwide,
-// regardless of their device timezone. Format matches the GAMES `date` field
-// exactly (e.g. 'Jun 15', no leading zero).
 function todayET(){
   return new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',month:'short',day:'numeric'}).format(new Date());
 }
 function dateToComparable(dstr){
-  // Parse a 'Mon D' game-date string into a sortable timestamp (year fixed 2026).
   const t=new Date(dstr+' 2026 12:00:00').getTime();
   return isNaN(t)?0:t;
 }
-// Returns {day, isToday}: today's date if it has games, otherwise the next
-// future day that does. day=null if none remain.
 function resolveTodayTarget(){
   const today=todayET();
   const todayVal=dateToComparable(today);
@@ -1106,8 +1127,6 @@ function resolveTodayTarget(){
   for(const d of uniqueDays){if(dateToComparable(d)>todayVal)return{day:d,isToday:false};}
   return{day:null,isToday:false};
 }
-// Sort games within a day by kickoff time. Times are 'HH:MM ET'; 00:00 sorts
-// first (it's an early-hours slot listed under this day). We sort numerically.
 function sortByKickoff(a,b){
   const toMin=t=>{const m=/(\d{2}):(\d{2})/.exec(t);return m?parseInt(m[1])*60+parseInt(m[2]):0;};
   return toMin(a.time)-toMin(b.time);
@@ -1131,15 +1150,12 @@ function buildTodayWindow(){
 function buildTodayCard(gm){
   const res=results[gm.id];
   const card=mk('div','today-card'+(res?' is-played':''));
-  // status
   let statusHtml;
   if(res)statusHtml=`<span class="today-card-status ft">Full Time</span>`;
   else statusHtml=`<span class="today-card-status upcoming">Upcoming</span>`;
-  // score or vs
   const centre=res
     ?`<span class="today-score">${res.hs}\u2013${res.as}</span>`
     :`<span class="today-vs">vs</span>`;
-  // user's own pick
   const picks=myPicks();
   const uh=picks['hs_'+gm.id],ua=picks['as_'+gm.id];
   const hasOwn=uh!=null&&String(uh)!==''&&ua!=null&&String(ua)!=='';
@@ -1161,13 +1177,11 @@ function buildTodayCard(gm){
   }else{
     youHtml=`<div class="today-card-empty">No pick from you</div>`;
   }
-  // crowd most-popular pick
   const cp=calcCrowdPick(gm.id,gm.home,gm.away);
   let crowdHtml='';
   if(cp&&cp.total>=2){
     crowdHtml=`<div class="today-row crowd"><span class="rk">INT</span><span class="rv">${esc(cp.label)}</span><span class="rx">${cp.pct}% of ${cp.total}</span></div>`;
   }
-  // crowd accuracy (after result)
   if(res){
     const cs=calcCrowdStats(gm.id);
     if(cs&&cs.total>0){
@@ -1175,7 +1189,6 @@ function buildTodayCard(gm){
       crowdHtml+=`<div class="today-row crowd"><span class="rk">Hit</span><span class="rx">\u{1F3AF} ${cs.exact} exact \u00b7 \u2713 ${cs.outcome} outcome (${outPct}%)</span></div>`;
     }
   }
-  // leader's pick
   let leaderHtml='';
   const leader=getLeader();
   if(leader){
@@ -1187,7 +1200,6 @@ function buildTodayCard(gm){
       leaderHtml=`<div class="today-row leader"><span class="rk">\u{1F947} ${esc(leader)}</span><span class="rv">${esc(lLabel)}</span><span class="rx">${esc(String(lhs))}\u2013${esc(String(las))}</span></div>`;
     }
   }
-  // odds / brave indicator
   const odds=GAME_ODDS[gm.id];
   let oddsHtml='';
   if(odds){
@@ -1210,7 +1222,6 @@ function buildTodayCard(gm){
 
 function renderGames(p1,p2,p3){
   const ps=[p1,p2,p3];ps.forEach(p=>p.classList.add('on'));
-  // Full-width "today's games" window spanning all three columns
   const panelsEl=document.querySelector('.panels');
   if(panelsEl){
     const existing=panelsEl.querySelector('.today-window');
@@ -1226,7 +1237,7 @@ function renderGames(p1,p2,p3){
   const groups=['A','B','C','D','E','F','G','H','I','J','K','L'];
   const locked=groupLocked();
   const notice=mk('div',locked?'cutoff-bar closed':'cutoff-bar',
-    locked?'\u{1F512} Group-stage predictions are closed \u2014 your picks are locked in. Knockout predictions open once the bracket is set.'
+    locked?'\u{1F512} Group-stage predictions are closed \u2014 your picks are locked in. Knockout predictions open round by round below as each one becomes official.'
           :'\u23f0 Predictions close <strong>11 Jun 2026, 15:00 ET</strong> \u2014 when the first match kicks off.');
   p1.appendChild(notice);
   [[0,3],[4,7],[8,11]].forEach(([s,e],pi)=>{
@@ -1245,8 +1256,6 @@ function renderGames(p1,p2,p3){
 }
 
 function getLeader(){
-  // Returns username of the current leaderboard leader (most points, min 1pt).
-  // Returns null if no results yet or all scores are 0.
   const allU=Object.keys(predictions).filter(u=>{
     const p=(predictions[u]&&predictions[u].picks)||{};
     return Object.keys(p).some(k=>k.startsWith('hs_')&&p[k]!=null&&String(p[k])!=='');
@@ -1282,7 +1291,6 @@ function buildGameCard(gm,locked){
     ptsHtml=`<span class="result-pts ${cls}" title="${note}">${pts>0?'+'+pts:0} pts</span>`;
   }
 
-  // crowd stats row (after result exists)
   const crowd=res?calcCrowdStats(gm.id):null;
   let crowdHtml='';
   if(crowd&&crowd.total>0){
@@ -1299,7 +1307,6 @@ function buildGameCard(gm,locked){
     </div>`;
   }
 
-  // crowd pick row (always, shows most popular prediction)
   const cp=calcCrowdPick(gm.id,gm.home,gm.away);
   let crowdPickHtml='';
   if(cp&&cp.total>=2){
@@ -1310,7 +1317,6 @@ function buildGameCard(gm,locked){
     </div>`;
   }
 
-  // leader pick row
   let leaderPickHtml='';
   const leader=getLeader();
   if(leader){
@@ -1437,16 +1443,182 @@ function buildPredictedR32(){
   });
   return wrap;
 }
+
+// ── KNOCKOUT PREDICTIONS (winner pick via score boxes, tie blocked) ──
+// Resolves the two team names currently filling a KO match's slots, using
+// official results where the prior round/match is decided, else falls back
+// to the predicted bracket so users can still pick ahead of confirmation.
+function resolveKOSlotLabel(label,predictedMap){
+  let m=label.match(/^Winner M(\d+)$/);
+  if(m){
+    const dep=parseInt(m[1]);
+    if(koResults[dep]&&koResults[dep].winner)return koResults[dep].winner;
+    if(predictedMap&&predictedMap[dep])return predictedMap[dep];
+    return null;
+  }
+  m=label.match(/^Loser M(\d+)$/);
+  if(m){
+    const dep=parseInt(m[1]);
+    if(koResults[dep]&&koResults[dep].loser)return koResults[dep].loser;
+    return null;
+  }
+  return label; // R32 group-slot labels are resolved separately via predictedR32()
+}
+// koResults: derived view of `results` for m73-m104, giving {winner, loser} per match
+// so later rounds can resolve "Winner M.." / "Loser M.." labels once results land.
+let koResults={};
+function rebuildKOResults(){
+  koResults={};
+  for(let m=73;m<=104;m++){
+    const r=results['m'+m];if(!r)continue;
+    const w=winnerFrom(r.hs,r.as); // never 'draw' for KO games by construction
+    if(!w)continue;
+    const adv=r.pen_winner?r.pen_winner:w;
+    koResults[m]={winner:adv==='home'?r.homeTeam:r.awayTeam,loser:adv==='home'?r.awayTeam:r.homeTeam};
+  }
+}
+function myKOPicks(){return myPicks();}
+function buildKOPredictionCard(matchObj,roundKey,roundOpenDate,r32PredMap){
+  const m=matchObj.m;
+  const locked=new Date()<roundOpenDate || groupLocked()===false && false; // placeholder readability no-op
+  const isOpen=new Date()>=roundOpenDate;
+  const homeLabel=roundKey==='r32'?matchObj.home:resolveKOSlotLabel(matchObj.home,r32PredMap);
+  const awayLabel=roundKey==='r32'?(/Best 3rd/.test(matchObj.away)?null:matchObj.away):resolveKOSlotLabel(matchObj.away,r32PredMap);
+  let homeTeam=homeLabel,awayTeam=awayLabel;
+  if(roundKey==='r32'&&r32PredMap){
+    const pr=r32PredMap[m];
+    if(pr){homeTeam=pr.home;awayTeam=pr.away;}
+  }
+  const picks=myKOPicks();
+  const hs=picks['hs_m'+m]||'';const as=picks['as_m'+m]||'';
+  const pensPick=picks['pens_m'+m]||''; // 'home' or 'away' — only used if scores end up tied at save-time guard
+  const hasPick=hs!==''&&as!==''&&hs!==as;
+  const card=mk('div','ko-pred-card'+(hasPick?' has-pick':'')+(isOpen?'':' locked'));
+  const res=results['m'+m];
+  const w=winnerFrom(hs,as);
+  let homeClass='',awayClass='';
+  if(hs!==''&&as!==''&&hs!==as){
+    if(w==='home'){homeClass=' win';awayClass=' lose';}else if(w==='away'){homeClass=' lose';awayClass=' win';}
+  }
+  let ptsHtml='';
+  if(res&&hasPick){
+    const pts=calcKnockoutPts(m,hs,as);
+    const cls=pts.pts>=3?'pts-high':pts.pts>=1?'pts-med':'pts0';
+    ptsHtml=`<span class="result-pts ${cls}" title="${esc(pts.note)}">${pts.pts>0?'+'+pts.pts:0} pts \u00d7${KO_MULT[m]||1}</span>`;
+  }
+  const homeShow=homeTeam?`${fl(homeTeam)} ${esc(homeTeam)}`:'<span class="ko-qualifier">TBD</span>';
+  const awayShow=awayTeam?`${fl(awayTeam)} ${esc(awayTeam)}`:'<span class="ko-qualifier">TBD</span>';
+  let resultLine='';
+  if(res){
+    const penNote=res.decided_in&&res.decided_in!=='regulation'?` <span class="result-pens-note">(${esc(res.decided_in==='penalties'?'pens':'ET')})</span>`:'';
+    resultLine=`<div class="result-row has-result"><span class="result-lbl">Result:</span><span class="result-score">${res.hs} \u2013 ${res.as}</span>${penNote}${ptsHtml}</div>`;
+  }else{
+    resultLine=`<div class="result-row"><span class="result-lbl">Result:</span><span class="result-pending">Not yet played</span></div>`;
+  }
+  card.innerHTML=`
+    <div class="game-meta">
+      <span>M${m} \u00b7 ${esc(matchObj.venue)}${matchObj.date?' \u00b7 '+esc(matchObj.date):''} \u00b7 <span class="game-code">m${m}</span></span>
+      <span class="ko-round-mult">\u00d7${KO_MULT[m]||1} pts</span>
+    </div>
+    <div class="matchup">
+      <div class="team-col">
+        <div class="tbtn${homeClass}" id="kohbtn_${m}">${homeShow}</div>
+        <input class="score-inp" type="number" min="0" max="20" placeholder="\u2013"
+          value="${esc(hs)}" data-mid="${m}" data-side="home"
+          oninput="liveKOScore(this)" onchange="saveKOScore(this)" ${homeTeam?'':'disabled'}>
+      </div>
+      <div class="vs-col"><div class="vs">VS</div><span class="score-dash">\u2013</span></div>
+      <div class="team-col">
+        <div class="tbtn${awayClass}" id="koabtn_${m}">${awayShow}</div>
+        <input class="score-inp" type="number" min="0" max="20" placeholder="\u2013"
+          value="${esc(as)}" data-mid="${m}" data-side="away"
+          oninput="liveKOScore(this)" onchange="saveKOScore(this)" ${awayTeam?'':'disabled'}>
+      </div>
+    </div>
+    <div class="ko-tie-warning" id="kotie_${m}">\u26a0\uFE0F No draws in the knockout stage \u2014 someone has to go through. Change one score.</div>
+    ${resultLine}`;
+  return card;
+}
+function liveKOScore(inp){
+  const card=inp.closest('.ko-pred-card');const m=inp.dataset.mid;
+  const hs=card.querySelector('[data-side="home"]').value;
+  const as=card.querySelector('[data-side="away"]').value;
+  const warn=document.getElementById('kotie_'+m);
+  const tied=hs!==''&&as!==''&&hs===as;
+  if(warn)warn.classList.toggle('show',tied);
+  card.querySelectorAll('.score-inp').forEach(i=>i.classList.toggle('tie-error',tied));
+  const w=tied?null:winnerFrom(hs,as);
+  const hb=document.getElementById('kohbtn_'+m);const ab=document.getElementById('koabtn_'+m);
+  if(!hb||!ab)return;
+  hb.className='tbtn';ab.className='tbtn';
+  if(w==='home'){hb.classList.add('win');ab.classList.add('lose');}
+  else if(w==='away'){hb.classList.add('lose');ab.classList.add('win');}
+}
+function saveKOScore(inp){
+  const card=inp.closest('.ko-pred-card');const m=inp.dataset.mid;
+  const hs=card.querySelector('[data-side="home"]').value;
+  const as=card.querySelector('[data-side="away"]').value;
+  if(!currentUser){toast('Enter your name first!');return;}
+  if(hs!==''&&as!==''&&hs===as){
+    toast('No draws in the knockout stage \u2014 pick a winner \u23f0');
+    card.querySelectorAll('.score-inp').forEach(i=>i.classList.add('tie-error'));
+    return;
+  }
+  setPick('hs_m'+m,hs);setPick('as_m'+m,as);
+  card.classList.toggle('has-pick',hs!==''&&as!==''&&hs!==as);
+  toast('Saved \u2713');
+}
+// Scoring per the Kicktipp-style tiered model, with pens-count-as-goals and
+// no Wild Score bonus in the knockout stage (see project notes).
+// `results['m'+m]` is expected to store the COMBINED score (regulation + ET +
+// penalty kicks added on top of the winning side), e.g. a 1-1 game decided
+// 4-2 on penalties is stored as hs:5, as:3. decided_in is purely a display flag.
+function calcKnockoutPts(m,predHs,predAs){
+  const res=results['m'+m];
+  if(!res||predHs===''||predAs===''||predHs===predAs)return{pts:0,note:'No result yet'};
+  const ph=parseInt(predHs),pa=parseInt(predAs);
+  const ah=res.hs,aa=res.as;
+  const predDiff=ph-pa,actualDiff=ah-aa;
+  const predWin=predDiff>0?'home':'away';
+  const actualWin=actualDiff>0?'home':'away'; // never equal: pens-as-goals always breaks the tie
+  const mult=KO_MULT[m]||1;
+  let base=0,note='';
+  if(ph===ah&&pa===aa){base=3;note='Exact result';}
+  else if(predWin===actualWin&&predDiff===actualDiff){base=2;note='Correct winner + goal difference';}
+  else if(predWin===actualWin){base=1;note='Correct winner (tendency)';}
+  else{base=0;note='Incorrect';}
+  let pts=base*mult;
+  if(base>0&&isBravePick('m'+m,actualWin))   {pts+=2;note+=' \u26a1 Brave Pick';}
+  return{pts,note,base,mult};
+}
+function calcKOTotalPoints(user){
+  const p=(predictions[user]&&predictions[user].picks)||{};
+  let pts=0;
+  for(let m=73;m<=104;m++){
+    const hs=p['hs_m'+m],as=p['as_m'+m];
+    if(hs==null||String(hs)===''||as==null||String(as)===''||hs===as)continue;
+    pts+=calcKnockoutPts(m,hs,as).pts;
+  }
+  return pts;
+}
 function buildKOSection(){
   const now=new Date();
+  rebuildKOResults();
+  const r32PredArr=predictedR32();
+  const r32PredMap={};
+  if(r32PredArr)r32PredArr.forEach(mm=>{r32PredMap[mm.m]={home:mm.home,away:mm.away};});
   const sec=mk('div','ko-section');
-  sec.innerHTML=`<div class="ko-sec-title">\u26a1 Knockout Bracket</div><div class="ko-sec-sub">Official FIFA bracket \u2014 fills in as the group stage finishes. Once the matchups are confirmed, you'll be able to predict the knockout games right here.</div>`;
+  sec.innerHTML=`<div class="ko-sec-title">\u26a1 Knockout Bracket</div><div class="ko-sec-sub">Pick the winner of each knockout game as its round opens \u2014 type a score for each side (no draws allowed; someone has to go through). Scoring: 3 pts exact result \u00b7 2 pts correct winner + goal difference \u00b7 1 pt correct winner. Penalty-shootout kicks count as goals toward the final score, and round value increases as the bracket progresses (\u00d71 \u2192 \u00d73). No Wild Score bonus in the knockout stage.</div>`;
   sec.appendChild(buildPredictedR32());
   KO_ROUNDS.forEach(r=>{
     const open=new Date(r.open)<=now;
     const rb=mk('div','ko-round-block');
-    rb.innerHTML=`<div class="ko-round-label">${open?'\u{1F7E2}':'\u{1F512}'} ${esc(r.label)} <span class="ko-round-dates">${esc(r.dates)}</span></div>`;
-    r.matches.forEach(m=>rb.appendChild(buildKOMatchRow(m)));
+    rb.innerHTML=`<div class="ko-round-label">${open?'\u{1F7E2}':'\u{1F512}'} ${esc(r.label)} <span class="ko-round-mult">\u00d7${r.mult}</span> <span class="ko-round-dates">${esc(r.dates)}</span></div>`;
+    if(open){
+      r.matches.forEach(mt=>rb.appendChild(buildKOPredictionCard(mt,r.key,new Date(r.open),r32PredMap)));
+    }else{
+      r.matches.forEach(mt=>rb.appendChild(buildKOMatchRow(mt)));
+    }
     sec.appendChild(rb);
   });
   return sec;
@@ -1493,26 +1665,33 @@ function renderWinner(p1,p2,p3){
   p3.appendChild(mk('div','ptitle','Scoring System'));
   const se=mk('div','scoring-explainer');
   se.innerHTML=`<h4>\u{1F4CB} How Points Work</h4>
-<div class="sc-section"><div class="sc-section-title">Match Predictions</div>
+<div class="sc-section"><div class="sc-section-title">Group Stage</div>
 <div class="sc-row"><div class="sc-pts">1</div><div class="sc-desc"><strong>Correct outcome</strong> \u2014 you predicted the right winner, or correctly called a draw.</div></div>
 <div class="sc-row"><div class="sc-pts">3</div><div class="sc-desc"><strong>Exact scoreline</strong> \u2014 you got the precise final score right. This replaces the 1-point outcome award, not added on top.</div></div></div>
-<div class="sc-section"><div class="sc-section-title">Bonuses (stack on top)</div>
+<div class="sc-section"><div class="sc-section-title">Bonuses (stack on top, group stage only)</div>
 <div class="sc-row"><div class="sc-pts">+2</div><div class="sc-desc">\u26a1 <strong>Brave Pick</strong> \u2014 you correctly called a clear underdog at decimal odds \u2265 5.00.</div></div>
 <div class="sc-row"><div class="sc-pts">+2</div><div class="sc-desc">\u{1F3B2} <strong>Wild Score</strong> \u2014 you got the exact scoreline right and the total goals were 7 or more.</div></div></div>
+<div class="sc-section"><div class="sc-section-title">Knockout Stage \u2014 different rules</div>
+<div class="sc-row"><div class="sc-pts">3</div><div class="sc-desc"><strong>Exact result</strong> \u2014 your predicted score matches the final score exactly. Penalty-shootout kicks are added to the 120-minute score, so a 1\u20131 decided 4\u20132 on pens counts as 5\u20133.</div></div>
+<div class="sc-row"><div class="sc-pts">2</div><div class="sc-desc"><strong>Correct winner + goal difference</strong> \u2014 right team through, and your margin matches (e.g. predicted 3\u20131, actual 4\u20132).</div></div>
+<div class="sc-row"><div class="sc-pts">1</div><div class="sc-desc"><strong>Correct winner</strong> (tendency) \u2014 right team advances, margin doesn't match.</div></div>
+<div class="sc-row"><div class="sc-pts">+2</div><div class="sc-desc">\u26a1 <strong>Brave Pick</strong> still applies in the knockout stage. \u{1F3B2} <strong>Wild Score does not</strong> \u2014 removed for knockout games since pens-as-goals already makes high totals common.</div></div>
+<div class="sc-row"><div class="sc-pts">\u00d71\u2013\u00d73</div><div class="sc-desc"><strong>Round multiplier</strong> \u2014 R32/R16 \u00d71, QF/3rd-place \u00d72, SF/Final \u00d73. Knockout points above are multiplied by the round's value.</div></div>
+<div class="sc-row"><div class="sc-pts">\u2014</div><div class="sc-desc">No draws can be predicted in the knockout stage \u2014 every game needs a winner, so score entries with equal numbers are blocked.</div></div></div>
 <div class="sc-section"><div class="sc-section-title">Examples</div>
 <table class="odds-table">
 <tr><th>Situation</th><th>Points</th></tr>
-<tr><td>Predicted Brazil win, Brazil win</td><td>1 pt</td></tr>
-<tr><td>Predicted Brazil 3\u20130 Haiti, result is 3\u20130</td><td>3 pts</td></tr>
-<tr><td>Predicted Haiti win (clear underdog), Haiti win</td><td>1 + 2 = <strong>3 pts</strong> \u26a1</td></tr>
-<tr><td>Predicted a long-odds draw (\u2265 5.00), it finishes level</td><td>1 + 2 = <strong>3 pts</strong> \u26a1</td></tr>
-<tr><td>Predicted Haiti 4\u20133 Brazil, result is 4\u20133</td><td>3 + 2 + 2 = <strong>7 pts</strong> \u26a1\u{1F3B2}</td></tr>
-<tr><td>Wrong outcome</td><td>0 pts</td></tr>
+<tr><td>Group stage: Predicted Brazil win, Brazil win</td><td>1 pt</td></tr>
+<tr><td>Group stage: Predicted Haiti 4\u20133 Brazil, result is 4\u20133</td><td>3 + 2 + 2 = <strong>7 pts</strong> \u26a1\u{1F3B2}</td></tr>
+<tr><td>QF: Predicted 2\u20130, actual 2\u20130</td><td>3 \u00d7 2 = <strong>6 pts</strong></td></tr>
+<tr><td>QF: Predicted 3\u20131, actual 4\u20132 (same winner &amp; margin)</td><td>2 \u00d7 2 = <strong>4 pts</strong></td></tr>
+<tr><td>SF: Predicted 1\u20130, actual 1\u20131 \u2192 5\u20133 on pens (you backed the home side)</td><td>1 \u00d7 3 = <strong>3 pts</strong></td></tr>
+<tr><td>Final: Wrong team predicted to win</td><td>0 pts</td></tr>
 </table></div>
 <div class="sc-section"><div class="sc-section-title">Tournament Bonuses (locked in before Jun 11)</div>
 <div class="sc-row"><div class="sc-pts">15</div><div class="sc-desc">Correct tournament winner</div></div>
 <div class="sc-row"><div class="sc-pts">15</div><div class="sc-desc">Correct top goalscorer</div></div></div>
-<div class="sc-note">\u26a1 Brave Pick and \u{1F3B2} Wild Score bonuses stack \u2014 maximum 7 pts from a single game.</div>`;
+<div class="sc-note">\u26a1 Brave Pick and \u{1F3B2} Wild Score bonuses stack in the group stage \u2014 maximum 7 pts from a single group game. In the knockout stage, only Brave Pick applies, and the whole result is multiplied by the round's value.</div>`;
   p3.appendChild(se);
   const wrap=mk('div','');wrap.id='summaryWrap';p3.appendChild(wrap);
   refreshSummary();
@@ -1534,6 +1713,63 @@ function refreshSummary(){
 }
 
 // ── HOT TAKES ──────────────────────────────────────────────
+// Tag options let a take be optionally attached to a team or stage so it can
+// later be auto-graded once results land (see gradeTakeTag below). Purely
+// optional at posting time — untagged takes just never get a grade pill.
+const TAKE_TAGS=[
+  {key:'',label:'No tag (just a take)'},
+  ...TEAMS.map(t=>({key:'team:'+t,label:'\u26bd '+t})),
+  {key:'stage:r32',label:'\u{1F3C6} Round of 32'},
+  {key:'stage:r16',label:'\u{1F3C6} Round of 16'},
+  {key:'stage:qf',label:'\u{1F3C6} Quarter-Finals'},
+  {key:'stage:sf',label:'\u{1F3C6} Semi-Finals'},
+  {key:'stage:final',label:'\u{1F3C6} Final'},
+];
+// Daily rotating prompt — purely a low-effort engagement nudge, cycles by date
+// so everyone sees the same prompt on a given day without needing storage.
+const TAKE_PROMPTS=[
+  "Which group-stage favourite is most likely to crash out early?",
+  "Pick a dark horse to make a deeper run than anyone expects.",
+  "Which INT colleague's predictions are you most worried about going into the knockouts?",
+  "Boldest knockout upset you're willing to call right now?",
+  "Who wins the Golden Boot race that nobody's talking about yet?",
+  "Which team's defence will decide their tournament?",
+  "One prediction you'd bet real money on.",
+];
+function todaysPrompt(){
+  const day=Math.floor(Date.now()/86400000);
+  return TAKE_PROMPTS[day%TAKE_PROMPTS.length];
+}
+// Grades a tagged take against current results. Returns 'hit' | 'miss' | 'pending'.
+// Deliberately simple: team tags grade against whether that team is still alive
+// (group stage exit / knockout elimination) once enough of their games have
+// results; stage tags grade once that stage's matches are complete. This is a
+// light heuristic, not a parser of the take's text — by design, since parsing
+// free text reliably isn't worth the complexity for an office pool.
+function gradeTakeTag(tag){
+  if(!tag)return null;
+  if(tag.startsWith('team:')){
+    const team=tag.slice(5);
+    const teamGames=GAMES.filter(g=>g.home===team||g.away===team).map(g=>g.id);
+    const played=teamGames.filter(id=>results[id]);
+    if(played.length<teamGames.length)return 'pending';
+    // crude "still alive" proxy: did they finish top-2 in their group (group stage only, pre-KO)
+    const game=GAMES.find(g=>g.home===team||g.away===team);
+    if(!game)return null;
+    const{rows,any}=groupStandings(game.group,gid=>results[gid]?{hs:results[gid].hs,as:results[gid].as}:null);
+    if(!any)return 'pending';
+    const idx=rows.findIndex(r=>r.team===team);
+    return idx>=0&&idx<2?'hit':null; // null = ambiguous (could still be a 3rd-place qualifier), leave ungraded
+  }
+  if(tag.startsWith('stage:')){
+    const stageKey=tag.slice(6);
+    const round=KO_ROUNDS.find(r=>r.key===stageKey);
+    if(!round)return null;
+    const allPlayed=round.matches.every(m=>results['m'+m.m]);
+    return allPlayed?'hit':'pending'; // stage tags are informational markers, not predictions — always shown as resolved/pending, never "miss"
+  }
+  return null;
+}
 function renderHot(p1,p2,p3){
   [p1,p2,p3].forEach(p=>p.classList.add('on'));
   p1.appendChild(mk('div','ptitle','\u{1F525} Hottest Takes'));
@@ -1543,8 +1779,18 @@ function renderHot(p1,p2,p3){
   p2.appendChild(mk('div','psub','Most divisive takes \u2014 evenly split votes at volume (Wilson score)'));
   [...hotTakes].sort((a,b)=>wilsonControversy(b.up,b.down)-wilsonControversy(a.up,a.down)).forEach(h=>p2.appendChild(buildTakeCard(h)));
   p3.appendChild(mk('div','ptitle','Submit a Take'));
+  const promptBanner=mk('div','take-prompt-banner',`\u{1F4AC} <strong>Today's prompt:</strong> ${esc(todaysPrompt())} <span style="opacity:.7">(or post whatever's on your mind)</span>`);
+  p3.appendChild(promptBanner);
   const form=mk('div','take-input-wrap');
-  form.innerHTML=`<textarea id="takeTextarea" placeholder="Your World Cup prediction\u2026 be specific! (min 15 chars)"></textarea>
+  const replyBanner=replyingTo?(()=>{
+    const rt=hotTakes.find(x=>x.id===replyingTo);
+    return rt?`<div class="take-replying-banner"><span>\u21a9 Replying to <strong>${esc(rt.user)}</strong>: "${esc(rt.text.slice(0,60))}${rt.text.length>60?'\u2026':''}"</span><button onclick="cancelReply()">\u2715</button></div>`:'';
+  })():'';
+  form.innerHTML=`${replyBanner}<textarea id="takeTextarea" placeholder="Your World Cup prediction\u2026 be specific! (min 15 chars)"></textarea>
+    <div class="take-tagrow">
+      <span>Optional tag:</span>
+      <select id="takeTagSelect">${TAKE_TAGS.map(t=>`<option value="${esc(t.key)}">${esc(t.label)}</option>`).join('')}</select>
+    </div>
     <div class="post-row"><span>Visible to all colleagues</span><button class="btn-post" onclick="postTake()">Post \u{1F525}</button></div>`;
   p3.appendChild(form);
   const divider=mk('div','');divider.style.cssText='height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin:6px 0';
@@ -1552,15 +1798,47 @@ function renderHot(p1,p2,p3){
   const rt=mk('div','ptitle','Most Recent');p3.appendChild(rt);
   [...hotTakes].sort((a,b)=>b.ts-a.ts).slice(0,10).forEach(h=>p3.appendChild(buildTakeCard(h)));
 }
+function takeStreakFor(user){
+  // Consecutive distinct match-days (by GAMES date, chronological) on which
+  // this user posted at least one take. Cheap engagement badge, no schema change.
+  const userTakes=hotTakes.filter(t=>t.user===user);
+  if(userTakes.length<3)return 0;
+  const days=[...new Set(userTakes.map(t=>new Date(t.ts).toDateString()))]
+    .sort((a,b)=>new Date(a)-new Date(b));
+  let streak=1,best=1;
+  for(let i=1;i<days.length;i++){
+    const gap=(new Date(days[i])-new Date(days[i-1]))/86400000;
+    streak=gap<=1.5?streak+1:1;
+    best=Math.max(best,streak);
+  }
+  return best;
+}
 function buildTakeCard(h){
   const net=h.up-h.down;const mv=h.voters&&currentUser?(h.voters[currentUser]||null):null;
   const avKey=SEED_AVATARS[h.user]||(predictions[h.user]?assignAvatar(h.user):'ghost');
   const av=AVATARS[avKey]||AVATARS.ghost;
   const card=mk('div','take-card');card.dataset.tid=h.id;
-  card.innerHTML=`<div class="take-hdr">
+  let replyTagHtml='';
+  if(h.replyTo){
+    const parent=hotTakes.find(x=>x.id===h.replyTo);
+    if(parent)replyTagHtml=`<div class="take-reply-tag" onclick="scrollToTake('${parent.id}')">\u21a9 replying to ${esc(parent.user)}</div>`;
+  }
+  let gradeHtml='';
+  if(h.tag){
+    const grade=gradeTakeTag(h.tag);
+    const tagInfo=TAKE_TAGS.find(t=>t.key===h.tag);
+    const tagLabel=tagInfo?tagInfo.label:h.tag;
+    if(grade==='hit')gradeHtml=`<div class="take-graded hit">\u2705 ${esc(tagLabel)} \u2014 holding up</div>`;
+    else if(grade==='miss')gradeHtml=`<div class="take-graded miss">\u274c ${esc(tagLabel)} \u2014 didn't hold up</div>`;
+    else gradeHtml=`<div class="take-graded pending">\u23f3 ${esc(tagLabel)} \u2014 not yet settled</div>`;
+  }
+  const streak=takeStreakFor(h.user);
+  const streakHtml=streak>=3?`<span class="take-streak">\u{1F525} ${streak}-day streak</span>`:'';
+  card.innerHTML=`${replyTagHtml}${gradeHtml}<div class="take-hdr">
     <span class="take-avatar" title="${esc(av.label)}: ${esc(av.desc)}">${av.emoji}</span>
     <span class="take-user">${esc(h.user)}</span>
     <span class="take-badge">${esc(av.label)}</span>
+    ${streakHtml}
     <span class="take-time">${timeAgo(h.ts)}</span>
     ${net>=5?'<span class="fire-tag">\u{1F525} HOT</span>':''}
   </div>
@@ -1569,8 +1847,20 @@ function buildTakeCard(h){
     <button class="vbtn${mv==='up'?' up':''}" data-tid="${h.id}" data-dir="up" onclick="vote(this)">\u25b2 <span class="vc">${h.up}</span></button>
     <span class="vscore" style="color:${net>0?'#16a34a':net<0?'#dc2626':'var(--text3)'}">${net>0?'+':''}${net}</span>
     <button class="vbtn${mv==='down'?' dn':''}" data-tid="${h.id}" data-dir="down" onclick="vote(this)">\u25bc <span class="vc">${h.down}</span></button>
+    <button class="take-reply-btn" onclick="startReply('${h.id}')">\u21a9 Reply</button>
   </div>`;
   return card;
+}
+function startReply(id){
+  replyingTo=id;render();
+  setTimeout(()=>{const ta=document.getElementById('takeTextarea');if(ta)ta.focus();},50);
+}
+function cancelReply(){replyingTo=null;render();}
+function scrollToTake(id){
+  const els=document.querySelectorAll(`.take-card[data-tid="${id}"]`);
+  if(!els.length)return;
+  els[0].scrollIntoView({behavior:'smooth',block:'center'});
+  els.forEach(e=>{e.classList.add('highlight-flash');setTimeout(()=>e.classList.remove('highlight-flash'),1450);});
 }
 function vote(btn){
   if(!currentUser){toast('Enter your name first!');return;}
@@ -1599,9 +1889,11 @@ function postTake(){
   const ta=document.getElementById('takeTextarea');
   const text=ta?ta.value.trim():'';
   if(text.length<15){toast('A bit more detail please!');return;}
+  const tagSelect=document.getElementById('takeTagSelect');
+  const tag=tagSelect?tagSelect.value:'';
   const newId='t'+Date.now();
-  hotTakes.unshift({id:newId,user:currentUser,text,up:0,down:0,voters:{},ts:Date.now()});
-  saveTake(newId);ta.value='';toast('Hot take posted! \u{1F525}');render();
+  hotTakes.unshift({id:newId,user:currentUser,text,up:0,down:0,voters:{},ts:Date.now(),replyTo:replyingTo||null,tag:tag||null});
+  saveTake(newId);ta.value='';replyingTo=null;toast('Hot take posted! \u{1F525}');render();
 }
 
 // ── SCORING ENGINE ─────────────────────────────────────────
@@ -1620,6 +1912,7 @@ function calcPoints(user){
     if((exact||outOk)&&isBravePick(gid,actualW))pts+=2;
     if(exact&&isWildScore(uh,ua))pts+=2;
   }
+  pts+=calcKOTotalPoints(user);
   if(OFFICIAL_WINNER&&p.winner===OFFICIAL_WINNER)pts+=WINNER_BONUS;
   if(OFFICIAL_SCORER&&p.scorer===OFFICIAL_SCORER)pts+=SCORER_BONUS;
   return pts;
@@ -1631,12 +1924,8 @@ function calcPredCount(user){
 
 // ── MATCH-DAY LEADERBOARD ──────────────────────────────────
 let mdDayIndex=-1;
-let mdUserNavigated=false;  // true once the user clicks prev/next; until then, always snap to latest day
+let mdUserNavigated=false;
 function gameDaysWithResults(){
-  // CRITICAL: GAMES is ordered by group, not by date, so the raw date order is
-  // scrambled (Jun 11, Jun 18, Jun 24, Jun 12, ...). We must sort chronologically
-  // so that days.length-1 is genuinely the most recent day and prev/next navigate
-  // in calendar order.
   const uniqueDays=[...new Set(GAMES.map(g=>g.date))];
   uniqueDays.sort((a,b)=>dateToComparable(a)-dateToComparable(b));
   return uniqueDays.filter(d=>GAMES.filter(g=>g.date===d).some(g=>results[g.id]));
@@ -1658,9 +1947,6 @@ function calcGamePts(user,gid){
 }
 function buildMatchDayLB(container){
   const days=gameDaysWithResults();
-  // Snap to the most recent day with results unless the user has manually
-  // navigated away. This ensures newly-ingested days (e.g. via the 60s refresh)
-  // automatically become the default view instead of staying on a stale day.
   if(!mdUserNavigated||mdDayIndex<0||mdDayIndex>=days.length){
     mdDayIndex=Math.max(0,days.length-1);
   }
@@ -1774,7 +2060,6 @@ function renderLB(p1,p2,p3){
     team:(predictions[u]&&predictions[u].team)||'',avatar:assignAvatar(u),
   })).sort((a,b)=>b.pts-a.pts||b.preds-a.preds||a.name.localeCompare(b.name));
 
-  // pre-compute badges and game difficulty
   const badgeMap=calcAllBadges(allU);
   const{hardest,easiest}=calcGameDifficulty();
 
@@ -1841,10 +2126,8 @@ function renderLB(p1,p2,p3){
   pv.innerHTML=pvHtml;
   p2.appendChild(pv);
 
-  // hardest/easiest game
   p2.appendChild(buildGameDiffSection(hardest,easiest));
 
-  // p3: Match-Day Standings (moved from p1)
   const mdContainer2=mk('div','');
   buildMatchDayLB(mdContainer2);
   p3.appendChild(mdContainer2);
