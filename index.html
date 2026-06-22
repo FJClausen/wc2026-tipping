@@ -748,7 +748,18 @@ async function saveTake(id){
     if(error)throw error;
     badge('ok','Saved \u2713');setTimeout(()=>badge('ok',''),2000);
     buildTicker();
-  }catch(e){console.error(e);badge('err','Save failed');}
+  }catch(e){
+    console.error(e);
+    badge('err','Save failed');
+    // Surface schema errors loudly (e.g. a column the table doesn't have yet)
+    // instead of letting the change silently vanish on next reload.
+    const msg=(e&&e.message)||'';
+    if(/column .* does not exist/i.test(msg)){
+      toast('\u26a0\uFE0F DB column missing \u2014 ask admin to add it in Supabase \u26a0\uFE0F');
+    }else{
+      toast('\u26a0\uFE0F Save failed \u2014 check connection \u26a0\uFE0F');
+    }
+  }
 }
 setInterval(()=>{if(currentTab==='lb')loadData().then(render);},60000);
 
