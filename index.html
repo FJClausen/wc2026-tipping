@@ -571,22 +571,22 @@ const GAMES=[
   {id:'g68',date:'Jun 27',time:'17:00 ET',group:'L',home:'Croatia',away:'Ghana',venue:'Philadelphia'},
 ];
 const R32=[
-  {m:73,home:'2nd Group A',away:'2nd Group B',venue:'Inglewood'},
-  {m:74,home:'1st Group E',away:'Best 3rd (A/B/C/D/F)',venue:'Foxborough'},
-  {m:75,home:'1st Group F',away:'2nd Group C',venue:'Monterrey'},
-  {m:76,home:'1st Group C',away:'2nd Group F',venue:'Houston'},
-  {m:77,home:'1st Group I',away:'Best 3rd (C/D/F/G/H)',venue:'E. Rutherford'},
-  {m:78,home:'2nd Group E',away:'2nd Group I',venue:'Arlington'},
-  {m:79,home:'1st Group A',away:'Best 3rd (C/E/F/H/I)',venue:'Mexico City'},
-  {m:80,home:'1st Group L',away:'Best 3rd (E/H/I/J/K)',venue:'Atlanta'},
-  {m:81,home:'1st Group D',away:'Best 3rd (B/E/F/I/J)',venue:'Santa Clara'},
-  {m:82,home:'1st Group G',away:'Best 3rd (A/E/H/I/J)',venue:'Seattle'},
-  {m:83,home:'2nd Group K',away:'2nd Group L',venue:'Toronto'},
-  {m:84,home:'1st Group H',away:'2nd Group J',venue:'Inglewood'},
-  {m:85,home:'1st Group B',away:'Best 3rd (E/F/G/I/J)',venue:'Vancouver'},
-  {m:86,home:'1st Group J',away:'2nd Group H',venue:'Miami'},
-  {m:87,home:'1st Group K',away:'Best 3rd (D/E/I/J/L)',venue:'Kansas City'},
-  {m:88,home:'2nd Group D',away:'2nd Group G',venue:'Arlington'},
+  {m:73,home:'2nd Group A',away:'2nd Group B',venue:'Inglewood',date:'Jun 28'},
+  {m:74,home:'1st Group E',away:'Best 3rd (A/B/C/D/F)',venue:'Foxborough',date:'Jun 29'},
+  {m:75,home:'1st Group F',away:'2nd Group C',venue:'Monterrey',date:'Jun 29'},
+  {m:76,home:'1st Group C',away:'2nd Group F',venue:'Houston',date:'Jun 29'},
+  {m:77,home:'1st Group I',away:'Best 3rd (C/D/F/G/H)',venue:'E. Rutherford',date:'Jun 30'},
+  {m:78,home:'2nd Group E',away:'2nd Group I',venue:'Arlington',date:'Jun 30'},
+  {m:79,home:'1st Group A',away:'Best 3rd (C/E/F/H/I)',venue:'Mexico City',date:'Jun 30'},
+  {m:80,home:'1st Group L',away:'Best 3rd (E/H/I/J/K)',venue:'Atlanta',date:'Jul 1'},
+  {m:81,home:'1st Group D',away:'Best 3rd (B/E/F/I/J)',venue:'Santa Clara',date:'Jul 1'},
+  {m:82,home:'1st Group G',away:'Best 3rd (A/E/H/I/J)',venue:'Seattle',date:'Jul 1'},
+  {m:83,home:'2nd Group K',away:'2nd Group L',venue:'Toronto',date:'Jul 2'},
+  {m:84,home:'1st Group H',away:'2nd Group J',venue:'Inglewood',date:'Jul 2'},
+  {m:85,home:'1st Group B',away:'Best 3rd (E/F/G/I/J)',venue:'Vancouver',date:'Jul 2'},
+  {m:86,home:'1st Group J',away:'2nd Group H',venue:'Miami',date:'Jul 3'},
+  {m:87,home:'1st Group K',away:'Best 3rd (D/E/I/J/L)',venue:'Kansas City',date:'Jul 3'},
+  {m:88,home:'2nd Group D',away:'2nd Group G',venue:'Arlington',date:'Jul 3'},
 ];
 const R16=[
   {m:89,home:'Winner M74',away:'Winner M77',venue:'Philadelphia',date:'Jul 4'},
@@ -1121,6 +1121,35 @@ function dateToComparable(dstr){
   const t=new Date(dstr+' 2026 12:00:00').getTime();
   return isNaN(t)?0:t;
 }
+// Returns the actual UTC instant corresponding to 12:00 AM Eastern Time on the
+// given 'Mon D' match-date string (e.g. 'Jul 1'). Used to lock individual
+// knockout-stage predictions at midnight ET on the match's own day, rather
+// than at a single round-wide cutoff — every viewer sees the same lock instant
+// regardless of their own timezone, same principle as todayET().
+function koMatchLockTime(dstr){
+  // Binary-search-free approach: construct a UTC date for the target calendar
+  // day, then read back what that instant displays as in ET and correct for
+  // the offset. EDT is UTC-4 in late June/July (no DST edge case in this
+  // window), so midnight ET = 04:00 UTC on the same calendar date.
+  const probe=new Date(dstr+' 2026 04:00:00 UTC');
+  if(isNaN(probe.getTime()))return null;
+  // Verify via Intl that this instant really reads as 00:00 in America/New_York;
+  // if a future DST edge ever shifts the offset, fall back to a direct parse
+  // rather than silently producing a wrong lock time.
+  const check=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour:'2-digit',hour12:false}).format(probe);
+  if(check!=='00'&&check!=='24'){
+    // Offset assumption didn't hold — recompute by walking hour-by-hour from
+    // the UTC midnight of that date until ET reads 00:xx. Slow but only runs
+    // in the rare case the fixed-offset shortcut above is wrong.
+    let t=new Date(dstr+' 2026 00:00:00 UTC').getTime();
+    for(let i=0;i<30;i++){
+      const h=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour:'2-digit',hour12:false}).format(new Date(t));
+      if(h==='00')return new Date(t);
+      t+=3600000;
+    }
+  }
+  return probe;
+}
 function resolveTodayTarget(){
   const today=todayET();
   const todayVal=dateToComparable(today);
@@ -1239,7 +1268,7 @@ function renderGames(p1,p2,p3){
   const groups=['A','B','C','D','E','F','G','H','I','J','K','L'];
   const locked=groupLocked();
   const notice=mk('div',locked?'cutoff-bar closed':'cutoff-bar',
-    locked?'\u{1F512} Group-stage predictions are closed \u2014 your picks are locked in. Knockout predictions open round by round below as each one becomes official.'
+    locked?'\u{1F512} Group-stage predictions are closed \u2014 your picks are locked in. Knockout predictions open round by round below, and each match locks individually at midnight ET on its own kickoff day.'
           :'\u23f0 Predictions close <strong>11 Jun 2026, 15:00 ET</strong> \u2014 when the first match kicks off.');
   p1.appendChild(notice);
   [[0,3],[4,7],[8,11]].forEach(([s,e],pi)=>{
@@ -1482,8 +1511,14 @@ function rebuildKOResults(){
 function myKOPicks(){return myPicks();}
 function buildKOPredictionCard(matchObj,roundKey,roundOpenDate,r32PredMap){
   const m=matchObj.m;
-  const locked=new Date()<roundOpenDate || groupLocked()===false && false; // placeholder readability no-op
-  const isOpen=new Date()>=roundOpenDate;
+  const now=new Date();
+  const roundHasOpened=now>=roundOpenDate;
+  const matchLock=matchObj.date?koMatchLockTime(matchObj.date):null;
+  const matchHasLocked=matchLock?now>=matchLock:false;
+  // A match accepts predictions once its round exists AND its own kickoff day
+  // hasn't started yet (midnight ET on the match's date) — independent of
+  // whether sibling matches in the same round have already locked.
+  const isOpen=roundHasOpened&&!matchHasLocked;
   const homeLabel=roundKey==='r32'?matchObj.home:resolveKOSlotLabel(matchObj.home,r32PredMap);
   const awayLabel=roundKey==='r32'?(/Best 3rd/.test(matchObj.away)?null:matchObj.away):resolveKOSlotLabel(matchObj.away,r32PredMap);
   let homeTeam=homeLabel,awayTeam=awayLabel;
@@ -1522,6 +1557,8 @@ function buildKOPredictionCard(matchObj,roundKey,roundOpenDate,r32PredMap){
       <span>M${m} \u00b7 ${esc(matchObj.venue)}${matchObj.date?' \u00b7 '+esc(matchObj.date):''} \u00b7 <span class="game-code">m${m}</span></span>
       <span class="ko-round-mult">\u00d7${KO_MULT[m]||1} pts</span>
     </div>
+    ${!roundHasOpened?`<div class="result-row"><span class="result-pending">\u{1F512} Opens once this round is confirmed</span></div>`:''}
+    ${roundHasOpened&&matchHasLocked&&!res?`<div class="result-row"><span class="result-pending">\u{1F512} Locked \u2014 kickoff day has arrived for this match</span></div>`:''}
     <div class="matchup">
       <div class="team-col">
         <div class="tbtn${homeClass}" id="kohbtn_${m}">${homeShow}</div>
@@ -1558,6 +1595,15 @@ function liveKOScore(inp){
 }
 function saveKOScore(inp){
   const card=inp.closest('.ko-pred-card');const m=inp.dataset.mid;
+  const matchObj=[...R32,...R16,...QF,...SF,...THIRD,...FINAL].find(mm=>mm.m===parseInt(m));
+  if(matchObj&&matchObj.date){
+    const lock=koMatchLockTime(matchObj.date);
+    if(lock&&new Date()>=lock){
+      toast('\u{1F512} This match has locked \u2014 kickoff day has arrived');
+      render();
+      return;
+    }
+  }
   const hs=card.querySelector('[data-side="home"]').value;
   const as=card.querySelector('[data-side="away"]').value;
   if(!currentUser){toast('Enter your name first!');return;}
@@ -1610,7 +1656,7 @@ function buildKOSection(){
   const r32PredMap={};
   if(r32PredArr)r32PredArr.forEach(mm=>{r32PredMap[mm.m]={home:mm.home,away:mm.away};});
   const sec=mk('div','ko-section');
-  sec.innerHTML=`<div class="ko-sec-title">\u26a1 Knockout Bracket</div><div class="ko-sec-sub">Pick the winner of each knockout game as its round opens \u2014 type a score for each side (no draws allowed; someone has to go through). Scoring: 3 pts exact result \u00b7 2 pts correct winner + goal difference \u00b7 1 pt correct winner. Penalty-shootout kicks count as goals toward the final score, and round value increases as the bracket progresses (\u00d71 \u2192 \u00d73). No Wild Score bonus in the knockout stage.</div>`;
+  sec.innerHTML=`<div class="ko-sec-title">\u26a1 Knockout Bracket</div><div class="ko-sec-sub">Pick the winner of each knockout game once its round is confirmed \u2014 type a score for each side (no draws allowed; someone has to go through). <strong>Each match locks individually at midnight ET on its own kickoff day</strong> \u2014 other games in the same round stay open even after one has locked. Scoring: 3 pts exact result \u00b7 2 pts correct winner + goal difference \u00b7 1 pt correct winner. Penalty-shootout kicks count as goals toward the final score, and round value increases as the bracket progresses (\u00d71 \u2192 \u00d73). No Wild Score bonus in the knockout stage.</div>`;
   sec.appendChild(buildPredictedR32());
   KO_ROUNDS.forEach(r=>{
     const open=new Date(r.open)<=now;
@@ -1679,7 +1725,8 @@ function renderWinner(p1,p2,p3){
 <div class="sc-row"><div class="sc-pts">1</div><div class="sc-desc"><strong>Correct winner</strong> (tendency) \u2014 right team advances, margin doesn't match.</div></div>
 <div class="sc-row"><div class="sc-pts">+2</div><div class="sc-desc">\u26a1 <strong>Brave Pick</strong> still applies in the knockout stage. \u{1F3B2} <strong>Wild Score does not</strong> \u2014 removed for knockout games since pens-as-goals already makes high totals common.</div></div>
 <div class="sc-row"><div class="sc-pts">\u00d71\u2013\u00d73</div><div class="sc-desc"><strong>Round multiplier</strong> \u2014 R32/R16 \u00d71, QF/3rd-place \u00d72, SF/Final \u00d73. Knockout points above are multiplied by the round's value.</div></div>
-<div class="sc-row"><div class="sc-pts">\u2014</div><div class="sc-desc">No draws can be predicted in the knockout stage \u2014 every game needs a winner, so score entries with equal numbers are blocked.</div></div></div>
+<div class="sc-row"><div class="sc-pts">\u2014</div><div class="sc-desc">No draws can be predicted in the knockout stage \u2014 every game needs a winner, so score entries with equal numbers are blocked.</div></div>
+<div class="sc-row"><div class="sc-pts">\u23f0</div><div class="sc-desc"><strong>Each match locks on its own</strong> \u2014 predictions for a knockout game close at midnight ET on that match's kickoff day, independent of other games in the same round.</div></div></div>
 <div class="sc-section"><div class="sc-section-title">Examples</div>
 <table class="odds-table">
 <tr><th>Situation</th><th>Points</th></tr>
