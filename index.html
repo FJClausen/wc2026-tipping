@@ -258,6 +258,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .bkt-pts.zero{background:#fee2e2;color:#dc2626}
 .bkt-tiewarn{font-size:9px;color:var(--orange2);font-weight:600;margin-top:3px;display:none;line-height:1.3}
 .bkt-tiewarn.show{display:block}
+.bkt-pens-hint{font-size:9px;color:var(--text3);margin-top:4px;line-height:1.3;font-style:italic}
 .bkt-crowd{display:flex;align-items:center;gap:5px;padding:3px 7px;border-radius:5px;background:var(--bg2);border:1px solid var(--border);font-size:10px;margin-top:5px;flex-wrap:wrap}
 .bkt-crowd-lbl{color:var(--text3);font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap}
 .bkt-crowd-val{font-size:10.5px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:3px}
@@ -2000,6 +2001,7 @@ function buildBracketCell(mn,now){
     `<span class="bkt-mnum-r"><span class="bkt-mult">\u00d7${KO_MULT[mn]||1}</span>${ptsHtml}</span></div>`+
     teamCell('home',home,homeWL)+
     teamCell('away',away,awayWL)+
+    (!locked?`<div class="bkt-pens-hint">Predicted final score after 90 min + OT if needed \u00b7 penalty shoot-out goals count</div>`:'')+
     `<div class="bkt-tiewarn">\u26a0\uFE0F No draws \u2014 change one score</div>`+
     crowdHtml+overrideHtml;
   return cell;
