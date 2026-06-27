@@ -194,7 +194,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .ko-pens-btn{flex:1;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);border-radius:6px;padding:5px;font-size:10.5px;font-weight:600;text-align:center;cursor:pointer;font-family:'Inter',sans-serif}
 .ko-pens-btn.sel{background:var(--navy);color:#fff;border-color:var(--navy)}
 /* NEW: full-width knockout bracket band — stacked half-brackets (Option A) */
-.ko-bracket-window{grid-column:1/-1;background:linear-gradient(135deg,#001d3d,var(--navy));border-bottom:3px solid var(--intgold);padding:8px 12px 12px;overflow-y:auto;overflow-x:hidden;max-height:var(--bkt-maxh);min-height:0}
+.ko-bracket-window{grid-column:1/-1;background:linear-gradient(135deg,#001d3d,var(--navy));border-bottom:3px solid var(--intgold);padding:8px 12px 12px;overflow-y:auto;overflow-x:hidden;min-height:0}
 .ko-bracket-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;position:sticky;left:0;top:0;z-index:3;background:linear-gradient(135deg,#001d3d,var(--navy));padding-bottom:3px}
 .ko-bracket-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;line-height:1}
 .ko-bracket-sub{font-size:10px;color:rgba(255,255,255,.55);font-weight:500;letter-spacing:.3px}
@@ -662,45 +662,45 @@ const GAMES=[
   {id:'g68',date:'Jun 27',time:'17:00 ET',group:'L',home:'Croatia',away:'Ghana',venue:'Philadelphia'},
 ];
 const R32=[
-  {m:73,home:'2nd Group A',away:'2nd Group B',venue:'Inglewood',date:'Jun 28'},
-  {m:74,home:'1st Group E',away:'Best 3rd (A/B/C/D/F)',venue:'Foxborough',date:'Jun 29'},
-  {m:75,home:'1st Group F',away:'2nd Group C',venue:'Monterrey',date:'Jun 29'},
-  {m:76,home:'1st Group C',away:'2nd Group F',venue:'Houston',date:'Jun 29'},
-  {m:77,home:'1st Group I',away:'Best 3rd (C/D/F/G/H)',venue:'E. Rutherford',date:'Jun 30'},
-  {m:78,home:'2nd Group E',away:'2nd Group I',venue:'Arlington',date:'Jun 30'},
-  {m:79,home:'1st Group A',away:'Best 3rd (C/E/F/H/I)',venue:'Mexico City',date:'Jun 30'},
-  {m:80,home:'1st Group L',away:'Best 3rd (E/H/I/J/K)',venue:'Atlanta',date:'Jul 1'},
-  {m:81,home:'1st Group D',away:'Best 3rd (B/E/F/I/J)',venue:'Santa Clara',date:'Jul 1'},
-  {m:82,home:'1st Group G',away:'Best 3rd (A/E/H/I/J)',venue:'Seattle',date:'Jul 1'},
-  {m:83,home:'2nd Group K',away:'2nd Group L',venue:'Toronto',date:'Jul 2'},
-  {m:84,home:'1st Group H',away:'2nd Group J',venue:'Inglewood',date:'Jul 2'},
-  {m:85,home:'1st Group B',away:'Best 3rd (E/F/G/I/J)',venue:'Vancouver',date:'Jul 2'},
-  {m:86,home:'1st Group J',away:'2nd Group H',venue:'Miami',date:'Jul 3'},
-  {m:87,home:'1st Group K',away:'Best 3rd (D/E/I/J/L)',venue:'Kansas City',date:'Jul 3'},
-  {m:88,home:'2nd Group D',away:'2nd Group G',venue:'Arlington',date:'Jul 3'},
+  {m:73,home:'2nd Group A',away:'2nd Group B',venue:'Inglewood',date:'Jun 28',time:'3:00pm'},
+  {m:74,home:'1st Group E',away:'Best 3rd (A/B/C/D/F)',venue:'Foxborough',date:'Jun 29',time:'4:30pm'},
+  {m:75,home:'1st Group F',away:'2nd Group C',venue:'Monterrey',date:'Jun 29',time:'9:00pm'},
+  {m:76,home:'1st Group C',away:'2nd Group F',venue:'Houston',date:'Jun 29',time:'1:00pm'},
+  {m:77,home:'1st Group I',away:'Best 3rd (C/D/F/G/H)',venue:'E. Rutherford',date:'Jun 30',time:'5:00pm'},
+  {m:78,home:'2nd Group E',away:'2nd Group I',venue:'Arlington',date:'Jun 30',time:'1:00pm'},
+  {m:79,home:'1st Group A',away:'Best 3rd (C/E/F/H/I)',venue:'Mexico City',date:'Jun 30',time:'9:00pm'},
+  {m:80,home:'1st Group L',away:'Best 3rd (E/H/I/J/K)',venue:'Atlanta',date:'Jul 1',time:'12:00pm'},
+  {m:81,home:'1st Group D',away:'Best 3rd (B/E/F/I/J)',venue:'Santa Clara',date:'Jul 1',time:'8:00pm'},
+  {m:82,home:'1st Group G',away:'Best 3rd (A/E/H/I/J)',venue:'Seattle',date:'Jul 1',time:'4:00pm'},
+  {m:83,home:'2nd Group K',away:'2nd Group L',venue:'Toronto',date:'Jul 2',time:'7:00pm'},
+  {m:84,home:'1st Group H',away:'2nd Group J',venue:'Inglewood',date:'Jul 2',time:'3:00pm'},
+  {m:85,home:'1st Group B',away:'Best 3rd (E/F/G/I/J)',venue:'Vancouver',date:'Jul 2',time:'11:00pm'},
+  {m:86,home:'1st Group J',away:'2nd Group H',venue:'Miami',date:'Jul 3',time:'6:00pm'},
+  {m:87,home:'1st Group K',away:'Best 3rd (D/E/I/J/L)',venue:'Kansas City',date:'Jul 3',time:'9:30pm'},
+  {m:88,home:'2nd Group D',away:'2nd Group G',venue:'Arlington',date:'Jul 3',time:'2:00pm'},
 ];
 const R16=[
-  {m:89,home:'Winner M74',away:'Winner M77',venue:'Philadelphia',date:'Jul 4'},
-  {m:90,home:'Winner M73',away:'Winner M75',venue:'Houston',date:'Jul 4'},
-  {m:91,home:'Winner M76',away:'Winner M78',venue:'E. Rutherford',date:'Jul 5'},
-  {m:92,home:'Winner M79',away:'Winner M80',venue:'Mexico City',date:'Jul 5'},
-  {m:93,home:'Winner M83',away:'Winner M84',venue:'Arlington',date:'Jul 6'},
-  {m:94,home:'Winner M81',away:'Winner M82',venue:'Seattle',date:'Jul 6'},
-  {m:95,home:'Winner M86',away:'Winner M88',venue:'Atlanta',date:'Jul 7'},
-  {m:96,home:'Winner M85',away:'Winner M87',venue:'Vancouver',date:'Jul 7'},
+  {m:89,home:'Winner M74',away:'Winner M77',venue:'Philadelphia',date:'Jul 4',time:'5:00pm'},
+  {m:90,home:'Winner M73',away:'Winner M75',venue:'Houston',date:'Jul 4',time:'1:00pm'},
+  {m:91,home:'Winner M76',away:'Winner M78',venue:'E. Rutherford',date:'Jul 5',time:'4:00pm'},
+  {m:92,home:'Winner M79',away:'Winner M80',venue:'Mexico City',date:'Jul 5',time:'8:00pm'},
+  {m:93,home:'Winner M83',away:'Winner M84',venue:'Arlington',date:'Jul 6',time:'3:00pm'},
+  {m:94,home:'Winner M81',away:'Winner M82',venue:'Seattle',date:'Jul 6',time:'8:00pm'},
+  {m:95,home:'Winner M86',away:'Winner M88',venue:'Atlanta',date:'Jul 7',time:'12:00pm'},
+  {m:96,home:'Winner M85',away:'Winner M87',venue:'Vancouver',date:'Jul 7',time:'4:00pm'},
 ];
 const QF=[
-  {m:97,home:'Winner M89',away:'Winner M90',venue:'Foxborough',date:'Jul 9'},
-  {m:98,home:'Winner M93',away:'Winner M94',venue:'Inglewood',date:'Jul 10'},
-  {m:99,home:'Winner M91',away:'Winner M92',venue:'Miami',date:'Jul 11'},
-  {m:100,home:'Winner M95',away:'Winner M96',venue:'Kansas City',date:'Jul 11'},
+  {m:97,home:'Winner M89',away:'Winner M90',venue:'Foxborough',date:'Jul 9',time:'4:00pm'},
+  {m:98,home:'Winner M93',away:'Winner M94',venue:'Inglewood',date:'Jul 10',time:'3:00pm'},
+  {m:99,home:'Winner M91',away:'Winner M92',venue:'Miami',date:'Jul 11',time:'5:00pm'},
+  {m:100,home:'Winner M95',away:'Winner M96',venue:'Kansas City',date:'Jul 11',time:'9:00pm'},
 ];
 const SF=[
-  {m:101,home:'Winner M97',away:'Winner M98',venue:'Arlington',date:'Jul 14'},
-  {m:102,home:'Winner M99',away:'Winner M100',venue:'Atlanta',date:'Jul 15'},
+  {m:101,home:'Winner M97',away:'Winner M98',venue:'Arlington',date:'Jul 14',time:'3:00pm'},
+  {m:102,home:'Winner M99',away:'Winner M100',venue:'Atlanta',date:'Jul 15',time:'3:00pm'},
 ];
-const THIRD=[{m:103,home:'Loser M101',away:'Loser M102',venue:'Miami',date:'Jul 18'}];
-const FINAL=[{m:104,home:'Winner M101',away:'Winner M102',venue:'E. Rutherford',date:'Jul 19'}];
+const THIRD=[{m:103,home:'Loser M101',away:'Loser M102',venue:'Miami',date:'Jul 18',time:'5:00pm'}];
+const FINAL=[{m:104,home:'Winner M101',away:'Winner M102',venue:'E. Rutherford',date:'Jul 19',time:'3:00pm'}];
 const KO_ROUNDS=[
   {key:'r32',label:'Round of 32',      dates:'Jun 28 \u2013 Jul 3',open:'2026-06-27T23:00:00Z',matches:R32,mult:1},
   {key:'r16',label:'Round of 16',      dates:'Jul 4 \u2013 7',     open:'2026-07-03T23:00:00Z',matches:R16,mult:1},
@@ -1245,34 +1245,26 @@ function dateToComparable(dstr){
   const t=new Date(dstr+' 2026 12:00:00').getTime();
   return isNaN(t)?0:t;
 }
-// Returns the actual UTC instant corresponding to 12:00 AM Eastern Time on the
-// given 'Mon D' match-date string (e.g. 'Jul 1'). Used to lock individual
-// knockout-stage predictions at midnight ET on the match's own day, rather
-// than at a single round-wide cutoff — every viewer sees the same lock instant
-// regardless of their own timezone, same principle as todayET().
-function koMatchLockTime(dstr){
-  // Binary-search-free approach: construct a UTC date for the target calendar
-  // day, then read back what that instant displays as in ET and correct for
-  // the offset. EDT is UTC-4 in late June/July (no DST edge case in this
-  // window), so midnight ET = 04:00 UTC on the same calendar date.
-  const probe=new Date(dstr+' 2026 04:00:00 UTC');
-  if(isNaN(probe.getTime()))return null;
-  // Verify via Intl that this instant really reads as 00:00 in America/New_York;
-  // if a future DST edge ever shifts the offset, fall back to a direct parse
-  // rather than silently producing a wrong lock time.
-  const check=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour:'2-digit',hour12:false}).format(probe);
-  if(check!=='00'&&check!=='24'){
-    // Offset assumption didn't hold — recompute by walking hour-by-hour from
-    // the UTC midnight of that date until ET reads 00:xx. Slow but only runs
-    // in the rare case the fixed-offset shortcut above is wrong.
-    let t=new Date(dstr+' 2026 00:00:00 UTC').getTime();
-    for(let i=0;i<30;i++){
-      const h=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour:'2-digit',hour12:false}).format(new Date(t));
-      if(h==='00')return new Date(t);
-      t+=3600000;
-    }
-  }
-  return probe;
+// Returns the UTC instant corresponding to the actual kickoff time in ET
+// for a KO match, used to lock predictions at kickoff. The time string is
+// in "H:MMam/pm" ET format (e.g. "3:00pm", "9:30pm", "12:00pm").
+// EDT is UTC-4 in late June / July (no DST edge in this window).
+function koMatchLockTime(dstr, tstr){
+  if(!dstr||!tstr)return null;
+  // Parse "H:MMam/pm" into 24h hour + minute
+  const tm=tstr.trim().match(/^(\d{1,2}):(\d{2})(am|pm)$/i);
+  if(!tm)return null;
+  let h=parseInt(tm[1]),min=parseInt(tm[2]),ampm=tm[3].toLowerCase();
+  if(ampm==='pm'&&h!==12)h+=12;
+  if(ampm==='am'&&h===12)h=0;
+  // EDT = UTC-4, so ET kickoff = UTC kickoff + 4h
+  const utcH=h+4;
+  // Build a UTC Date for the kickoff; if utcH >= 24 the date shifts to the
+  // next calendar day (e.g. 9pm ET = 01:00 UTC next day).
+  const dateStr=dstr+' 2026';
+  const base=new Date(dateStr+' 00:00:00 UTC');
+  if(isNaN(base.getTime()))return null;
+  return new Date(base.getTime()+(utcH*60+min)*60000);
 }
 function resolveTodayTarget(){
   const today=todayET();
@@ -1376,7 +1368,10 @@ function buildTodayCard(gm){
 }
 
 function renderGames(p1,p2,p3){
-  const ps=[p1,p2,p3];ps.forEach(p=>p.classList.add('on'));
+  const ps=[p1,p2,p3];
+  // p1/p2/p3 are intentionally NOT shown on the Games tab — all content
+  // lives in the bracket band and the collapsible group stage band below it.
+  // Other tabs' render functions add .on themselves when they need panels.
   const panelsEl=document.querySelector('.panels');
   let todayWin=null,bracketWin=null,groupWin=null;
   if(panelsEl){
@@ -1399,20 +1394,23 @@ function renderGames(p1,p2,p3){
     // lived directly in p1/p2/p3; now it's a single scrollable band of its
     // own underneath the bracket, collapsed by default so it never
     // competes for space unless the user opens it.
-    const bktMaxH=getComputedStyle(document.documentElement).getPropertyValue('--bkt-maxh').trim()||'46vh';
-    const gsMaxH=getComputedStyle(document.documentElement).getPropertyValue('--gs-maxh').trim()||'60vh';
+    // Grid order: Today (if any) → Bracket (takes all remaining space) →
+    // Group Stage band at the very bottom, collapsed by default.
+    // The bracket uses '1fr' instead of a capped 'minmax(auto,Xvh)' so it
+    // gets all the vertical space left over after Today and the GS header,
+    // with its own internal overflow-y:auto handling tall content.
+    // The group stage band is 'auto' (just its header height when closed,
+    // up to its own internal max-height when open) so it never steals space
+    // from the bracket unless the user deliberately opens it.
     const rows=[];
     if(todayWin)rows.push('auto');
-    rows.push('minmax(auto,'+bktMaxH+')'); // bracket
-    rows.push('minmax(auto,'+gsMaxH+')');  // group stage band (collapsible, starts closed)
-    rows.push('minmax(0,1fr)');            // panels — floored so it can never be squeezed to 0
+    rows.push('1fr');    // bracket — fills all available space
+    rows.push('auto');   // group stage band — header-height when closed
     panelsEl.style.gridTemplateRows=rows.join(' ');
     let r=1;
     if(todayWin){todayWin.style.gridRow=String(r);panelsEl.appendChild(todayWin);r++;}
     bracketWin.style.gridRow=String(r);panelsEl.appendChild(bracketWin);r++;
-    groupWin.style.gridRow=String(r);panelsEl.appendChild(groupWin);r++;
-    const panelRow=String(r);
-    ps.forEach(p=>{p.style.gridRow=panelRow;});
+    groupWin.style.gridRow=String(r);panelsEl.appendChild(groupWin);
   }
 }
 // Collapsible "Group Stage" band, same accordion pattern as the knockout
@@ -1434,7 +1432,7 @@ function buildGroupStageWindow(){
   win.appendChild(head);
   const body=mk('div','gs-body');
   const notice=mk('div',locked?'cutoff-bar closed':'cutoff-bar',
-    locked?'\u{1F512} Group-stage predictions are closed \u2014 your picks are locked in. Knockout predictions are made in the bracket above, and each match locks individually at midnight ET on its own kickoff day.'
+    locked?'\u{1F512} Group-stage predictions are closed \u2014 your picks are locked in. Knockout predictions are made in the bracket above, and each match locks individually at kickoff.'
           :'\u23f0 Predictions close <strong>11 Jun 2026, 15:00 ET</strong> \u2014 when the first match kicks off.');
   body.appendChild(notice);
   const grid=mk('div','gs-grid');
@@ -1891,7 +1889,7 @@ function buildKOBracket(){
   const head=mk('div','ko-bracket-head');
   head.innerHTML=`<span class="ko-bracket-title">\u{1F3C6} Knockout Bracket</span>`+
     `<span class="ko-bracket-badge">Predict every match</span>`+
-    `<span class="ko-bracket-sub">Type a score for each side \u2014 no draws (someone must go through). Each match locks at midnight ET on its kickoff day. 3 pts exact \u00b7 2 pts winner+margin \u00b7 1 pt winner \u00b7 \u00d71\u2013\u00d73 by round \u00b7 pens count as goals.</span>`;
+    `<span class="ko-bracket-sub">Select a score for each side \u2014 no draws (someone must go through). Predictions lock at kickoff. 3 pts exact \u00b7 2 pts winner+margin \u00b7 1 pt winner \u00b7 \u00d71\u2013\u00d73 by round \u00b7 pens count as goals.</span>`;
   win.appendChild(head);
   // Datalist for admin override autocomplete (see setBktOverride UI in
   // buildBracketCell) — built once per render rather than once per cell.
@@ -1949,7 +1947,7 @@ function buildBracketCell(mn,now){
   const hs=picks['hs_m'+mn]!=null?picks['hs_m'+mn]:'';
   const as=picks['as_m'+mn]!=null?picks['as_m'+mn]:'';
   const hasPick=hs!==''&&as!==''&&hs!==as;
-  const lock=obj.date?koMatchLockTime(obj.date):null;
+  const lock=obj.date?koMatchLockTime(obj.date,obj.time):null;
   const locked=lock?now>=lock:false;
   const res=results['m'+mn];
   // win/lose tinting from the user's own entered score (pre-result)
@@ -1963,7 +1961,7 @@ function buildBracketCell(mn,now){
     const pts=calcKnockoutPts(mn,hs,as);
     ptsHtml=`<span class="bkt-pts ${pts.pts>0?'hit':'zero'}" title="${esc(pts.note)}">${pts.pts>0?'+'+pts.pts:0} pt${pts.pts===1?'':'s'}</span>`;
   }
-  // lock-status line
+  // lock-status line — shows kickoff time before lock, locked badge after
   let lockHtml='';
   if(res){
     const penNote=res.decided_in&&res.decided_in!=='regulation'?` (${res.decided_in==='penalties'?'pens':'ET'})`:'';
@@ -1971,14 +1969,16 @@ function buildBracketCell(mn,now){
   }else if(locked){
     lockHtml=`<span class="bkt-lock closed">\u{1F512} Locked</span>`;
   }else if(lock){
-    const lockStr=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',month:'short',day:'numeric'}).format(lock);
-    lockHtml=`<span class="bkt-lock">Locks 12AM ET ${esc(lockStr)}</span>`;
+    // Show weekday + kickoff time ET (e.g. "Sun Jun 28 · 3:00pm ET")
+    const dayFmt=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short',month:'short',day:'numeric'}).format(lock);
+    const timeFmt=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour:'numeric',minute:'2-digit',hour12:true}).format(lock);
+    lockHtml=`<span class="bkt-lock">\u23f0 ${esc(dayFmt)} \u00b7 ${esc(timeFmt)} ET</span>`;
   }
-  // crowd pick — only worth showing once both sides are real teams (a
-  // placeholder-vs-placeholder pick isn't meaningful) and only once someone
-  // has actually predicted it.
+  // crowd pick — only shown after predictions are locked for this match
+  // (hides group-behaviour while predictions are still open, reveals once
+  // locked so the result of the "crowd vote" becomes part of the fun).
   let crowdHtml='';
-  if(home.team&&away.team){
+  if(locked&&home.team&&away.team){
     const cp=calcCrowdPickKO(mn,home.team,away.team);
     if(cp)crowdHtml=`<div class="bkt-crowd"><span class="bkt-crowd-lbl">INT picks:</span>`+
       `<span class="bkt-crowd-val">${fl(cp.label)}${esc(cp.label)}</span>`+
@@ -2044,8 +2044,8 @@ function saveBracketScore(inp){
   const cell=inp.closest('.bkt-match');const mn=inp.dataset.mid;
   const obj=KO_BY_NUM[mn];
   if(obj&&obj.date){
-    const lock=koMatchLockTime(obj.date);
-    if(lock&&new Date()>=lock){toast('\u{1F512} This match has locked \u2014 kickoff day has arrived');render();return;}
+    const lock=koMatchLockTime(obj.date,obj.time);
+    if(lock&&new Date()>=lock){toast('\u{1F512} This match has locked \u2014 kickoff time has passed');render();return;}
   }
   const hs=cell.querySelector('[data-side="home"]').value;
   const as=cell.querySelector('[data-side="away"]').value;
@@ -2136,7 +2136,7 @@ function renderWinner(p1,p2,p3){
 <div class="sc-row"><div class="sc-pts">+2</div><div class="sc-desc">\u26a1 <strong>Brave Pick</strong> still applies in the knockout stage. \u{1F3B2} <strong>Wild Score does not</strong> \u2014 removed for knockout games since pens-as-goals already makes high totals common.</div></div>
 <div class="sc-row"><div class="sc-pts">\u00d71\u2013\u00d73</div><div class="sc-desc"><strong>Round multiplier</strong> \u2014 R32/R16 \u00d71, QF/3rd-place \u00d72, SF/Final \u00d73. Knockout points above are multiplied by the round's value.</div></div>
 <div class="sc-row"><div class="sc-pts">\u2014</div><div class="sc-desc">No draws can be predicted in the knockout stage \u2014 every game needs a winner, so score entries with equal numbers are blocked.</div></div>
-<div class="sc-row"><div class="sc-pts">\u23f0</div><div class="sc-desc"><strong>Each match locks on its own</strong> \u2014 predictions for a knockout game close at midnight ET on that match's kickoff day, independent of other games in the same round.</div></div></div>
+<div class="sc-row"><div class="sc-pts">\u23f0</div><div class="sc-desc"><strong>Each match locks on its own</strong> \u2014 predictions for a knockout game close at kickoff, independent of other games in the same round.</div></div></div>
 <div class="sc-section"><div class="sc-section-title">Examples</div>
 <table class="odds-table">
 <tr><th>Situation</th><th>Points</th></tr>
