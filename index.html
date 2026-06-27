@@ -192,48 +192,59 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .ko-pens-btn{flex:1;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);border-radius:6px;padding:5px;font-size:10.5px;font-weight:600;text-align:center;cursor:pointer;font-family:'Inter',sans-serif}
 .ko-pens-btn.sel{background:var(--navy);color:#fff;border-color:var(--navy)}
 /* NEW: full-width knockout bracket band — stacked half-brackets (Option A) */
-.ko-bracket-window{grid-column:1/-1;background:linear-gradient(135deg,#001d3d,var(--navy));border-bottom:3px solid var(--intgold);padding:8px 12px 12px;overflow:auto;max-height:54vh}
+.ko-bracket-window{grid-column:1/-1;background:linear-gradient(135deg,#001d3d,var(--navy));border-bottom:3px solid var(--intgold);padding:8px 12px 12px;overflow-y:auto;overflow-x:hidden;max-height:54vh}
 .ko-bracket-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;position:sticky;left:0;top:0;z-index:3;background:linear-gradient(135deg,#001d3d,var(--navy));padding-bottom:3px}
 .ko-bracket-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;line-height:1}
 .ko-bracket-sub{font-size:10px;color:rgba(255,255,255,.55);font-weight:500;letter-spacing:.3px}
 .ko-bracket-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:2px 7px;border-radius:4px;background:var(--intgold);color:var(--navy)}
-.bkt-half-wrap{min-width:max-content}
-.bkt-half-label{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;color:rgba(255,255,255,.6);margin:4px 0 2px;position:sticky;left:0}
-.bkt-half{display:flex;align-items:stretch;gap:9px;min-width:max-content;padding:1px 0}
-.bkt-col{display:flex;flex-direction:column;justify-content:space-around;gap:5px;min-width:142px}
-.bkt-col-head{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:1.2px;color:var(--intgold);text-align:center;margin-bottom:2px;white-space:nowrap}
-.bkt-match{background:var(--surface);border:1.5px solid var(--border);border-radius:6px;padding:5px 6px;position:relative;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+/* Round-grouped accordion: one column, full width, no horizontal scroll at
+   any viewport size. Each round is a collapsible section; cards inside
+   stack vertically. Replaces the earlier column-tree layouts entirely. */
+.bkt-round{margin-top:6px;border-radius:7px;overflow:hidden;background:rgba(255,255,255,.03)}
+.bkt-round-head{display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:pointer;user-select:none;background:rgba(255,255,255,.06);transition:background .12s}
+.bkt-round-head:hover{background:rgba(255,255,255,.1)}
+.bkt-round-chevron{font-size:11px;color:rgba(255,255,255,.55);transition:transform .15s;flex-shrink:0}
+.bkt-round.open .bkt-round-chevron{transform:rotate(90deg)}
+.bkt-round-title{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1.5px;color:#fff;flex:1}
+.bkt-round-count{font-size:9.5px;color:rgba(255,255,255,.5);font-weight:600;white-space:nowrap}
+.bkt-round-mult{font-size:8.5px;font-weight:700;background:var(--intgold);color:var(--navy);border-radius:3px;padding:1px 5px;white-space:nowrap}
+.bkt-round-body{display:none;flex-direction:column;gap:7px;padding:8px}
+.bkt-round.open .bkt-round-body{display:flex}
+.bkt-match{background:var(--surface);border:1.5px solid var(--border);border-radius:7px;padding:7px 9px;position:relative;box-shadow:0 1px 4px rgba(0,0,0,.25)}
 .bkt-match.has-pick{border-color:var(--wbblue);background:#f0f8fd}
-.bkt-match.locked{opacity:.62}
-.bkt-match.is-final{border-color:var(--intgold);background:var(--intgoldbg);padding:7px 8px}
+.bkt-match.locked{opacity:.7}
+.bkt-match.is-final{border-color:var(--intgold);background:var(--intgoldbg);padding:9px 11px}
 .bkt-match.is-third{border-style:dashed}
-/* connector nubs point rightward toward the next round within a half */
-.bkt-col.has-next .bkt-match::after{content:'';position:absolute;right:-10px;top:50%;width:9px;height:2px;background:rgba(255,255,255,.22)}
-/* centred championship strip between the two halves */
-.bkt-champ{display:flex;align-items:flex-start;justify-content:center;gap:20px;margin:8px 0;padding:10px 0;border-top:1px dashed rgba(255,255,255,.22);border-bottom:1px dashed rgba(255,255,255,.22);min-width:max-content;position:sticky;left:0}
-.bkt-champ-col{display:flex;flex-direction:column;min-width:172px;max-width:200px}
-.bkt-champ-col .bkt-col-head{font-size:13px}
-.bkt-mnum{font-size:8px;color:var(--text3);font-weight:700;letter-spacing:.3px}
-.bkt-row{display:flex;align-items:center;gap:5px;padding:1.5px 0}
-.bkt-team{flex:1;display:flex;align-items:center;gap:3px;min-width:0;font-size:10.5px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bkt-team.ph{color:var(--text3);font-style:italic;font-weight:500;font-size:9.5px}
+.bkt-mnum{display:flex;align-items:center;justify-content:space-between;font-size:9px;color:var(--text3);font-weight:700;letter-spacing:.3px;margin-bottom:2px}
+.bkt-mnum-r{display:flex;align-items:center;gap:5px}
+.bkt-row{display:flex;align-items:center;gap:8px;padding:2.5px 0}
+.bkt-team{flex:1;display:flex;align-items:center;gap:5px;min-width:0;font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bkt-team.ph{color:var(--text3);font-style:italic;font-weight:500;font-size:11.5px}
 .bkt-team.win{color:var(--green2)}
 .bkt-team.lose{color:#b91c1c}
 .bkt-team img{flex-shrink:0}
-.bkt-sc{width:27px;height:23px;border:1.5px solid var(--border);border-radius:4px;text-align:center;font-size:13px;font-weight:700;font-family:'Inter',sans-serif;padding:0;color:var(--text);background:var(--bg2);flex-shrink:0}
+.bkt-sc{width:38px;height:30px;border:1.5px solid var(--border);border-radius:5px;text-align:center;font-size:15px;font-weight:700;font-family:'Inter',sans-serif;padding:0;color:var(--text);background:var(--bg2);flex-shrink:0}
 .bkt-sc:focus{outline:none;border-color:var(--wbblue);background:#fff}
 .bkt-sc:disabled{opacity:.45;cursor:not-allowed;background:var(--bg3)}
 .bkt-sc.tie-error{border-color:var(--orange);background:#fff1ee}
-.bkt-meta{font-size:8px;color:var(--text3);margin-top:3px;line-height:1.35;display:flex;flex-direction:column;gap:1px}
-.bkt-meta-top{display:flex;justify-content:space-between;align-items:center;gap:4px}
-.bkt-mult{font-size:7.5px;font-weight:700;background:var(--intgold);color:var(--navy);border-radius:3px;padding:0 4px}
+.bkt-meta{font-size:10px;color:var(--text3);margin-top:4px;line-height:1.35}
+.bkt-mult{font-size:8.5px;font-weight:700;background:var(--intgold);color:var(--navy);border-radius:3px;padding:1px 5px}
 .bkt-lock{color:var(--orange2);font-weight:600}
 .bkt-lock.closed{color:var(--red)}
-.bkt-pts{font-size:8.5px;font-weight:700;padding:0 4px;border-radius:3px}
+.bkt-pts{font-size:9.5px;font-weight:700;padding:1px 6px;border-radius:3px}
 .bkt-pts.hit{background:#dcfce7;color:#166534}
 .bkt-pts.zero{background:#fee2e2;color:#dc2626}
-.bkt-tiewarn{font-size:8px;color:var(--orange2);font-weight:600;margin-top:2px;display:none;line-height:1.3}
+.bkt-tiewarn{font-size:9px;color:var(--orange2);font-weight:600;margin-top:3px;display:none;line-height:1.3}
 .bkt-tiewarn.show{display:block}
+.bkt-crowd{display:flex;align-items:center;gap:5px;padding:3px 7px;border-radius:5px;background:var(--bg2);border:1px solid var(--border);font-size:10px;margin-top:5px;flex-wrap:wrap}
+.bkt-crowd-lbl{color:var(--text3);font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap}
+.bkt-crowd-val{font-size:10.5px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:3px}
+.bkt-crowd-pct{font-size:9px;color:var(--text3);font-weight:500}
+@media (max-width:680px){
+  .ko-bracket-window{max-height:64vh;padding:7px 8px 10px}
+  .bkt-team{font-size:12.5px}
+  .bkt-sc{width:34px;height:28px;font-size:14px}
+}
 .pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:5px}
 .pbtn{background:var(--surface);border:1.5px solid var(--border);color:var(--text);border-radius:7px;padding:7px 5px;font-size:11px;font-weight:500;text-align:center;cursor:pointer;transition:all .1s;font-family:'Inter',sans-serif;user-select:none;line-height:1.3}
 .pbtn:hover:not(.sel){background:var(--greenlt);border-color:var(--green)}
@@ -910,6 +921,27 @@ function calcCrowdPick(gid,homeTeam,awayTeam){
   const pct=Math.round(bv/total*100);
   return{label,pct,total};
 }
+// Knockout analog of calcCrowdPick — keys off 'hs_m'+mn / 'as_m'+mn and never
+// returns 'draw' (knockouts block ties at input), so this only ever resolves
+// to home or away.
+function calcCrowdPickKO(mn,homeTeam,awayTeam){
+  const votes={home:0,away:0};
+  for(const user in predictions){
+    const p=(predictions[user]&&predictions[user].picks)||{};
+    const uh=p['hs_m'+mn],ua=p['as_m'+mn];
+    if(uh==null||String(uh)===''||ua==null||String(ua)===''||uh===ua)continue;
+    const w=winnerFrom(uh,ua);
+    if(w==='home')votes.home++;
+    else if(w==='away')votes.away++;
+  }
+  const total=votes.home+votes.away;
+  if(!total)return null;
+  const best=votes.home>=votes.away?'home':'away';
+  const bv=best==='home'?votes.home:votes.away;
+  const label=best==='home'?homeTeam:awayTeam;
+  const pct=Math.round(bv/total*100);
+  return{side:best,label,pct,total};
+}
 
 // ── PLAYER BADGES ──────────────────────────────────────────
 function calcAllBadges(allUsers){
@@ -1512,32 +1544,33 @@ const KO_BY_NUM={};
 [['r32',R32],['r16',R16],['qf',QF],['sf',SF],['tp',THIRD],['f',FINAL]]
   .forEach(([k,arr])=>arr.forEach(o=>{KO_BY_NUM[o.m]={...o,round:k};}));
 
-// Bracket column layout — left half feeds inward to the centre Final, right
-// half mirrors it. Match order within each column is arranged so feeder pairs
-// sit adjacent (verified against the R16/QF/SF feeder structure).
-// Stacked half-brackets (Option A). Each half flows left->right: R32 -> SF.
-// Top half = left side of the FIFA draw, bottom half = right side. The Final
-// (+ third-place) sits in a centred championship strip between the two halves.
-// Match order within each column keeps feeder pairs adjacent (verified against
-// the R16/QF/SF feeder structure).
-const BRACKET_HALVES={
-  top:[
-    {label:'Round of 32',ms:[74,77,73,75,83,84,81,82]},
-    {label:'Round of 16',ms:[89,90,93,94]},
-    {label:'Quarter-finals',ms:[97,98]},
-    {label:'Semi-final',ms:[101]},
-  ],
-  bottom:[
-    {label:'Round of 32',ms:[76,78,79,80,86,88,85,87]},
-    {label:'Round of 16',ms:[91,92,95,96]},
-    {label:'Quarter-finals',ms:[99,100]},
-    {label:'Semi-final',ms:[102]},
-  ],
-};
+// Option B: single-column, round-grouped accordion (replaces the earlier
+// 9-column mirrored layout AND the stacked-half-bracket layout — both were
+// too fragmented: side-scrolling, fragile connector lines, cards too narrow
+// to show crowd %, result, and points. This lays every match out top-to-
+// bottom in one column, grouped by round, each card full-width. No
+// horizontal scroll at any viewport width; nothing to keep visually aligned
+// across columns since there are no columns.
+const BRACKET_ROUNDS=[
+  {key:'r32',label:'Round of 32',  ms:[73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88]},
+  {key:'r16',label:'Round of 16',  ms:[89,90,91,92,93,94,95,96]},
+  {key:'qf', label:'Quarter-Finals',ms:[97,98,99,100]},
+  {key:'sf', label:'Semi-Finals',  ms:[101,102]},
+  {key:'tp', label:'Third-Place Play-Off',ms:[103]},
+  {key:'f',  label:'Final',        ms:[104]},
+];
 const CHAMP={final:104,third:103};
 
 function bktGroupComplete(g){
   return GAMES.filter(x=>x.group===g).every(x=>results[x.id]);
+}
+// How many of the 12 groups are fully complete right now — surfaced in the
+// Best-3rd placeholder label so a stalled ingestion (e.g. one group's last
+// result not yet in Supabase) is visible as "9/12 groups in" rather than a
+// silent generic placeholder.
+function bktGroupsCompleteCount(){
+  const groups=['A','B','C','D','E','F','G','H','I','J','K','L'];
+  return groups.filter(bktGroupComplete).length;
 }
 function bktActualStanding(g){
   return groupStandings(g,gid=>results[gid]?{hs:results[gid].hs,as:results[gid].as}:null).rows;
@@ -1592,7 +1625,11 @@ function bktResolveSlot(label,roundKey,matchNum){
   if(/Best 3rd/.test(label)){
     const t=bktThirdCache[matchNum]||null;
     const allowed=(label.match(/\(([^)]+)\)/)||[])[1]||'';
-    return{team:t,label:'3rd '+(allowed?'('+allowed+')':''),isPlaceholder:!t};
+    if(!t){
+      const done=bktGroupsCompleteCount();
+      return{team:null,label:done<12?`3rd \u2014 ${done}/12 groups in`:'3rd '+(allowed?'('+allowed+')':''),isPlaceholder:true};
+    }
+    return{team:t,label:'3rd '+(allowed?'('+allowed+')':''),isPlaceholder:false};
   }
   // R16+ winner/loser slots.
   if(/^(Winner|Loser) M\d+$/.test(label)){
@@ -1612,35 +1649,31 @@ function buildKOBracket(){
     `<span class="ko-bracket-badge">Predict every match</span>`+
     `<span class="ko-bracket-sub">Type a score for each side \u2014 no draws (someone must go through). Each match locks at midnight ET on its kickoff day. 3 pts exact \u00b7 2 pts winner+margin \u00b7 1 pt winner \u00b7 \u00d71\u2013\u00d73 by round \u00b7 pens count as goals.</span>`;
   win.appendChild(head);
-  win.appendChild(buildBracketHalf(BRACKET_HALVES.top,now,'\u25B2 Top half'));
-  win.appendChild(buildChampStrip(now));
-  win.appendChild(buildBracketHalf(BRACKET_HALVES.bottom,now,'\u25BC Bottom half'));
+  // Which round to auto-expand: the earliest round that still has an
+  // unplayed match. Falls back to the last round if everything's done.
+  const roundDone=r=>r.ms.every(mn=>results['m'+mn]);
+  const openKey=(BRACKET_ROUNDS.find(r=>!roundDone(r))||BRACKET_ROUNDS[BRACKET_ROUNDS.length-1]).key;
+  BRACKET_ROUNDS.forEach(r=>win.appendChild(buildRoundSection(r,now,r.key===openKey)));
   return win;
 }
-function buildBracketHalf(cols,now,label){
-  const wrap=mk('div','bkt-half-wrap');
-  wrap.appendChild(mk('div','bkt-half-label',label));
-  const half=mk('div','bkt-half');
-  cols.forEach((col,ci)=>{
-    const c=mk('div','bkt-col'+(ci<cols.length-1?' has-next':''));
-    c.appendChild(mk('div','bkt-col-head',esc(col.label)));
-    col.ms.forEach(mn=>c.appendChild(buildBracketCell(mn,now)));
-    half.appendChild(c);
-  });
-  wrap.appendChild(half);
-  return wrap;
+function buildRoundSection(round,now,open){
+  const sec=mk('div','bkt-round'+(open?' open':''));
+  const playedCount=round.ms.filter(mn=>results['m'+mn]).length;
+  const head=mk('div','bkt-round-head');
+  head.setAttribute('onclick','toggleBracketRound(this)');
+  head.innerHTML=`<span class="bkt-round-chevron">\u25B8</span>`+
+    `<span class="bkt-round-title">${esc(round.label)}</span>`+
+    `<span class="bkt-round-count">${playedCount}/${round.ms.length} played</span>`+
+    `<span class="bkt-round-mult">\u00d7${KO_MULT[round.ms[0]]||1}</span>`;
+  sec.appendChild(head);
+  const body=mk('div','bkt-round-body');
+  round.ms.forEach(mn=>body.appendChild(buildBracketCell(mn,now)));
+  sec.appendChild(body);
+  return sec;
 }
-function buildChampStrip(now){
-  const strip=mk('div','bkt-champ');
-  const finCol=mk('div','bkt-champ-col');
-  finCol.appendChild(mk('div','bkt-col-head','\u{1F3C6} Final'));
-  finCol.appendChild(buildBracketCell(CHAMP.final,now));
-  const thirdCol=mk('div','bkt-champ-col');
-  thirdCol.appendChild(mk('div','bkt-col-head','\u{1F949} Third place'));
-  thirdCol.appendChild(buildBracketCell(CHAMP.third,now));
-  strip.appendChild(finCol);
-  strip.appendChild(thirdCol);
-  return strip;
+function toggleBracketRound(headEl){
+  const sec=headEl.closest('.bkt-round');
+  if(sec)sec.classList.toggle('open');
 }
 function buildBracketCell(mn,now){
   const obj=KO_BY_NUM[mn];
@@ -1663,7 +1696,7 @@ function buildBracketCell(mn,now){
   let ptsHtml='';
   if(res&&hasPick){
     const pts=calcKnockoutPts(mn,hs,as);
-    ptsHtml=`<span class="bkt-pts ${pts.pts>0?'hit':'zero'}" title="${esc(pts.note)}">${pts.pts>0?'+'+pts.pts:0}</span>`;
+    ptsHtml=`<span class="bkt-pts ${pts.pts>0?'hit':'zero'}" title="${esc(pts.note)}">${pts.pts>0?'+'+pts.pts:0} pt${pts.pts===1?'':'s'}</span>`;
   }
   // lock-status line
   let lockHtml='';
@@ -1676,6 +1709,16 @@ function buildBracketCell(mn,now){
     const lockStr=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',month:'short',day:'numeric'}).format(lock);
     lockHtml=`<span class="bkt-lock">Locks 12AM ET ${esc(lockStr)}</span>`;
   }
+  // crowd pick — only worth showing once both sides are real teams (a
+  // placeholder-vs-placeholder pick isn't meaningful) and only once someone
+  // has actually predicted it.
+  let crowdHtml='';
+  if(home.team&&away.team){
+    const cp=calcCrowdPickKO(mn,home.team,away.team);
+    if(cp)crowdHtml=`<div class="bkt-crowd"><span class="bkt-crowd-lbl">INT picks:</span>`+
+      `<span class="bkt-crowd-val">${fl(cp.label)}${esc(cp.label)}</span>`+
+      `<span class="bkt-crowd-pct">${cp.pct}% of ${cp.total}</span></div>`;
+  }
   const teamCell=(side,info,wl)=>{
     const inner=info.team
       ? `<span class="bkt-team ${side}${wl}">${fl(info.team)}${esc(info.team)}</span>`
@@ -1687,11 +1730,13 @@ function buildBracketCell(mn,now){
   };
   const dateStr=obj.date?esc(obj.date):'';
   cell.innerHTML=
-    `<div class="bkt-mnum">M${mn}${dateStr?' \u00b7 '+dateStr:''}</div>`+
+    `<div class="bkt-mnum"><span>M${mn}${dateStr?' \u00b7 '+dateStr:''}</span>`+
+    `<span class="bkt-mnum-r"><span class="bkt-mult">\u00d7${KO_MULT[mn]||1}</span>${ptsHtml}</span></div>`+
     teamCell('home',home,homeWL)+
     teamCell('away',away,awayWL)+
     `<div class="bkt-tiewarn">\u26a0\uFE0F No draws \u2014 change one score</div>`+
-    `<div class="bkt-meta"><div class="bkt-meta-top"><span class="bkt-mult">\u00d7${KO_MULT[mn]||1}</span>${ptsHtml}</div>${lockHtml}</div>`;
+    `<div class="bkt-meta">${lockHtml}</div>`+
+    crowdHtml;
   return cell;
 }
 function liveBracketScore(inp){
