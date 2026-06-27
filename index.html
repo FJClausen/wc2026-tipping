@@ -191,24 +191,28 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .ko-pens-toggle{display:flex;gap:6px;margin-top:5px}
 .ko-pens-btn{flex:1;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);border-radius:6px;padding:5px;font-size:10.5px;font-weight:600;text-align:center;cursor:pointer;font-family:'Inter',sans-serif}
 .ko-pens-btn.sel{background:var(--navy);color:#fff;border-color:var(--navy)}
-/* NEW: full-width knockout bracket band (March-Madness style, horizontal scroll) */
-.ko-bracket-window{grid-column:1/-1;background:linear-gradient(135deg,#001d3d,var(--navy));border-bottom:3px solid var(--intgold);padding:8px 12px 12px;overflow:auto;max-height:48vh}
-.ko-bracket-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;position:sticky;left:0}
+/* NEW: full-width knockout bracket band — stacked half-brackets (Option A) */
+.ko-bracket-window{grid-column:1/-1;background:linear-gradient(135deg,#001d3d,var(--navy));border-bottom:3px solid var(--intgold);padding:8px 12px 12px;overflow:auto;max-height:54vh}
+.ko-bracket-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;position:sticky;left:0;top:0;z-index:3;background:linear-gradient(135deg,#001d3d,var(--navy));padding-bottom:3px}
 .ko-bracket-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;line-height:1}
 .ko-bracket-sub{font-size:10px;color:rgba(255,255,255,.55);font-weight:500;letter-spacing:.3px}
 .ko-bracket-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:2px 7px;border-radius:4px;background:var(--intgold);color:var(--navy)}
-.bkt{display:flex;align-items:stretch;gap:9px;min-width:max-content;padding:2px}
-.bkt-col{display:flex;flex-direction:column;justify-content:space-around;gap:6px;min-width:148px}
-.bkt-col.c-center{justify-content:center;min-width:166px}
-.bkt-col-head{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:1.2px;color:var(--intgold);text-align:center;margin-bottom:3px;position:sticky;top:0;white-space:nowrap}
+.bkt-half-wrap{min-width:max-content}
+.bkt-half-label{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;color:rgba(255,255,255,.6);margin:4px 0 2px;position:sticky;left:0}
+.bkt-half{display:flex;align-items:stretch;gap:9px;min-width:max-content;padding:1px 0}
+.bkt-col{display:flex;flex-direction:column;justify-content:space-around;gap:5px;min-width:142px}
+.bkt-col-head{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:1.2px;color:var(--intgold);text-align:center;margin-bottom:2px;white-space:nowrap}
 .bkt-match{background:var(--surface);border:1.5px solid var(--border);border-radius:6px;padding:5px 6px;position:relative;box-shadow:0 1px 4px rgba(0,0,0,.25)}
 .bkt-match.has-pick{border-color:var(--wbblue);background:#f0f8fd}
 .bkt-match.locked{opacity:.62}
 .bkt-match.is-final{border-color:var(--intgold);background:var(--intgoldbg);padding:7px 8px}
-.bkt-match.is-third{border-style:dashed;margin-top:12px}
-/* connector nubs toward the centre */
-.bkt-col.side-L .bkt-match::after{content:'';position:absolute;right:-10px;top:50%;width:9px;height:2px;background:rgba(255,255,255,.22)}
-.bkt-col.side-R .bkt-match::before{content:'';position:absolute;left:-10px;top:50%;width:9px;height:2px;background:rgba(255,255,255,.22)}
+.bkt-match.is-third{border-style:dashed}
+/* connector nubs point rightward toward the next round within a half */
+.bkt-col.has-next .bkt-match::after{content:'';position:absolute;right:-10px;top:50%;width:9px;height:2px;background:rgba(255,255,255,.22)}
+/* centred championship strip between the two halves */
+.bkt-champ{display:flex;align-items:flex-start;justify-content:center;gap:20px;margin:8px 0;padding:10px 0;border-top:1px dashed rgba(255,255,255,.22);border-bottom:1px dashed rgba(255,255,255,.22);min-width:max-content;position:sticky;left:0}
+.bkt-champ-col{display:flex;flex-direction:column;min-width:172px;max-width:200px}
+.bkt-champ-col .bkt-col-head{font-size:13px}
 .bkt-mnum{font-size:8px;color:var(--text3);font-weight:700;letter-spacing:.3px}
 .bkt-row{display:flex;align-items:center;gap:5px;padding:1.5px 0}
 .bkt-team{flex:1;display:flex;align-items:center;gap:3px;min-width:0;font-size:10.5px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -230,7 +234,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .bkt-pts.zero{background:#fee2e2;color:#dc2626}
 .bkt-tiewarn{font-size:8px;color:var(--orange2);font-weight:600;margin-top:2px;display:none;line-height:1.3}
 .bkt-tiewarn.show{display:block}
-.bkt-third-cap{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,255,255,.6);text-align:center;margin:10px 0 2px}
 .pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:5px}
 .pbtn{background:var(--surface);border:1.5px solid var(--border);color:var(--text);border-radius:7px;padding:7px 5px;font-size:11px;font-weight:500;text-align:center;cursor:pointer;transition:all .1s;font-family:'Inter',sans-serif;user-select:none;line-height:1.3}
 .pbtn:hover:not(.sel){background:var(--greenlt);border-color:var(--green)}
@@ -323,6 +326,15 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .lb-teams{display:flex;gap:3px;flex-wrap:wrap;justify-content:flex-end;max-width:120px}
 .lb-pts{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--navy)}
 .lb-pts-lbl{font-size:10px;color:var(--text3)}
+.lb-scores{display:flex;align-items:stretch;gap:0;flex-shrink:0;text-align:center}
+.lb-sc-col{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 7px;min-width:38px}
+.lb-sc-col.gs,.lb-sc-col.ko{border-right:1px solid var(--border)}
+.lb-sc-col.total{padding-right:2px}
+.lb-sc-n{font-family:'Bebas Neue',sans-serif;font-size:16px;line-height:1;color:var(--text2)}
+.lb-sc-col.total .lb-sc-n{font-size:21px;color:var(--navy)}
+.lb-sc-l{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-top:2px}
+.lb-sc-col.total .lb-sc-l{color:var(--wbblue)}
+.lb-picks{font-size:8px;color:var(--text3);margin-top:1px}
 .lb-me{font-size:9px;background:var(--wbblue);color:#fff;border-radius:3px;padding:1px 5px;font-weight:700}
 .ts-row{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;background:var(--surface);border:1.5px solid var(--border);flex-shrink:0;box-shadow:var(--shadow);margin-bottom:3px}
 .ts-rank{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--text3);width:20px;flex-shrink:0}
@@ -1503,17 +1515,26 @@ const KO_BY_NUM={};
 // Bracket column layout — left half feeds inward to the centre Final, right
 // half mirrors it. Match order within each column is arranged so feeder pairs
 // sit adjacent (verified against the R16/QF/SF feeder structure).
-const BRACKET_COLS=[
-  {side:'L',label:'Round of 32',ms:[74,77,73,75,83,84,81,82]},
-  {side:'L',label:'Round of 16',ms:[89,90,93,94]},
-  {side:'L',label:'Quarter-finals',ms:[97,98]},
-  {side:'L',label:'Semi-final',ms:[101]},
-  {side:'C',label:'Final',ms:[104],third:103},
-  {side:'R',label:'Semi-final',ms:[102]},
-  {side:'R',label:'Quarter-finals',ms:[99,100]},
-  {side:'R',label:'Round of 16',ms:[91,92,95,96]},
-  {side:'R',label:'Round of 32',ms:[76,78,79,80,86,88,85,87]},
-];
+// Stacked half-brackets (Option A). Each half flows left->right: R32 -> SF.
+// Top half = left side of the FIFA draw, bottom half = right side. The Final
+// (+ third-place) sits in a centred championship strip between the two halves.
+// Match order within each column keeps feeder pairs adjacent (verified against
+// the R16/QF/SF feeder structure).
+const BRACKET_HALVES={
+  top:[
+    {label:'Round of 32',ms:[74,77,73,75,83,84,81,82]},
+    {label:'Round of 16',ms:[89,90,93,94]},
+    {label:'Quarter-finals',ms:[97,98]},
+    {label:'Semi-final',ms:[101]},
+  ],
+  bottom:[
+    {label:'Round of 32',ms:[76,78,79,80,86,88,85,87]},
+    {label:'Round of 16',ms:[91,92,95,96]},
+    {label:'Quarter-finals',ms:[99,100]},
+    {label:'Semi-final',ms:[102]},
+  ],
+};
+const CHAMP={final:104,third:103};
 
 function bktGroupComplete(g){
   return GAMES.filter(x=>x.group===g).every(x=>results[x.id]);
@@ -1591,19 +1612,35 @@ function buildKOBracket(){
     `<span class="ko-bracket-badge">Predict every match</span>`+
     `<span class="ko-bracket-sub">Type a score for each side \u2014 no draws (someone must go through). Each match locks at midnight ET on its kickoff day. 3 pts exact \u00b7 2 pts winner+margin \u00b7 1 pt winner \u00b7 \u00d71\u2013\u00d73 by round \u00b7 pens count as goals.</span>`;
   win.appendChild(head);
-  const bkt=mk('div','bkt');
-  BRACKET_COLS.forEach(col=>{
-    const c=mk('div','bkt-col side-'+col.side+(col.side==='C'?' c-center':''));
+  win.appendChild(buildBracketHalf(BRACKET_HALVES.top,now,'\u25B2 Top half'));
+  win.appendChild(buildChampStrip(now));
+  win.appendChild(buildBracketHalf(BRACKET_HALVES.bottom,now,'\u25BC Bottom half'));
+  return win;
+}
+function buildBracketHalf(cols,now,label){
+  const wrap=mk('div','bkt-half-wrap');
+  wrap.appendChild(mk('div','bkt-half-label',label));
+  const half=mk('div','bkt-half');
+  cols.forEach((col,ci)=>{
+    const c=mk('div','bkt-col'+(ci<cols.length-1?' has-next':''));
     c.appendChild(mk('div','bkt-col-head',esc(col.label)));
     col.ms.forEach(mn=>c.appendChild(buildBracketCell(mn,now)));
-    if(col.third){
-      c.appendChild(mk('div','bkt-third-cap','\u{1F949} Third place'));
-      c.appendChild(buildBracketCell(col.third,now));
-    }
-    bkt.appendChild(c);
+    half.appendChild(c);
   });
-  win.appendChild(bkt);
-  return win;
+  wrap.appendChild(half);
+  return wrap;
+}
+function buildChampStrip(now){
+  const strip=mk('div','bkt-champ');
+  const finCol=mk('div','bkt-champ-col');
+  finCol.appendChild(mk('div','bkt-col-head','\u{1F3C6} Final'));
+  finCol.appendChild(buildBracketCell(CHAMP.final,now));
+  const thirdCol=mk('div','bkt-champ-col');
+  thirdCol.appendChild(mk('div','bkt-col-head','\u{1F949} Third place'));
+  thirdCol.appendChild(buildBracketCell(CHAMP.third,now));
+  strip.appendChild(finCol);
+  strip.appendChild(thirdCol);
+  return strip;
 }
 function buildBracketCell(mn,now){
   const obj=KO_BY_NUM[mn];
@@ -2082,7 +2119,7 @@ function renderLB(p1,p2,p3){
   const allU=Object.keys(predictions).filter(u=>calcPredCount(u)>0);
   const gamesPlayed=Object.keys(results).length;
   const rows=allU.map(u=>({
-    name:u,pts:calcPoints(u),preds:calcPredCount(u),
+    name:u,pts:calcPoints(u),ko:calcKOTotalPoints(u),preds:calcPredCount(u),
     team:(predictions[u]&&predictions[u].team)||'',avatar:assignAvatar(u),
   })).sort((a,b)=>b.pts-a.pts||b.preds-a.preds||a.name.localeCompare(b.name));
 
@@ -2111,7 +2148,11 @@ function renderLB(p1,p2,p3){
       <div class="lb-name">${esc(r.name)} ${r.name===currentUser?'<span class="lb-me">YOU</span>':''}</div>
       ${badgesHtml}
       ${teamsHtml?`<div class="lb-teams">${teamsHtml}</div>`:''}
-      <div><span class="lb-pts">${r.pts}</span><span class="lb-pts-lbl"> pts \u00b7 ${r.preds} picks</span></div>`;
+      <div class="lb-scores">
+        <div class="lb-sc-col gs"><div class="lb-sc-n">${r.pts-r.ko}</div><div class="lb-sc-l">Group</div></div>
+        <div class="lb-sc-col ko"><div class="lb-sc-n">${r.ko}</div><div class="lb-sc-l">KO</div></div>
+        <div class="lb-sc-col total"><div class="lb-sc-n">${r.pts}</div><div class="lb-sc-l">Total</div><div class="lb-picks">${r.preds} picks</div></div>
+      </div>`;
     p1.appendChild(row);
   });
 
