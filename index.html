@@ -21,6 +21,7 @@
   --red:#c0392b;--purple:#6b21a8;--intgold:#FABB00;--intgoldbg:#fff9d6;
   --shadow:0 1px 4px rgba(0,34,68,.10);--radius:9px;
   --bkt-maxh:46vh;
+  --gs-maxh:60vh;
 }
 html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;height:100%;overflow:hidden}
 #app{display:grid;grid-template-rows:auto auto 1fr auto;height:100vh}
@@ -209,8 +210,28 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .bkt-round-title{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1.5px;color:#fff;flex:1}
 .bkt-round-count{font-size:9.5px;color:rgba(255,255,255,.5);font-weight:600;white-space:nowrap}
 .bkt-round-mult{font-size:8.5px;font-weight:700;background:var(--intgold);color:var(--navy);border-radius:3px;padding:1px 5px;white-space:nowrap}
-.bkt-round-body{display:none;flex-direction:column;gap:7px;padding:8px}
+.bkt-round-body{display:none;flex-direction:column;gap:9px;padding:8px}
 .bkt-round.open .bkt-round-body{display:flex}
+.bkt-day-row{display:flex;flex-wrap:wrap;gap:7px;align-items:stretch}
+.bkt-day-row>.bkt-match{flex:1 1 220px;min-width:200px;max-width:340px}
+/* Collapsible Group Stage band — same accordion pattern as the knockout
+   bracket above it, closed by default so it never competes with the
+   bracket for vertical space. Internally a responsive 3-col grid (was
+   previously three permanently-visible page columns, which combined with
+   the bracket caused the original scrolling problem this replaces). */
+.group-stage-window{grid-column:1/-1;background:var(--bg);border-bottom:1px solid var(--border);min-height:0}
+.gs-head{display:flex;align-items:center;gap:8px;padding:9px 14px;cursor:pointer;user-select:none;background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);transition:opacity .12s}
+.gs-head:hover{opacity:.92}
+.gs-chevron{font-size:12px;color:rgba(255,255,255,.6);transition:transform .15s;flex-shrink:0}
+.group-stage-window.open .gs-chevron{transform:rotate(90deg)}
+.gs-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.8px;color:#fff}
+.gs-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:2px 7px;border-radius:4px;background:var(--intgold);color:var(--navy)}
+.gs-badge.closed{background:rgba(255,255,255,.18);color:#fff}
+.gs-sub{font-size:10.5px;color:rgba(255,255,255,.55);flex:1;text-align:right}
+.gs-body{display:none;max-height:var(--gs-maxh);overflow-y:auto;padding:10px 12px}
+.group-stage-window.open .gs-body{display:block}
+.gs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;margin-top:8px}
+.gs-col{display:flex;flex-direction:column;gap:7px;min-width:0}
 .bkt-match{background:var(--surface);border:1.5px solid var(--border);border-radius:7px;padding:7px 9px;position:relative;box-shadow:0 1px 4px rgba(0,0,0,.25)}
 .bkt-match.has-pick{border-color:var(--wbblue);background:#f0f8fd}
 .bkt-match.locked{opacity:.7}
@@ -241,6 +262,11 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .bkt-crowd-lbl{color:var(--text3);font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap}
 .bkt-crowd-val{font-size:10.5px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:3px}
 .bkt-crowd-pct{font-size:9px;color:var(--text3);font-weight:500}
+.bkt-override{display:flex;align-items:center;gap:5px;padding:4px 6px;border-radius:5px;background:#fff7e6;border:1px dashed var(--gold2);font-size:10px;margin-top:5px;flex-wrap:wrap}
+.bkt-override.is-set{background:#eafaf0;border-style:solid;border-color:var(--green);justify-content:space-between}
+.bkt-override-inp{flex:1;min-width:90px;border:1px solid var(--border);border-radius:4px;padding:3px 6px;font-size:10.5px;font-family:'Inter',sans-serif}
+.bkt-override-btn{font-size:9.5px;font-weight:700;background:var(--gold2);color:#fff;border:none;border-radius:4px;padding:3px 8px;cursor:pointer}
+.bkt-override-btn.clear{background:var(--red)}
 @media (max-width:680px){
   :root{--bkt-maxh:58vh}
   .ko-bracket-window{padding:7px 8px 10px}
@@ -837,7 +863,19 @@ const groupLocked=()=>new Date()>=GROUP_CUTOFF;
 const winnerFrom=(hs,as)=>{const h=parseInt(hs),a=parseInt(as);if(isNaN(h)||isNaN(a)||String(hs)===''||String(as)==='')return null;if(h>a)return 'home';if(a>h)return 'away';return 'draw';};
 function setPick(k,v){
   if(!currentUser){toast('Enter your name first!');return false;}
-  if(groupLocked()){toast('Predictions are locked \u2014 the deadline has passed \u23f0');return false;}
+  // BUG FIX: groupLocked() reflects the GROUP-STAGE cutoff only (June 11).
+  // It was previously applied unconditionally to every key passed to
+  // setPick, which silently blocked every knockout prediction
+  // (hs_m73..as_m104) from saving the moment the group-stage deadline
+  // passed -- since knockout matches use their own correct per-match lock
+  // (checked in saveBracketScore before setPick is ever called), the
+  // group-stage lock must NOT apply to knockout keys (hs_m*/as_m*).
+  // It SHOULD still apply to: group-stage score keys (hs_g*/as_g*), the
+  // group-stage winner-label key (g_g* — used for crowd-pick display), and
+  // 'winner'/'scorer' (Tournament Winner / Top Scorer picks, which the
+  // Winner & Scorer tab UI already locks visually at the same cutoff).
+  const isKnockoutKey=/^(hs|as)_m\d+$/.test(k);
+  if(!isKnockoutKey&&groupLocked()){toast('Predictions are locked \u2014 the deadline has passed \u23f0');return false;}
   if(!predictions[currentUser])predictions[currentUser]={picks:{},team:currentTeam};
   predictions[currentUser].picks[k]=v;scheduleSave();return true;
 }
@@ -1189,7 +1227,7 @@ function render(){
   [p1,p2,p3].forEach(p=>{p.innerHTML='';p.className='panel';p.style.gridRow='';});
   const panelsEl=document.querySelector('.panels');
   if(panelsEl&&currentTab!=='games'){
-    panelsEl.querySelectorAll('.today-window,.ko-bracket-window').forEach(el=>el.remove());
+    panelsEl.querySelectorAll('.today-window,.ko-bracket-window,.group-stage-window').forEach(el=>el.remove());
     panelsEl.classList.remove('has-today');
     panelsEl.style.gridTemplateRows='';
   }
@@ -1340,54 +1378,84 @@ function buildTodayCard(gm){
 function renderGames(p1,p2,p3){
   const ps=[p1,p2,p3];ps.forEach(p=>p.classList.add('on'));
   const panelsEl=document.querySelector('.panels');
-  let todayWin=null,bracketWin=null;
+  let todayWin=null,bracketWin=null,groupWin=null;
   if(panelsEl){
     // clear any prior bands
-    panelsEl.querySelectorAll('.today-window,.ko-bracket-window').forEach(el=>el.remove());
+    panelsEl.querySelectorAll('.today-window,.ko-bracket-window,.group-stage-window').forEach(el=>el.remove());
     panelsEl.classList.remove('has-today');
     todayWin=buildTodayWindow();
     bracketWin=buildKOBracket();
-    // Order top-to-bottom: Today's Games (if any) -> Bracket -> group columns.
-    // Bands are full-width; placement is by explicit grid-row.
+    groupWin=buildGroupStageWindow();
+    // Order top-to-bottom: Today's Games (if any) -> Bracket -> Group Stage
+    // (collapsible, same pattern as the bracket) -> empty panel row.
     // The bracket row is capped at the SAME max-height as .ko-bracket-window's
     // own overflow (the --bkt-maxh CSS var, also used in the mobile media
     // query) so the grid track itself can't grow past what the child needs —
     // without this, an 'auto' track sized purely by intrinsic content can
-    // starve the panels' '1fr' track down to ~0 with no way to scroll back
-    // to it, since .panels has overflow:hidden. minmax(0,1fr) on the panels
-    // row is a second line of defense: it guarantees that row never
-    // collapses below 0, which 'fr' alone does not guarantee once content
-    // in a sibling track overflows its intrinsic size.
+    // starve a sibling track down to ~0 with no way to scroll back to it,
+    // since .panels has overflow:hidden. The group-stage band gets its own
+    // scrollable max-height for the same reason — it used to be the THIRD
+    // independently-scrolling thing fighting the bracket for space when it
+    // lived directly in p1/p2/p3; now it's a single scrollable band of its
+    // own underneath the bracket, collapsed by default so it never
+    // competes for space unless the user opens it.
     const bktMaxH=getComputedStyle(document.documentElement).getPropertyValue('--bkt-maxh').trim()||'46vh';
+    const gsMaxH=getComputedStyle(document.documentElement).getPropertyValue('--gs-maxh').trim()||'60vh';
     const rows=[];
     if(todayWin)rows.push('auto');
     rows.push('minmax(auto,'+bktMaxH+')'); // bracket
+    rows.push('minmax(auto,'+gsMaxH+')');  // group stage band (collapsible, starts closed)
     rows.push('minmax(0,1fr)');            // panels — floored so it can never be squeezed to 0
     panelsEl.style.gridTemplateRows=rows.join(' ');
     let r=1;
     if(todayWin){todayWin.style.gridRow=String(r);panelsEl.appendChild(todayWin);r++;}
     bracketWin.style.gridRow=String(r);panelsEl.appendChild(bracketWin);r++;
+    groupWin.style.gridRow=String(r);panelsEl.appendChild(groupWin);r++;
     const panelRow=String(r);
     ps.forEach(p=>{p.style.gridRow=panelRow;});
   }
-  const groups=['A','B','C','D','E','F','G','H','I','J','K','L'];
+}
+// Collapsible "Group Stage" band, same accordion pattern as the knockout
+// bracket above it (one collapsible section, closed by default so it never
+// competes with the bracket for vertical space). Internally lays out all
+// 12 groups in a responsive 3-column grid rather than three independently-
+// scrolling page columns — this was the root of the original scrolling
+// problem: three always-visible group columns plus the bracket were three
+// things fighting for space in a no-page-scroll layout.
+function buildGroupStageWindow(){
+  const win=mk('div','group-stage-window');
+  const head=mk('div','gs-head');
+  head.setAttribute('onclick','toggleGroupStage(this)');
   const locked=groupLocked();
+  head.innerHTML=`<span class="gs-chevron">\u25B8</span>`+
+    `<span class="gs-title">\u26bd Group Stage</span>`+
+    `<span class="gs-badge${locked?' closed':''}">${locked?'\u{1F512} Closed':'Open'}</span>`+
+    `<span class="gs-sub">Your predictions are saved below \u2014 ${locked?'picks are locked in':'closes 11 Jun 2026, 15:00 ET'}</span>`;
+  win.appendChild(head);
+  const body=mk('div','gs-body');
   const notice=mk('div',locked?'cutoff-bar closed':'cutoff-bar',
     locked?'\u{1F512} Group-stage predictions are closed \u2014 your picks are locked in. Knockout predictions are made in the bracket above, and each match locks individually at midnight ET on its own kickoff day.'
           :'\u23f0 Predictions close <strong>11 Jun 2026, 15:00 ET</strong> \u2014 when the first match kicks off.');
-  p1.appendChild(notice);
-  [[0,3],[4,7],[8,11]].forEach(([s,e],pi)=>{
-    const p=ps[pi];
-    for(let gi=s;gi<=e;gi++){
-      const g=groups[gi];
-      const gTeams=[...new Set(GAMES.filter(x=>x.group===g).flatMap(x=>[x.home,x.away]))];
-      const gh=mk('div','grp-heading');
-      gh.innerHTML=`GROUP ${g}<div class="grp-teams">${gTeams.map(t=>fl(t)+' '+t).join(' &nbsp;\u00b7&nbsp; ')}</div>`;
-      p.appendChild(gh);
-      GAMES.filter(gm=>gm.group===g).forEach(gm=>p.appendChild(buildGameCard(gm,locked)));
-      p.appendChild(buildGroupStandings(g));
-    }
+  body.appendChild(notice);
+  const grid=mk('div','gs-grid');
+  const groups=['A','B','C','D','E','F','G','H','I','J','K','L'];
+  groups.forEach(g=>{
+    const col=mk('div','gs-col');
+    const gTeams=[...new Set(GAMES.filter(x=>x.group===g).flatMap(x=>[x.home,x.away]))];
+    const gh=mk('div','grp-heading');
+    gh.innerHTML=`GROUP ${g}<div class="grp-teams">${gTeams.map(t=>fl(t)+' '+t).join(' &nbsp;\u00b7&nbsp; ')}</div>`;
+    col.appendChild(gh);
+    GAMES.filter(gm=>gm.group===g).forEach(gm=>col.appendChild(buildGameCard(gm,locked)));
+    col.appendChild(buildGroupStandings(g));
+    grid.appendChild(col);
   });
+  body.appendChild(grid);
+  win.appendChild(body);
+  return win;
+}
+function toggleGroupStage(headEl){
+  const win=headEl.closest('.group-stage-window');
+  if(win)win.classList.toggle('open');
 }
 
 function getLeader(){
@@ -1726,6 +1794,33 @@ function bktThirdAssignment(){
 let bktThirdCache={};
 // Resolve a single slot to {team, label, isPlaceholder}. team is a real name or
 // null; label is the short display text shown when team is null.
+// ── MANUAL THIRD-PLACE OVERRIDE ─────────────────────────────────────────
+// Admin-only escape hatch for Best-3rd slots the certainty simulator hasn't
+// (yet) resolved on its own but that the admin can see are settled from
+// other sources (live coverage, FIFA's own bracket page, etc). Persisted
+// via the EXISTING predictions table under a reserved username, so no new
+// Supabase table/column is needed — it's just another row with a JSON
+// `picks` blob, exactly like every real user's row, just never shown as a
+// player and excluded from all leaderboard/crowd-stat calculations.
+const OVERRIDE_USER='__overrides__';
+function bktOverrides(){
+  return(predictions[OVERRIDE_USER]&&predictions[OVERRIDE_USER].picks)||{};
+}
+// Set or clear (pass '' or null to clear) a manual override for match `m`.
+// Saves immediately via the same upsert path doSave() already uses, just
+// targeting the reserved override row instead of currentUser.
+async function setBktOverride(m,teamName){
+  if(!isAdmin())return;
+  if(!predictions[OVERRIDE_USER])predictions[OVERRIDE_USER]={picks:{},team:''};
+  if(teamName){predictions[OVERRIDE_USER].picks['m'+m]=teamName;}
+  else{delete predictions[OVERRIDE_USER].picks['m'+m];}
+  try{
+    const{error}=await sb.from('predictions').upsert({username:OVERRIDE_USER,picks:predictions[OVERRIDE_USER].picks,team:''},{onConflict:'username'});
+    if(error)throw error;
+    toast(teamName?'\u2713 Override saved: '+teamName:'\u2713 Override cleared');
+  }catch(e){console.error(e);toast('\u26a0\ufe0f Override save failed');}
+  render();
+}
 function bktResolveSlot(label,roundKey,matchNum){
   // R32 direct group slots — resolve as soon as that group is complete.
   let m=label.match(/^(1st|2nd) Group ([A-L])$/);
@@ -1739,8 +1834,12 @@ function bktResolveSlot(label,roundKey,matchNum){
   }
   // R32 best-third slot.
   if(/Best 3rd/.test(label)){
-    const t=bktThirdCache[matchNum]||null;
     const allowed=(label.match(/\(([^)]+)\)/)||[])[1]||'';
+    // Manual override takes priority over the certainty simulator — lets
+    // the admin fill in a slot the auto-resolver hasn't reached yet.
+    const override=bktOverrides()['m'+matchNum];
+    if(override)return{team:override,label:'3rd '+(allowed?'('+allowed+')':''),isPlaceholder:false,isOverride:true};
+    const t=bktThirdCache[matchNum]||null;
     if(!t){
       const done=bktGroupsCompleteCount();
       // Resolved via mathematical certainty (see bktThirdAssignment) once
@@ -1752,9 +1851,29 @@ function bktResolveSlot(label,roundKey,matchNum){
     return{team:t,label:'3rd '+(allowed?'('+allowed+')':''),isPlaceholder:false};
   }
   // R16+ winner/loser slots.
-  if(/^(Winner|Loser) M\d+$/.test(label)){
+  let wl=label.match(/^(Winner|Loser) M(\d+)$/);
+  if(wl){
     const t=resolveKOSlotLabel(label);
-    return{team:t,label:label.replace('Winner ','W ').replace('Loser ','L '),isPlaceholder:!t};
+    if(t)return{team:t,label:label.replace('Winner ','W ').replace('Loser ','L '),isPlaceholder:false};
+    // Not yet decided (feeder match unplayed) — but if THAT match's own
+    // pairing is already known as two ACTUAL resolved teams (not another
+    // preview label), show the real matchup instead of a bare "W M74"
+    // placeholder, e.g. "W: Germany v Paraguay". Deliberately capped at
+    // exactly one level deep: a QF/SF slot whose feeder is itself only a
+    // preview (not yet two real teams) falls back to the bare match-number
+    // format rather than producing an unreadable nested string like
+    // "W: W: Team1 v Team2 v W: Team3 v Team4".
+    const depNum=parseInt(wl[2]);
+    const depObj=KO_BY_NUM[depNum];
+    const prefix=wl[1]==='Winner'?'W':'L';
+    if(depObj){
+      const depHome=bktResolveSlot(depObj.home,depObj.round,depNum);
+      const depAway=bktResolveSlot(depObj.away,depObj.round,depNum);
+      if(depHome.team&&depAway.team){
+        return{team:null,label:`${prefix}: ${depHome.team} v ${depAway.team}`,isPlaceholder:true};
+      }
+    }
+    return{team:null,label:`${prefix} M${depNum}`,isPlaceholder:true};
   }
   return{team:null,label,isPlaceholder:true};
 }
@@ -1774,6 +1893,13 @@ function buildKOBracket(){
     `<span class="ko-bracket-badge">Predict every match</span>`+
     `<span class="ko-bracket-sub">Type a score for each side \u2014 no draws (someone must go through). Each match locks at midnight ET on its kickoff day. 3 pts exact \u00b7 2 pts winner+margin \u00b7 1 pt winner \u00b7 \u00d71\u2013\u00d73 by round \u00b7 pens count as goals.</span>`;
   win.appendChild(head);
+  // Datalist for admin override autocomplete (see setBktOverride UI in
+  // buildBracketCell) — built once per render rather than once per cell.
+  if(isAdmin()){
+    const dl=mk('datalist');dl.id='bktTeamList';
+    dl.innerHTML=TEAMS.map(t=>`<option value="${esc(t)}">`).join('');
+    win.appendChild(dl);
+  }
   // Which round to auto-expand: the earliest round that still has an
   // unplayed match. Falls back to the last round if everything's done.
   const roundDone=r=>r.ms.every(mn=>results['m'+mn]);
@@ -1792,7 +1918,21 @@ function buildRoundSection(round,now,open){
     `<span class="bkt-round-mult">\u00d7${KO_MULT[round.ms[0]]||1}</span>`;
   sec.appendChild(head);
   const body=mk('div','bkt-round-body');
-  round.ms.forEach(mn=>body.appendChild(buildBracketCell(mn,now)));
+  // Group this round's matches by kickoff date so same-day matches sit
+  // side by side instead of stacking one-per-row — keeps each card a
+  // reasonable width instead of stretching full-bleed. Preserves the
+  // original match-number order within each date group.
+  const byDate=new Map();
+  round.ms.forEach(mn=>{
+    const d=KO_BY_NUM[mn].date||'';
+    if(!byDate.has(d))byDate.set(d,[]);
+    byDate.get(d).push(mn);
+  });
+  byDate.forEach((msOnDate,date)=>{
+    const dayRow=mk('div','bkt-day-row');
+    msOnDate.forEach(mn=>dayRow.appendChild(buildBracketCell(mn,now)));
+    body.appendChild(dayRow);
+  });
   sec.appendChild(body);
   return sec;
 }
@@ -1853,6 +1993,26 @@ function buildBracketCell(mn,now){
       `value="${esc(String(val))}" data-mid="${mn}" data-side="${side}" `+
       `oninput="liveBracketScore(this)" onchange="saveBracketScore(this)" ${locked?'disabled':''}></div>`;
   };
+  // Admin-only manual override UI — only shown for a side that's still a
+  // placeholder AND is specifically a Best-3rd slot (the only kind the
+  // simulator might lag behind real-world certainty on; group-slot and
+  // Winner/Loser placeholders resolve automatically and reliably once
+  // their input data lands, so an override there would just be confusing).
+  let overrideHtml='';
+  if(isAdmin()){
+    const sides=[['home',obj.home,home],['away',obj.away,away]];
+    sides.forEach(([side,rawLabel,info])=>{
+      if(info.isPlaceholder&&/Best 3rd/.test(rawLabel)){
+        overrideHtml+=`<div class="bkt-override">`+
+          `<input class="bkt-override-inp" list="bktTeamList" placeholder="Set ${side} team\u2026" `+
+          `data-mid="${mn}" id="bktovr_${mn}_${side}">`+
+          `<button class="bkt-override-btn" onclick="setBktOverride(${mn},document.getElementById('bktovr_${mn}_${side}').value)">Set</button></div>`;
+      } else if(info.isOverride){
+        overrideHtml+=`<div class="bkt-override is-set"><span>\u270e Override: ${esc(info.team)}</span>`+
+          `<button class="bkt-override-btn clear" onclick="setBktOverride(${mn},null)">Clear</button></div>`;
+      }
+    });
+  }
   const dateStr=obj.date?esc(obj.date):'';
   cell.innerHTML=
     `<div class="bkt-mnum"><span>M${mn}${dateStr?' \u00b7 '+dateStr:''}</span>`+
@@ -1861,7 +2021,7 @@ function buildBracketCell(mn,now){
     teamCell('away',away,awayWL)+
     `<div class="bkt-tiewarn">\u26a0\uFE0F No draws \u2014 change one score</div>`+
     `<div class="bkt-meta">${lockHtml}</div>`+
-    crowdHtml;
+    crowdHtml+overrideHtml;
   return cell;
 }
 function liveBracketScore(inp){
