@@ -1529,7 +1529,17 @@ function saveScore(inp){
 // ── KO BRACKET ─────────────────────────────────────────────
 // koResults: derived view of `results` for m73-m104, giving {winner, loser} per
 // match so later rounds can resolve "Winner M.." / "Loser M.." labels once
-// results land.
+// results land. BUG FIX (this session): this previously read r.homeTeam /
+// r.awayTeam directly off the results row, but nothing ever put those
+// fields there (loadData() only selects game_id/home_score/away_score) —
+// so koResults[m].winner/.loser were always undefined and Winner/Loser
+// slots could never resolve past R32. Fixed to resolve each match's actual
+// team names via KO_BY_NUM + bktResolveSlot instead, which is the real
+// source of truth a played match's teams come from. Must run in increasing
+// match-number order (already does) so each round's Winner/Loser labels can
+// see the previous round's results, and must run AFTER bktThirdCache is
+// populated (call order fixed in buildKOBracket — see below) so R32 best-3rd
+// slots are resolvable too.
 let koResults={};
 function rebuildKOResults(){
   koResults={};
@@ -1537,8 +1547,12 @@ function rebuildKOResults(){
     const r=results['m'+m];if(!r)continue;
     const w=winnerFrom(r.hs,r.as); // never 'draw' for KO games by construction
     if(!w)continue;
+    const obj=KO_BY_NUM[m];
+    const home=bktResolveSlot(obj.home,obj.round,m);
+    const away=bktResolveSlot(obj.away,obj.round,m);
+    if(!home.team||!away.team)continue; // shouldn't happen for a played match, but stay safe
     const adv=r.pen_winner?r.pen_winner:w;
-    koResults[m]={winner:adv==='home'?r.homeTeam:r.awayTeam,loser:adv==='home'?r.awayTeam:r.homeTeam};
+    koResults[m]={winner:adv==='home'?home.team:away.team,loser:adv==='home'?away.team:home.team};
   }
 }
 // Resolve a "Winner Mxx"/"Loser Mxx" label to a real team name once that match
@@ -1746,8 +1760,13 @@ function bktResolveSlot(label,roundKey,matchNum){
 }
 
 function buildKOBracket(){
-  rebuildKOResults();
+  // Order matters: bktThirdCache must exist before rebuildKOResults runs,
+  // since R32 best-3rd slots (resolved via bktResolveSlot inside
+  // rebuildKOResults) depend on it. Previously this ran in the opposite
+  // order, which combined with the r.homeTeam/r.awayTeam bug above meant
+  // Winner/Loser slots never actually resolved in practice.
   bktThirdCache=bktThirdAssignment();
+  rebuildKOResults();
   const now=new Date();
   const win=mk('div','ko-bracket-window');
   const head=mk('div','ko-bracket-head');
