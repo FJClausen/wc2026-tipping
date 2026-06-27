@@ -191,6 +191,46 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .ko-pens-toggle{display:flex;gap:6px;margin-top:5px}
 .ko-pens-btn{flex:1;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);border-radius:6px;padding:5px;font-size:10.5px;font-weight:600;text-align:center;cursor:pointer;font-family:'Inter',sans-serif}
 .ko-pens-btn.sel{background:var(--navy);color:#fff;border-color:var(--navy)}
+/* NEW: full-width knockout bracket band (March-Madness style, horizontal scroll) */
+.ko-bracket-window{grid-column:1/-1;background:linear-gradient(135deg,#001d3d,var(--navy));border-bottom:3px solid var(--intgold);padding:8px 12px 12px;overflow:auto;max-height:48vh}
+.ko-bracket-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;position:sticky;left:0}
+.ko-bracket-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;line-height:1}
+.ko-bracket-sub{font-size:10px;color:rgba(255,255,255,.55);font-weight:500;letter-spacing:.3px}
+.ko-bracket-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:2px 7px;border-radius:4px;background:var(--intgold);color:var(--navy)}
+.bkt{display:flex;align-items:stretch;gap:9px;min-width:max-content;padding:2px}
+.bkt-col{display:flex;flex-direction:column;justify-content:space-around;gap:6px;min-width:148px}
+.bkt-col.c-center{justify-content:center;min-width:166px}
+.bkt-col-head{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:1.2px;color:var(--intgold);text-align:center;margin-bottom:3px;position:sticky;top:0;white-space:nowrap}
+.bkt-match{background:var(--surface);border:1.5px solid var(--border);border-radius:6px;padding:5px 6px;position:relative;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.bkt-match.has-pick{border-color:var(--wbblue);background:#f0f8fd}
+.bkt-match.locked{opacity:.62}
+.bkt-match.is-final{border-color:var(--intgold);background:var(--intgoldbg);padding:7px 8px}
+.bkt-match.is-third{border-style:dashed;margin-top:12px}
+/* connector nubs toward the centre */
+.bkt-col.side-L .bkt-match::after{content:'';position:absolute;right:-10px;top:50%;width:9px;height:2px;background:rgba(255,255,255,.22)}
+.bkt-col.side-R .bkt-match::before{content:'';position:absolute;left:-10px;top:50%;width:9px;height:2px;background:rgba(255,255,255,.22)}
+.bkt-mnum{font-size:8px;color:var(--text3);font-weight:700;letter-spacing:.3px}
+.bkt-row{display:flex;align-items:center;gap:5px;padding:1.5px 0}
+.bkt-team{flex:1;display:flex;align-items:center;gap:3px;min-width:0;font-size:10.5px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bkt-team.ph{color:var(--text3);font-style:italic;font-weight:500;font-size:9.5px}
+.bkt-team.win{color:var(--green2)}
+.bkt-team.lose{color:#b91c1c}
+.bkt-team img{flex-shrink:0}
+.bkt-sc{width:27px;height:23px;border:1.5px solid var(--border);border-radius:4px;text-align:center;font-size:13px;font-weight:700;font-family:'Inter',sans-serif;padding:0;color:var(--text);background:var(--bg2);flex-shrink:0}
+.bkt-sc:focus{outline:none;border-color:var(--wbblue);background:#fff}
+.bkt-sc:disabled{opacity:.45;cursor:not-allowed;background:var(--bg3)}
+.bkt-sc.tie-error{border-color:var(--orange);background:#fff1ee}
+.bkt-meta{font-size:8px;color:var(--text3);margin-top:3px;line-height:1.35;display:flex;flex-direction:column;gap:1px}
+.bkt-meta-top{display:flex;justify-content:space-between;align-items:center;gap:4px}
+.bkt-mult{font-size:7.5px;font-weight:700;background:var(--intgold);color:var(--navy);border-radius:3px;padding:0 4px}
+.bkt-lock{color:var(--orange2);font-weight:600}
+.bkt-lock.closed{color:var(--red)}
+.bkt-pts{font-size:8.5px;font-weight:700;padding:0 4px;border-radius:3px}
+.bkt-pts.hit{background:#dcfce7;color:#166534}
+.bkt-pts.zero{background:#fee2e2;color:#dc2626}
+.bkt-tiewarn{font-size:8px;color:var(--orange2);font-weight:600;margin-top:2px;display:none;line-height:1.3}
+.bkt-tiewarn.show{display:block}
+.bkt-third-cap{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,255,255,.6);text-align:center;margin:10px 0 2px}
 .pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:5px}
 .pbtn{background:var(--surface);border:1.5px solid var(--border);color:var(--text);border-radius:7px;padding:7px 5px;font-size:11px;font-weight:500;text-align:center;cursor:pointer;transition:all .1s;font-family:'Inter',sans-serif;user-select:none;line-height:1.3}
 .pbtn:hover:not(.sel){background:var(--greenlt);border-color:var(--green)}
@@ -1100,12 +1140,12 @@ function showTab(t){
 function getPanels(){return[document.getElementById('p1'),document.getElementById('p2'),document.getElementById('p3')];}
 function render(){
   const[p1,p2,p3]=getPanels();
-  [p1,p2,p3].forEach(p=>{p.innerHTML='';p.className='panel';});
+  [p1,p2,p3].forEach(p=>{p.innerHTML='';p.className='panel';p.style.gridRow='';});
   const panelsEl=document.querySelector('.panels');
   if(panelsEl&&currentTab!=='games'){
-    const tw=panelsEl.querySelector('.today-window');
-    if(tw)tw.remove();
+    panelsEl.querySelectorAll('.today-window,.ko-bracket-window').forEach(el=>el.remove());
     panelsEl.classList.remove('has-today');
+    panelsEl.style.gridTemplateRows='';
   }
   if(currentTab==='games')       renderGames(p1,p2,p3);
   else if(currentTab==='winner') renderWinner(p1,p2,p3);
@@ -1254,21 +1294,30 @@ function buildTodayCard(gm){
 function renderGames(p1,p2,p3){
   const ps=[p1,p2,p3];ps.forEach(p=>p.classList.add('on'));
   const panelsEl=document.querySelector('.panels');
+  let todayWin=null,bracketWin=null;
   if(panelsEl){
-    const existing=panelsEl.querySelector('.today-window');
-    if(existing)existing.remove();
-    const todayWin=buildTodayWindow();
-    if(todayWin){
-      panelsEl.classList.add('has-today');
-      panelsEl.insertBefore(todayWin,panelsEl.firstChild);
-    }else{
-      panelsEl.classList.remove('has-today');
-    }
+    // clear any prior bands
+    panelsEl.querySelectorAll('.today-window,.ko-bracket-window').forEach(el=>el.remove());
+    panelsEl.classList.remove('has-today');
+    todayWin=buildTodayWindow();
+    bracketWin=buildKOBracket();
+    // Order top-to-bottom: Today's Games (if any) -> Bracket -> group columns.
+    // Bands are full-width; placement is by explicit grid-row.
+    const rows=[];
+    if(todayWin)rows.push('auto');
+    rows.push('auto');      // bracket
+    rows.push('1fr');       // panels
+    panelsEl.style.gridTemplateRows=rows.join(' ');
+    let r=1;
+    if(todayWin){todayWin.style.gridRow=String(r);panelsEl.appendChild(todayWin);r++;}
+    bracketWin.style.gridRow=String(r);panelsEl.appendChild(bracketWin);r++;
+    const panelRow=String(r);
+    ps.forEach(p=>{p.style.gridRow=panelRow;});
   }
   const groups=['A','B','C','D','E','F','G','H','I','J','K','L'];
   const locked=groupLocked();
   const notice=mk('div',locked?'cutoff-bar closed':'cutoff-bar',
-    locked?'\u{1F512} Group-stage predictions are closed \u2014 your picks are locked in. Knockout predictions open round by round below, and each match locks individually at midnight ET on its own kickoff day.'
+    locked?'\u{1F512} Group-stage predictions are closed \u2014 your picks are locked in. Knockout predictions are made in the bracket above, and each match locks individually at midnight ET on its own kickoff day.'
           :'\u23f0 Predictions close <strong>11 Jun 2026, 15:00 ET</strong> \u2014 when the first match kicks off.');
   p1.appendChild(notice);
   [[0,3],[4,7],[8,11]].forEach(([s,e],pi)=>{
@@ -1282,7 +1331,6 @@ function renderGames(p1,p2,p3){
       GAMES.filter(gm=>gm.group===g).forEach(gm=>p.appendChild(buildGameCard(gm,locked)));
       p.appendChild(buildGroupStandings(g));
     }
-    if(pi===2)p.appendChild(buildKOSection());
   });
 }
 
@@ -1423,13 +1471,63 @@ function saveScore(inp){
 }
 
 // ── KO BRACKET ─────────────────────────────────────────────
-function predictedR32(){
+// koResults: derived view of `results` for m73-m104, giving {winner, loser} per
+// match so later rounds can resolve "Winner M.." / "Loser M.." labels once
+// results land.
+let koResults={};
+function rebuildKOResults(){
+  koResults={};
+  for(let m=73;m<=104;m++){
+    const r=results['m'+m];if(!r)continue;
+    const w=winnerFrom(r.hs,r.as); // never 'draw' for KO games by construction
+    if(!w)continue;
+    const adv=r.pen_winner?r.pen_winner:w;
+    koResults[m]={winner:adv==='home'?r.homeTeam:r.awayTeam,loser:adv==='home'?r.awayTeam:r.homeTeam};
+  }
+}
+// Resolve a "Winner Mxx"/"Loser Mxx" label to a real team name once that match
+// has a result; returns null if not yet decided.
+function resolveKOSlotLabel(label){
+  let m=label.match(/^Winner M(\d+)$/);
+  if(m){const dep=parseInt(m[1]);return(koResults[dep]&&koResults[dep].winner)||null;}
+  m=label.match(/^Loser M(\d+)$/);
+  if(m){const dep=parseInt(m[1]);return(koResults[dep]&&koResults[dep].loser)||null;}
+  return null;
+}
+
+// Lookup of every knockout match object by number, tagged with its round key.
+const KO_BY_NUM={};
+[['r32',R32],['r16',R16],['qf',QF],['sf',SF],['tp',THIRD],['f',FINAL]]
+  .forEach(([k,arr])=>arr.forEach(o=>{KO_BY_NUM[o.m]={...o,round:k};}));
+
+// Bracket column layout — left half feeds inward to the centre Final, right
+// half mirrors it. Match order within each column is arranged so feeder pairs
+// sit adjacent (verified against the R16/QF/SF feeder structure).
+const BRACKET_COLS=[
+  {side:'L',label:'Round of 32',ms:[74,77,73,75,83,84,81,82]},
+  {side:'L',label:'Round of 16',ms:[89,90,93,94]},
+  {side:'L',label:'Quarter-finals',ms:[97,98]},
+  {side:'L',label:'Semi-final',ms:[101]},
+  {side:'C',label:'Final',ms:[104],third:103},
+  {side:'R',label:'Semi-final',ms:[102]},
+  {side:'R',label:'Quarter-finals',ms:[99,100]},
+  {side:'R',label:'Round of 16',ms:[91,92,95,96]},
+  {side:'R',label:'Round of 32',ms:[76,78,79,80,86,88,85,87]},
+];
+
+function bktGroupComplete(g){
+  return GAMES.filter(x=>x.group===g).every(x=>results[x.id]);
+}
+function bktActualStanding(g){
+  return groupStandings(g,gid=>results[gid]?{hs:results[gid].hs,as:results[gid].as}:null).rows;
+}
+// Actual third-place slot assignment (m -> team), computed only once every
+// group is complete; mirrors the FIFA bipartite assignment used elsewhere.
+function bktThirdAssignment(){
   const groups=['A','B','C','D','E','F','G','H','I','J','K','L'];
-  const pk=myPicks();
-  const got=gid=>{const hs=pk['hs_'+gid],as=pk['as_'+gid];return(hs!==''&&hs!=null&&as!==''&&as!=null)?{hs,as}:null;};
-  if(!GAMES.every(g=>got(g.id)))return null;
-  const st={};groups.forEach(g=>{st[g]=groupStandings(g,got).rows;});
-  const first=g=>st[g][0].team,second=g=>st[g][1].team;
+  if(!groups.every(bktGroupComplete))return {};
+  const get=gid=>results[gid]?{hs:results[gid].hs,as:results[gid].as}:null;
+  const st={};groups.forEach(g=>{st[g]=groupStandings(g,get).rows;});
   const thirds=groups.map(g=>Object.assign({group:g},st[g][2]));
   thirds.sort((a,b)=>b.Pts-a.Pts||b.GD-a.GD||b.GF-a.GF||a.group.localeCompare(b.group));
   const qual=thirds.slice(0,8).map(t=>t.group);
@@ -1452,168 +1550,146 @@ function predictedR32(){
     const left=qual.filter(g=>!used.has(g));
     slots.forEach(s=>{if(slotGroup[s.m]===undefined)slotGroup[s.m]=left.shift();});
   }
-  const resolve=l=>{let m=l.match(/^1st Group ([A-L])$/);if(m)return first(m[1]);m=l.match(/^2nd Group ([A-L])$/);if(m)return second(m[1]);return null;};
-  return R32.map(mt=>{
-    const home=resolve(mt.home);let away,note='';
-    if(/Best 3rd/.test(mt.away)){const g=slotGroup[mt.m];away=g?thirdTeam[g]:null;note=g?('3rd \u00b7 Grp '+g):'';}
-    else away=resolve(mt.away);
-    return{m:mt.m,venue:mt.venue,home,away,note};
-  });
+  const out={};Object.keys(slotGroup).forEach(m=>{out[m]=thirdTeam[slotGroup[m]];});
+  return out;
 }
-function buildPredictedR32(){
-  const wrap=mk('div','ko-round-block ko-predicted');
-  wrap.appendChild(mk('div','ko-round-label','\u{1F52E} Your Predicted Round of 32'));
-  const r32=predictedR32();
-  if(!r32){wrap.appendChild(mk('div','ms-empty','Predict all 72 group games and this fills in automatically \u2014 the top 2 of every group plus the 8 best third-placed teams, ranked by FIFA tie-breaks (points, goal difference, then goals scored).'));return wrap;}
-  r32.forEach(mm=>{
-    const row=mk('div','ko-match');
-    const awayName=mm.away?`${fl(mm.away)} ${esc(mm.away)}`:'—';
-    const awayNote=mm.note?` <span class="ko-3rd">${esc(mm.note)}</span>`:'';
-    row.innerHTML=`<div class="ko-side home"><span class="ko-match-num">M${mm.m}</span><span class="ko-qualifier winner">${mm.home?fl(mm.home)+' '+esc(mm.home):'—'}</span></div><div class="ko-vs-pill">VS</div><div class="ko-side away"><span class="ko-match-num">${esc(mm.venue)}</span><span class="ko-qualifier winner">${awayName}</span>${awayNote}</div>`;
-    wrap.appendChild(row);
-  });
-  return wrap;
+let bktThirdCache={};
+// Resolve a single slot to {team, label, isPlaceholder}. team is a real name or
+// null; label is the short display text shown when team is null.
+function bktResolveSlot(label,roundKey,matchNum){
+  // R32 direct group slots — resolve as soon as that group is complete.
+  let m=label.match(/^(1st|2nd) Group ([A-L])$/);
+  if(m){
+    const g=m[2];
+    if(bktGroupComplete(g)){
+      const rows=bktActualStanding(g);const idx=m[1]==='1st'?0:1;
+      if(rows[idx])return{team:rows[idx].team,label,isPlaceholder:false};
+    }
+    return{team:null,label:m[1]+' Grp '+g,isPlaceholder:true};
+  }
+  // R32 best-third slot.
+  if(/Best 3rd/.test(label)){
+    const t=bktThirdCache[matchNum]||null;
+    const allowed=(label.match(/\(([^)]+)\)/)||[])[1]||'';
+    return{team:t,label:'3rd '+(allowed?'('+allowed+')':''),isPlaceholder:!t};
+  }
+  // R16+ winner/loser slots.
+  if(/^(Winner|Loser) M\d+$/.test(label)){
+    const t=resolveKOSlotLabel(label);
+    return{team:t,label:label.replace('Winner ','W ').replace('Loser ','L '),isPlaceholder:!t};
+  }
+  return{team:null,label,isPlaceholder:true};
 }
 
-// ── KNOCKOUT PREDICTIONS (winner pick via score boxes, tie blocked) ──
-// Resolves the two team names currently filling a KO match's slots, using
-// official results where the prior round/match is decided, else falls back
-// to the predicted bracket so users can still pick ahead of confirmation.
-function resolveKOSlotLabel(label,predictedMap){
-  let m=label.match(/^Winner M(\d+)$/);
-  if(m){
-    const dep=parseInt(m[1]);
-    if(koResults[dep]&&koResults[dep].winner)return koResults[dep].winner;
-    if(predictedMap&&predictedMap[dep])return predictedMap[dep];
-    return null;
-  }
-  m=label.match(/^Loser M(\d+)$/);
-  if(m){
-    const dep=parseInt(m[1]);
-    if(koResults[dep]&&koResults[dep].loser)return koResults[dep].loser;
-    return null;
-  }
-  return label; // R32 group-slot labels are resolved separately via predictedR32()
-}
-// koResults: derived view of `results` for m73-m104, giving {winner, loser} per match
-// so later rounds can resolve "Winner M.." / "Loser M.." labels once results land.
-let koResults={};
-function rebuildKOResults(){
-  koResults={};
-  for(let m=73;m<=104;m++){
-    const r=results['m'+m];if(!r)continue;
-    const w=winnerFrom(r.hs,r.as); // never 'draw' for KO games by construction
-    if(!w)continue;
-    const adv=r.pen_winner?r.pen_winner:w;
-    koResults[m]={winner:adv==='home'?r.homeTeam:r.awayTeam,loser:adv==='home'?r.awayTeam:r.homeTeam};
-  }
-}
-function myKOPicks(){return myPicks();}
-function buildKOPredictionCard(matchObj,roundKey,roundOpenDate,r32PredMap){
-  const m=matchObj.m;
+function buildKOBracket(){
+  rebuildKOResults();
+  bktThirdCache=bktThirdAssignment();
   const now=new Date();
-  const roundHasOpened=now>=roundOpenDate;
-  const matchLock=matchObj.date?koMatchLockTime(matchObj.date):null;
-  const matchHasLocked=matchLock?now>=matchLock:false;
-  // A match accepts predictions once its round exists AND its own kickoff day
-  // hasn't started yet (midnight ET on the match's date) — independent of
-  // whether sibling matches in the same round have already locked.
-  const isOpen=roundHasOpened&&!matchHasLocked;
-  const homeLabel=roundKey==='r32'?matchObj.home:resolveKOSlotLabel(matchObj.home,r32PredMap);
-  const awayLabel=roundKey==='r32'?(/Best 3rd/.test(matchObj.away)?null:matchObj.away):resolveKOSlotLabel(matchObj.away,r32PredMap);
-  let homeTeam=homeLabel,awayTeam=awayLabel;
-  if(roundKey==='r32'&&r32PredMap){
-    const pr=r32PredMap[m];
-    if(pr){homeTeam=pr.home;awayTeam=pr.away;}
-  }
-  const picks=myKOPicks();
-  const hs=picks['hs_m'+m]||'';const as=picks['as_m'+m]||'';
-  const pensPick=picks['pens_m'+m]||''; // 'home' or 'away' — only used if scores end up tied at save-time guard
+  const win=mk('div','ko-bracket-window');
+  const head=mk('div','ko-bracket-head');
+  head.innerHTML=`<span class="ko-bracket-title">\u{1F3C6} Knockout Bracket</span>`+
+    `<span class="ko-bracket-badge">Predict every match</span>`+
+    `<span class="ko-bracket-sub">Type a score for each side \u2014 no draws (someone must go through). Each match locks at midnight ET on its kickoff day. 3 pts exact \u00b7 2 pts winner+margin \u00b7 1 pt winner \u00b7 \u00d71\u2013\u00d73 by round \u00b7 pens count as goals.</span>`;
+  win.appendChild(head);
+  const bkt=mk('div','bkt');
+  BRACKET_COLS.forEach(col=>{
+    const c=mk('div','bkt-col side-'+col.side+(col.side==='C'?' c-center':''));
+    c.appendChild(mk('div','bkt-col-head',esc(col.label)));
+    col.ms.forEach(mn=>c.appendChild(buildBracketCell(mn,now)));
+    if(col.third){
+      c.appendChild(mk('div','bkt-third-cap','\u{1F949} Third place'));
+      c.appendChild(buildBracketCell(col.third,now));
+    }
+    bkt.appendChild(c);
+  });
+  win.appendChild(bkt);
+  return win;
+}
+function buildBracketCell(mn,now){
+  const obj=KO_BY_NUM[mn];
+  const isFinal=mn===104, isThird=mn===103;
+  const home=bktResolveSlot(obj.home,obj.round,mn);
+  const away=bktResolveSlot(obj.away,obj.round,mn);
+  const picks=myPicks();
+  const hs=picks['hs_m'+mn]!=null?picks['hs_m'+mn]:'';
+  const as=picks['as_m'+mn]!=null?picks['as_m'+mn]:'';
   const hasPick=hs!==''&&as!==''&&hs!==as;
-  const card=mk('div','ko-pred-card'+(hasPick?' has-pick':'')+(isOpen?'':' locked'));
-  const res=results['m'+m];
-  const w=winnerFrom(hs,as);
-  let homeClass='',awayClass='';
-  if(hs!==''&&as!==''&&hs!==as){
-    if(w==='home'){homeClass=' win';awayClass=' lose';}else if(w==='away'){homeClass=' lose';awayClass=' win';}
-  }
+  const lock=obj.date?koMatchLockTime(obj.date):null;
+  const locked=lock?now>=lock:false;
+  const res=results['m'+mn];
+  // win/lose tinting from the user's own entered score (pre-result)
+  const w=(hs!==''&&as!==''&&hs!==as)?winnerFrom(hs,as):null;
+  const homeWL=w==='home'?' win':w==='away'?' lose':'';
+  const awayWL=w==='away'?' win':w==='home'?' lose':'';
+  const cell=mk('div','bkt-match'+(hasPick?' has-pick':'')+(locked?' locked':'')+(isFinal?' is-final':'')+(isThird?' is-third':''));
+  // points pill once the real result is in
   let ptsHtml='';
   if(res&&hasPick){
-    const pts=calcKnockoutPts(m,hs,as);
-    const cls=pts.pts>=3?'pts-high':pts.pts>=1?'pts-med':'pts0';
-    ptsHtml=`<span class="result-pts ${cls}" title="${esc(pts.note)}">${pts.pts>0?'+'+pts.pts:0} pts \u00d7${KO_MULT[m]||1}</span>`;
+    const pts=calcKnockoutPts(mn,hs,as);
+    ptsHtml=`<span class="bkt-pts ${pts.pts>0?'hit':'zero'}" title="${esc(pts.note)}">${pts.pts>0?'+'+pts.pts:0}</span>`;
   }
-  const homeShow=homeTeam?`${fl(homeTeam)} ${esc(homeTeam)}`:'<span class="ko-qualifier">TBD</span>';
-  const awayShow=awayTeam?`${fl(awayTeam)} ${esc(awayTeam)}`:'<span class="ko-qualifier">TBD</span>';
-  let resultLine='';
+  // lock-status line
+  let lockHtml='';
   if(res){
-    const penNote=res.decided_in&&res.decided_in!=='regulation'?` <span class="result-pens-note">(${esc(res.decided_in==='penalties'?'pens':'ET')})</span>`:'';
-    resultLine=`<div class="result-row has-result"><span class="result-lbl">Result:</span><span class="result-score">${res.hs} \u2013 ${res.as}</span>${penNote}${ptsHtml}</div>`;
-  }else{
-    resultLine=`<div class="result-row"><span class="result-lbl">Result:</span><span class="result-pending">Not yet played</span></div>`;
+    const penNote=res.decided_in&&res.decided_in!=='regulation'?` (${res.decided_in==='penalties'?'pens':'ET'})`:'';
+    lockHtml=`<span class="bkt-lock closed">FT ${res.hs}\u2013${res.as}${penNote}</span>`;
+  }else if(locked){
+    lockHtml=`<span class="bkt-lock closed">\u{1F512} Locked</span>`;
+  }else if(lock){
+    const lockStr=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',month:'short',day:'numeric'}).format(lock);
+    lockHtml=`<span class="bkt-lock">Locks 12AM ET ${esc(lockStr)}</span>`;
   }
-  card.innerHTML=`
-    <div class="game-meta">
-      <span>M${m} \u00b7 ${esc(matchObj.venue)}${matchObj.date?' \u00b7 '+esc(matchObj.date):''} \u00b7 <span class="game-code">m${m}</span></span>
-      <span class="ko-round-mult">\u00d7${KO_MULT[m]||1} pts</span>
-    </div>
-    ${!roundHasOpened?`<div class="result-row"><span class="result-pending">\u{1F512} Opens once this round is confirmed</span></div>`:''}
-    ${roundHasOpened&&matchHasLocked&&!res?`<div class="result-row"><span class="result-pending">\u{1F512} Locked \u2014 kickoff day has arrived for this match</span></div>`:''}
-    <div class="matchup">
-      <div class="team-col">
-        <div class="tbtn${homeClass}" id="kohbtn_${m}">${homeShow}</div>
-        <input class="score-inp" type="number" min="0" max="20" placeholder="\u2013"
-          value="${esc(hs)}" data-mid="${m}" data-side="home"
-          oninput="liveKOScore(this)" onchange="saveKOScore(this)" ${homeTeam?'':'disabled'}>
-      </div>
-      <div class="vs-col"><div class="vs">VS</div><span class="score-dash">\u2013</span></div>
-      <div class="team-col">
-        <div class="tbtn${awayClass}" id="koabtn_${m}">${awayShow}</div>
-        <input class="score-inp" type="number" min="0" max="20" placeholder="\u2013"
-          value="${esc(as)}" data-mid="${m}" data-side="away"
-          oninput="liveKOScore(this)" onchange="saveKOScore(this)" ${awayTeam?'':'disabled'}>
-      </div>
-    </div>
-    <div class="ko-tie-warning" id="kotie_${m}">\u26a0\uFE0F No draws in the knockout stage \u2014 someone has to go through. Change one score.</div>
-    ${resultLine}`;
-  return card;
+  const teamCell=(side,info,wl)=>{
+    const inner=info.team
+      ? `<span class="bkt-team ${side}${wl}">${fl(info.team)}${esc(info.team)}</span>`
+      : `<span class="bkt-team ${side} ph${wl}">${esc(info.label)}</span>`;
+    const val=side==='home'?hs:as;
+    return `<div class="bkt-row">${inner}<input class="bkt-sc" type="number" min="0" max="20" `+
+      `value="${esc(String(val))}" data-mid="${mn}" data-side="${side}" `+
+      `oninput="liveBracketScore(this)" onchange="saveBracketScore(this)" ${locked?'disabled':''}></div>`;
+  };
+  const dateStr=obj.date?esc(obj.date):'';
+  cell.innerHTML=
+    `<div class="bkt-mnum">M${mn}${dateStr?' \u00b7 '+dateStr:''}</div>`+
+    teamCell('home',home,homeWL)+
+    teamCell('away',away,awayWL)+
+    `<div class="bkt-tiewarn">\u26a0\uFE0F No draws \u2014 change one score</div>`+
+    `<div class="bkt-meta"><div class="bkt-meta-top"><span class="bkt-mult">\u00d7${KO_MULT[mn]||1}</span>${ptsHtml}</div>${lockHtml}</div>`;
+  return cell;
 }
-function liveKOScore(inp){
-  const card=inp.closest('.ko-pred-card');const m=inp.dataset.mid;
-  const hs=card.querySelector('[data-side="home"]').value;
-  const as=card.querySelector('[data-side="away"]').value;
-  const warn=document.getElementById('kotie_'+m);
+function liveBracketScore(inp){
+  const cell=inp.closest('.bkt-match');
+  const hs=cell.querySelector('[data-side="home"]').value;
+  const as=cell.querySelector('[data-side="away"]').value;
   const tied=hs!==''&&as!==''&&hs===as;
+  const warn=cell.querySelector('.bkt-tiewarn');
   if(warn)warn.classList.toggle('show',tied);
-  card.querySelectorAll('.score-inp').forEach(i=>i.classList.toggle('tie-error',tied));
+  cell.querySelectorAll('.bkt-sc').forEach(i=>i.classList.toggle('tie-error',tied));
   const w=tied?null:winnerFrom(hs,as);
-  const hb=document.getElementById('kohbtn_'+m);const ab=document.getElementById('koabtn_'+m);
-  if(!hb||!ab)return;
-  hb.className='tbtn';ab.className='tbtn';
-  if(w==='home'){hb.classList.add('win');ab.classList.add('lose');}
-  else if(w==='away'){hb.classList.add('lose');ab.classList.add('win');}
-}
-function saveKOScore(inp){
-  const card=inp.closest('.ko-pred-card');const m=inp.dataset.mid;
-  const matchObj=[...R32,...R16,...QF,...SF,...THIRD,...FINAL].find(mm=>mm.m===parseInt(m));
-  if(matchObj&&matchObj.date){
-    const lock=koMatchLockTime(matchObj.date);
-    if(lock&&new Date()>=lock){
-      toast('\u{1F512} This match has locked \u2014 kickoff day has arrived');
-      render();
-      return;
-    }
+  const ht=cell.querySelector('.bkt-team.home'),at=cell.querySelector('.bkt-team.away');
+  if(ht&&at){
+    ht.classList.remove('win','lose');at.classList.remove('win','lose');
+    if(w==='home'){ht.classList.add('win');at.classList.add('lose');}
+    else if(w==='away'){ht.classList.add('lose');at.classList.add('win');}
   }
-  const hs=card.querySelector('[data-side="home"]').value;
-  const as=card.querySelector('[data-side="away"]').value;
+}
+function saveBracketScore(inp){
+  const cell=inp.closest('.bkt-match');const mn=inp.dataset.mid;
+  const obj=KO_BY_NUM[mn];
+  if(obj&&obj.date){
+    const lock=koMatchLockTime(obj.date);
+    if(lock&&new Date()>=lock){toast('\u{1F512} This match has locked \u2014 kickoff day has arrived');render();return;}
+  }
+  const hs=cell.querySelector('[data-side="home"]').value;
+  const as=cell.querySelector('[data-side="away"]').value;
   if(!currentUser){toast('Enter your name first!');return;}
   if(hs!==''&&as!==''&&hs===as){
     toast('No draws in the knockout stage \u2014 pick a winner \u23f0');
-    card.querySelectorAll('.score-inp').forEach(i=>i.classList.add('tie-error'));
+    cell.querySelectorAll('.bkt-sc').forEach(i=>i.classList.add('tie-error'));
     return;
   }
-  setPick('hs_m'+m,hs);setPick('as_m'+m,as);
-  card.classList.toggle('has-pick',hs!==''&&as!==''&&hs!==as);
+  setPick('hs_m'+mn,hs);setPick('as_m'+mn,as);
+  cell.classList.toggle('has-pick',hs!==''&&as!==''&&hs!==as);
   toast('Saved \u2713');
 }
 // Scoring per the Kicktipp-style tiered model, with pens-count-as-goals and
@@ -1648,39 +1724,6 @@ function calcKOTotalPoints(user){
     pts+=calcKnockoutPts(m,hs,as).pts;
   }
   return pts;
-}
-function buildKOSection(){
-  const now=new Date();
-  rebuildKOResults();
-  const r32PredArr=predictedR32();
-  const r32PredMap={};
-  if(r32PredArr)r32PredArr.forEach(mm=>{r32PredMap[mm.m]={home:mm.home,away:mm.away};});
-  const sec=mk('div','ko-section');
-  sec.innerHTML=`<div class="ko-sec-title">\u26a1 Knockout Bracket</div><div class="ko-sec-sub">Pick the winner of each knockout game once its round is confirmed \u2014 type a score for each side (no draws allowed; someone has to go through). <strong>Each match locks individually at midnight ET on its own kickoff day</strong> \u2014 other games in the same round stay open even after one has locked. Scoring: 3 pts exact result \u00b7 2 pts correct winner + goal difference \u00b7 1 pt correct winner. Penalty-shootout kicks count as goals toward the final score, and round value increases as the bracket progresses (\u00d71 \u2192 \u00d73). No Wild Score bonus in the knockout stage.</div>`;
-  sec.appendChild(buildPredictedR32());
-  KO_ROUNDS.forEach(r=>{
-    const open=new Date(r.open)<=now;
-    const rb=mk('div','ko-round-block');
-    rb.innerHTML=`<div class="ko-round-label">${open?'\u{1F7E2}':'\u{1F512}'} ${esc(r.label)} <span class="ko-round-mult">\u00d7${r.mult}</span> <span class="ko-round-dates">${esc(r.dates)}</span></div>`;
-    if(open){
-      r.matches.forEach(mt=>rb.appendChild(buildKOPredictionCard(mt,r.key,new Date(r.open),r32PredMap)));
-    }else{
-      r.matches.forEach(mt=>rb.appendChild(buildKOMatchRow(mt)));
-    }
-    sec.appendChild(rb);
-  });
-  return sec;
-}
-function koSideLabel(txt){
-  if(txt.startsWith('Best'))return `<span class="ko-3rd">${esc(txt)}</span>`;
-  if(/^(Winner|Loser) M/.test(txt))return `<span class="ko-qualifier">${esc(txt)}</span>`;
-  return `<span>${esc(txt)}</span>`;
-}
-function buildKOMatchRow(m){
-  const meta=m.venue+(m.date?' \u00b7 '+m.date:'');
-  const row=mk('div','ko-match');
-  row.innerHTML=`<div class="ko-side home"><span class="ko-match-num">M${m.m}</span>${koSideLabel(m.home)}</div><div class="ko-vs-pill">VS</div><div class="ko-side away"><span class="ko-match-num">${esc(meta)}</span>${koSideLabel(m.away)}</div>`;
-  return row;
 }
 
 
