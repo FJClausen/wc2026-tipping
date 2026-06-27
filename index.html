@@ -20,6 +20,7 @@
   --text:#0d1f33;--text2:#2d4560;--text3:#5a7a9a;
   --red:#c0392b;--purple:#6b21a8;--intgold:#FABB00;--intgoldbg:#fff9d6;
   --shadow:0 1px 4px rgba(0,34,68,.10);--radius:9px;
+  --bkt-maxh:46vh;
 }
 html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;height:100%;overflow:hidden}
 #app{display:grid;grid-template-rows:auto auto 1fr auto;height:100vh}
@@ -94,7 +95,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .today-card-empty{font-size:9.5px;color:var(--text3);font-style:italic;padding:2px 0}
 .today-pts-win{color:var(--green2)!important;font-weight:700}
 .today-pts-zero{color:#dc2626!important;font-weight:600}
-.panel{overflow-y:auto;border-right:1px solid var(--border);padding:11px 10px;display:none;flex-direction:column;gap:7px;background:var(--bg)}
+.panel{overflow-y:auto;border-right:1px solid var(--border);padding:11px 10px;display:none;flex-direction:column;gap:7px;background:var(--bg);min-height:0}
 .panel.on{display:flex}
 .panel:last-child{border-right:none}
 .ptitle{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:#fff;background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 70%,#003060 100%);border-radius:7px;padding:8px 14px 7px;flex-shrink:0;box-shadow:0 2px 6px rgba(0,34,68,0.18);border-left:4px solid var(--intgold)}
@@ -192,7 +193,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .ko-pens-btn{flex:1;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);border-radius:6px;padding:5px;font-size:10.5px;font-weight:600;text-align:center;cursor:pointer;font-family:'Inter',sans-serif}
 .ko-pens-btn.sel{background:var(--navy);color:#fff;border-color:var(--navy)}
 /* NEW: full-width knockout bracket band — stacked half-brackets (Option A) */
-.ko-bracket-window{grid-column:1/-1;background:linear-gradient(135deg,#001d3d,var(--navy));border-bottom:3px solid var(--intgold);padding:8px 12px 12px;overflow-y:auto;overflow-x:hidden;max-height:54vh}
+.ko-bracket-window{grid-column:1/-1;background:linear-gradient(135deg,#001d3d,var(--navy));border-bottom:3px solid var(--intgold);padding:8px 12px 12px;overflow-y:auto;overflow-x:hidden;max-height:var(--bkt-maxh);min-height:0}
 .ko-bracket-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;position:sticky;left:0;top:0;z-index:3;background:linear-gradient(135deg,#001d3d,var(--navy));padding-bottom:3px}
 .ko-bracket-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;line-height:1}
 .ko-bracket-sub{font-size:10px;color:rgba(255,255,255,.55);font-weight:500;letter-spacing:.3px}
@@ -241,7 +242,8 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .bkt-crowd-val{font-size:10.5px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:3px}
 .bkt-crowd-pct{font-size:9px;color:var(--text3);font-weight:500}
 @media (max-width:680px){
-  .ko-bracket-window{max-height:64vh;padding:7px 8px 10px}
+  :root{--bkt-maxh:58vh}
+  .ko-bracket-window{padding:7px 8px 10px}
   .bkt-team{font-size:12.5px}
   .bkt-sc{width:34px;height:28px;font-size:14px}
 }
@@ -1347,10 +1349,20 @@ function renderGames(p1,p2,p3){
     bracketWin=buildKOBracket();
     // Order top-to-bottom: Today's Games (if any) -> Bracket -> group columns.
     // Bands are full-width; placement is by explicit grid-row.
+    // The bracket row is capped at the SAME max-height as .ko-bracket-window's
+    // own overflow (the --bkt-maxh CSS var, also used in the mobile media
+    // query) so the grid track itself can't grow past what the child needs —
+    // without this, an 'auto' track sized purely by intrinsic content can
+    // starve the panels' '1fr' track down to ~0 with no way to scroll back
+    // to it, since .panels has overflow:hidden. minmax(0,1fr) on the panels
+    // row is a second line of defense: it guarantees that row never
+    // collapses below 0, which 'fr' alone does not guarantee once content
+    // in a sibling track overflows its intrinsic size.
+    const bktMaxH=getComputedStyle(document.documentElement).getPropertyValue('--bkt-maxh').trim()||'46vh';
     const rows=[];
     if(todayWin)rows.push('auto');
-    rows.push('auto');      // bracket
-    rows.push('1fr');       // panels
+    rows.push('minmax(auto,'+bktMaxH+')'); // bracket
+    rows.push('minmax(0,1fr)');            // panels — floored so it can never be squeezed to 0
     panelsEl.style.gridTemplateRows=rows.join(' ');
     let r=1;
     if(todayWin){todayWin.style.gridRow=String(r);panelsEl.appendChild(todayWin);r++;}
@@ -1575,14 +1587,50 @@ function bktGroupsCompleteCount(){
 function bktActualStanding(g){
   return groupStandings(g,gid=>results[gid]?{hs:results[gid].hs,as:results[gid].as}:null).rows;
 }
-// Actual third-place slot assignment (m -> team), computed only once every
-// group is complete; mirrors the FIFA bipartite assignment used elsewhere.
-function bktThirdAssignment(){
-  const groups=['A','B','C','D','E','F','G','H','I','J','K','L'];
-  if(!groups.every(bktGroupComplete))return {};
-  const get=gid=>results[gid]?{hs:results[gid].hs,as:results[gid].as}:null;
-  const st={};groups.forEach(g=>{st[g]=groupStandings(g,get).rows;});
-  const thirds=groups.map(g=>Object.assign({group:g},st[g][2]));
+const ALL_GROUPS=['A','B','C','D','E','F','G','H','I','J','K','L'];
+// Representative scorelines used to sample the space of possible results for
+// a single unplayed match. We don't need every literal score — only enough
+// spread to bound how points/GD/GF tiebreakers could move: a draw, a thin
+// win each way, and a blowout win each way. This is the standard technique
+// real trackers use for "cannot be overtaken" / "can drop no lower than Nth"
+// certainty claims — it's exhaustive over the *tiebreaker-relevant outcome
+// classes*, not over literal scorelines (which is unbounded and unnecessary,
+// since GD/GF beyond a wide margin can't change a ranking any further).
+const BKT_SAMPLE_SCORES=[{hs:0,as:0},{hs:1,as:0},{hs:0,as:1},{hs:9,as:0},{hs:0,as:9}];
+// All possible final standings for one group, given its already-played
+// results plus every representative combination of its remaining matches.
+// Returns an array of `rows` arrays (groupStandings' sorted output), one per
+// scenario, deduplicated by the resulting team order (so a closed group
+// always returns exactly one).
+function bktGroupScenarios(g){
+  const gs=GAMES.filter(x=>x.group===g);
+  const played={};gs.forEach(x=>{if(results[x.id])played[x.id]={hs:results[x.id].hs,as:results[x.id].as};});
+  const open=gs.filter(x=>!results[x.id]).map(x=>x.id);
+  if(open.length===0){
+    return[groupStandings(g,gid=>played[gid]||null).rows];
+  }
+  // Cartesian product of representative scores across the open matches.
+  let combos=[{}];
+  open.forEach(gid=>{
+    const next=[];
+    combos.forEach(c=>{BKT_SAMPLE_SCORES.forEach(s=>{next.push({...c,[gid]:s});});});
+    combos=next;
+  });
+  const seen=new Set();const out=[];
+  combos.forEach(extra=>{
+    const get=gid=>played[gid]||extra[gid]||null;
+    const rows=groupStandings(g,get).rows;
+    const key=rows.map(r=>r.team).join('|');
+    if(!seen.has(key)){seen.add(key);out.push(rows);}
+  });
+  return out;
+}
+// Resolve the third-place bipartite slot assignment for ONE concrete set of
+// group standings (one scenario). Mirrors the original bktThirdAssignment
+// logic exactly, just parameterized on a standings map instead of reading
+// `results` directly.
+function bktThirdAssignmentFor(standingsByGroup){
+  const thirds=ALL_GROUPS.map(g=>Object.assign({group:g},standingsByGroup[g][2]));
   thirds.sort((a,b)=>b.Pts-a.Pts||b.GD-a.GD||b.GF-a.GF||a.group.localeCompare(b.group));
   const qual=thirds.slice(0,8).map(t=>t.group);
   const thirdTeam={};thirds.forEach(t=>{thirdTeam[t.group]=t.team;});
@@ -1607,6 +1655,60 @@ function bktThirdAssignment(){
   const out={};Object.keys(slotGroup).forEach(m=>{out[m]=thirdTeam[slotGroup[m]];});
   return out;
 }
+// Cap on total scenario combinations across all open groups, as a safety
+// valve — at most ~6 groups can have an unplayed final matchday (2 matches
+// each) at any one time in this tournament's structure, which keeps this
+// well under the cap; if results ingestion ever falls further behind than
+// that, we just skip simulation rather than risk a multi-second stall.
+const BKT_SCENARIO_CAP=20000;
+// Actual third-place slot assignment, now WITH same-answer-across-every-
+// possible-remaining-result detection: a slot is populated as soon as it's
+// mathematically certain, even if some groups haven't finished yet — e.g.
+// Germany (already-final Group E winner) vs Paraguay (best-3rd) can resolve
+// before Groups J/K/L finish, if every remaining-result scenario still
+// lands Paraguay in that exact slot. Falls back to {} (placeholder) for any
+// slot that genuinely could still change.
+function bktThirdAssignment(){
+  if(ALL_GROUPS.every(bktGroupComplete)){
+    // Fast path: everything's in, no simulation needed.
+    const get=gid=>results[gid]?{hs:results[gid].hs,as:results[gid].as}:null;
+    const standings={};ALL_GROUPS.forEach(g=>{standings[g]=groupStandings(g,get).rows;});
+    return bktThirdAssignmentFor(standings);
+  }
+  const scenariosByGroup={};
+  let totalCombos=1;
+  for(const g of ALL_GROUPS){
+    scenariosByGroup[g]=bktGroupScenarios(g);
+    totalCombos*=scenariosByGroup[g].length;
+    if(totalCombos>BKT_SCENARIO_CAP)return {}; // bail safely, just show placeholders
+  }
+  // Walk every combination of per-group scenarios and collect the resulting
+  // slot->team assignment for each. A slot is certain only if every single
+  // combination agrees on the team.
+  const slotResults={}; // matchNum -> Set of teams seen across scenarios
+  function walk(idx,acc){
+    if(idx===ALL_GROUPS.length){
+      const out=bktThirdAssignmentFor(acc);
+      Object.keys(out).forEach(m=>{
+        if(!slotResults[m])slotResults[m]=new Set();
+        slotResults[m].add(out[m]);
+      });
+      return;
+    }
+    const g=ALL_GROUPS[idx];
+    for(const rows of scenariosByGroup[g]){
+      acc[g]=rows;
+      walk(idx+1,acc);
+    }
+  }
+  walk(0,{});
+  const certain={};
+  Object.keys(slotResults).forEach(m=>{
+    const teams=slotResults[m];
+    if(teams.size===1)certain[m]=[...teams][0];
+  });
+  return certain;
+}
 let bktThirdCache={};
 // Resolve a single slot to {team, label, isPlaceholder}. team is a real name or
 // null; label is the short display text shown when team is null.
@@ -1627,7 +1729,11 @@ function bktResolveSlot(label,roundKey,matchNum){
     const allowed=(label.match(/\(([^)]+)\)/)||[])[1]||'';
     if(!t){
       const done=bktGroupsCompleteCount();
-      return{team:null,label:done<12?`3rd \u2014 ${done}/12 groups in`:'3rd '+(allowed?'('+allowed+')':''),isPlaceholder:true};
+      // Resolved via mathematical certainty (see bktThirdAssignment) once
+      // every remaining-result scenario agrees — this can happen before all
+      // 12 groups finish, so the placeholder shows groups-in progress only
+      // as a rough signal, not a literal "waiting on all 12" gate anymore.
+      return{team:null,label:done<12?`3rd \u2014 still TBD (${done}/12 groups in)`:'3rd '+(allowed?'('+allowed+')':''),isPlaceholder:true};
     }
     return{team:t,label:'3rd '+(allowed?'('+allowed+')':''),isPlaceholder:false};
   }
