@@ -246,7 +246,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .bkt-team.lose{color:#b91c1c}
 .bkt-team img{flex-shrink:0}
 .bkt-sc{width:38px;height:30px;border:1.5px solid var(--border);border-radius:5px;text-align:center;font-size:15px;font-weight:700;font-family:'Inter',sans-serif;padding:0;color:var(--text);background:var(--bg2);flex-shrink:0}
-.bkt-sc-result{display:inline-flex;align-items:center;justify-content:center;width:38px;height:30px;border-radius:5px;font-size:20px;font-weight:800;color:var(--green);background:rgba(22,163,74,.09);flex-shrink:0;letter-spacing:-.5px}
+.bkt-result-row{display:flex;align-items:center;gap:7px;padding:4px 6px;margin-top:4px;background:rgba(22,163,74,.07);border-radius:5px;border-left:3px solid var(--green)}
+.bkt-result-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--green);flex-shrink:0}
+.bkt-result-score{font-family:'Bebas Neue',sans-serif;font-size:20px;font-weight:800;color:var(--green);letter-spacing:.5px}
+.bkt-underdog{font-size:10px;vertical-align:middle;margin-left:2px;cursor:help}
 .bkt-pts-explainer{font-size:10px;padding:4px 6px;border-radius:5px;margin-top:4px;line-height:1.35;font-weight:500}
 .bkt-pts-explainer.hit{color:#166534;background:#dcfce7}
 .bkt-pts-explainer.miss{color:#6b7280;background:var(--bg2)}
@@ -277,7 +280,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
   .ko-bracket-window{padding:7px 8px 10px}
   .bkt-team{font-size:12.5px}
   .bkt-sc{width:34px;height:28px;font-size:14px}
-  .bkt-sc-result{width:34px;height:28px;font-size:17px}
 }
 .pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:5px}
 .pbtn{background:var(--surface);border:1.5px solid var(--border);color:var(--text);border-radius:7px;padding:7px 5px;font-size:11px;font-weight:500;text-align:center;cursor:pointer;transition:all .1s;font-family:'Inter',sans-serif;user-select:none;line-height:1.3}
@@ -461,8 +463,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .md-section{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:10px 11px;flex-shrink:0;box-shadow:var(--shadow)}
 .md-section-head{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);margin-bottom:6px;padding-bottom:5px;border-bottom:2px solid var(--intgold);display:flex;align-items:center;gap:5px}
 .md-head-sub{font-size:9px;font-weight:500;color:var(--text3);text-transform:none;letter-spacing:0}
-.md-row{display:flex;align-items:center;gap:7px;padding:4px 0;border-bottom:1px solid var(--bg2);font-size:11px}
+.md-row{display:flex;flex-direction:column;padding:5px 0;border-bottom:1px solid var(--bg2)}
 .md-row:last-child{border-bottom:none}
+.md-row-top{display:flex;align-items:center;gap:7px;font-size:11px}
+.md-row-picks{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;padding-left:27px}
 .md-rank{font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--text3);width:20px;flex-shrink:0}
 .md-avatar{font-size:14px;flex-shrink:0}
 .md-name{flex:1;font-weight:600;color:var(--text)}
@@ -634,10 +638,34 @@ const GAME_ODDS={
   g67:[5.50,3.80,1.50],g68:[2.40,3.20,3.00],
 };
 function isBravePick(gid,actualW){
-  const odds=GAME_ODDS[gid];if(!odds)return false;
+  // Group-stage odds use GAME_ODDS; KO match odds use KO_ODDS.
+  // KO match IDs are 'm73', 'm74', etc; group IDs are 'g01' etc.
+  const odds=gid.startsWith('m')?KO_ODDS[gid]:GAME_ODDS[gid];
+  if(!odds)return false;
   const o=actualW==='home'?odds[0]:actualW==='away'?odds[2]:odds[1];
   return o>=5.00;
 }
+// Decimal odds for all R32 KO matches [home_win, draw, away_win].
+// Source: FanDuel Sportsbook moneyline, June 28 2026.
+// Used to determine Brave Pick eligibility (underdog odds ≥ 5.00).
+const KO_ODDS={
+  m73:[3.60,3.40,1.29], // South Africa vs Canada
+  m74:[1.29,5.40,11.0], // Germany vs Paraguay ⚡
+  m75:[2.20,3.10,3.70], // Netherlands vs Morocco
+  m76:[1.69,3.80,5.20], // Brazil vs Japan ⚡
+  m77:[1.25,6.00,11.0], // France vs Sweden ⚡
+  m78:[3.70,3.40,2.00], // Ivory Coast vs Norway
+  m79:[2.25,2.90,3.70], // Mexico vs Ecuador
+  m80:[1.25,5.60,13.0], // England vs Congo DR ⚡
+  m81:[1.87,3.60,6.30], // USA vs Bosnia ⚡
+  m82:[2.20,3.10,3.70], // Belgium vs Senegal
+  m83:[1.77,3.40,5.00], // Portugal vs Croatia ⚡
+  m84:[1.28,5.40,13.0], // Spain vs Austria ⚡
+  m85:[1.87,3.40,4.40], // Switzerland vs Algeria
+  m86:[1.12,8.00,20.0], // Argentina vs Cape Verde ⚡
+  m87:[1.56,3.70,7.00], // Colombia vs Ghana ⚡
+  m88:[3.30,2.90,2.45], // Australia vs Egypt
+};
 function isWildScore(hs,as){
   const h=parseInt(hs),a=parseInt(as);
   return !isNaN(h)&&!isNaN(a)&&(h+a)>=7;
@@ -2003,22 +2031,28 @@ function buildBracketCell(mn,now){
     const pts=calcKnockoutPts(mn,hs,as);
     ptsHtml=`<span class="bkt-pts ${pts.pts>0?'hit':'zero'}" title="${esc(pts.note)}">${pts.pts>0?'+'+pts.pts:0} pt${pts.pts===1?'':'s'}</span>`;
   }
-  // lock-status line — shows kickoff time before lock, locked badge after
+  // lock-status line — shows kickoff time before lock, locked/played badge after.
+  // After a match is played we keep the same kickoff-time format (no "FT X-Y" 
+  // clutter — the final score now shows in the result row below the inputs).
   let lockHtml='';
   if(res){
-    const penNote=res.decided_in&&res.decided_in!=='regulation'?` (${res.decided_in==='penalties'?'pens':'ET'})`:'';
-    lockHtml=`<span class="bkt-lock closed">FT ${res.hs}\u2013${res.as}${penNote}</span>`;
+    // Match played — just show a simple "Played" badge; score is below
+    const penNote=res.decided_in&&res.decided_in!=='regulation'?` \u00b7 ${res.decided_in==='penalties'?'pens':'ET'}`:' \u00b7 FT';
+    lockHtml=`<span class="bkt-lock closed">\u2713 Played${penNote}</span>`;
   }else if(locked){
     lockHtml=`<span class="bkt-lock closed">\u{1F512} Locked</span>`;
   }else if(lock){
-    // Show weekday + kickoff time ET (e.g. "Sun Jun 28 · 3:00pm ET")
     const dayFmt=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short',month:'short',day:'numeric'}).format(lock);
     const timeFmt=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour:'numeric',minute:'2-digit',hour12:true}).format(lock);
     lockHtml=`<span class="bkt-lock">\u23f0 ${esc(dayFmt)} \u00b7 ${esc(timeFmt)} ET</span>`;
   }
-  // crowd pick — only shown after predictions are locked for this match
-  // (hides group-behaviour while predictions are still open, reveals once
-  // locked so the result of the "crowd vote" becomes part of the fun).
+  // Underdog badge — shown on each team name when their win odds qualify as
+  // a Brave Pick opportunity (≥ 5.00 decimal). Only shown before the match
+  // is played; after the result lands the explainer row covers this.
+  const koOdds=KO_ODDS['m'+mn];
+  const homeUnderdog=!res&&koOdds&&koOdds[0]>=5.00;
+  const awayUnderdog=!res&&koOdds&&koOdds[2]>=5.00;
+  // crowd pick — only shown after predictions are locked
   let crowdHtml='';
   if(locked&&home.team&&away.team){
     const cp=calcCrowdPickKO(mn,home.team,away.team);
@@ -2027,20 +2061,30 @@ function buildBracketCell(mn,now){
       `<span class="bkt-crowd-pct">${cp.pct}% of ${cp.total}</span></div>`;
   }
   const teamCell=(side,info,wl)=>{
+    const isUD=side==='home'?homeUnderdog:awayUnderdog;
+    const udBadge=isUD?` <span class="bkt-underdog" title="\u26a1 Brave Pick opportunity \u2014 this team qualifies as an underdog">\u26a1</span>`:'';
     const inner=info.team
-      ? `<span class="bkt-team ${side}${wl}">${fl(info.team)}${esc(info.team)}</span>`
+      ? `<span class="bkt-team ${side}${wl}">${fl(info.team)}${esc(info.team)}${udBadge}</span>`
       : `<span class="bkt-team ${side} ph${wl}">${esc(info.label)}</span>`;
-    if(res){
-      // Match played — show actual result score large + green; no input
-      const actual=side==='home'?res.hs:res.as;
-      return `<div class="bkt-row">${inner}<span class="bkt-sc-result">${actual}</span></div>`;
-    }
+    // Always show the editable input (or disabled if locked/played) — the user's
+    // pick stays in place after the match so there's no confusion about what
+    // they entered. The actual result shows separately below.
     const val=side==='home'?hs:as;
     return `<div class="bkt-row">${inner}<input class="bkt-sc" type="number" min="0" max="20" `+
       `value="${esc(String(val))}" data-mid="${mn}" data-side="${side}" `+
-      `oninput="liveBracketScore(this)" onchange="saveBracketScore(this)" ${locked?'disabled':''}></div>`;
+      `oninput="liveBracketScore(this)" onchange="saveBracketScore(this)" ${locked||res?'disabled':''}></div>`;
   };
-  // Points explainer — shown once there's a real result and the user has a pick
+  // Result row — only shown after the match is played. Shows the actual score
+  // prominently in green, so users can compare it directly with their pick above.
+  let resultRowHtml='';
+  if(res){
+    const penNote=res.decided_in&&res.decided_in!=='regulation'?` (${res.decided_in==='penalties'?'pens':'ET'})`:'';
+    resultRowHtml=`<div class="bkt-result-row">`+
+      `<span class="bkt-result-label">Result</span>`+
+      `<span class="bkt-result-score">${res.hs}\u2013${res.as}${esc(penNote)}</span>`+
+      `</div>`;
+  }
+  // Points explainer — shown once there's a real result
   let ptsExplainerHtml='';
   if(res&&hasPick){
     const pts=calcKnockoutPts(mn,hs,as);
@@ -2080,8 +2124,9 @@ function buildBracketCell(mn,now){
     `<span class="bkt-mnum-r"><span class="bkt-mult">\u00d7${KO_MULT[mn]||1}</span>${ptsHtml}</span></div>`+
     teamCell('home',home,homeWL)+
     teamCell('away',away,awayWL)+
+    resultRowHtml+
     ptsExplainerHtml+
-    (!locked?`<div class="bkt-pens-hint">Predicted final score after 90 min + OT if needed \u00b7 penalty shoot-out goals count</div>`:'')+
+    (!locked&&!res?`<div class="bkt-pens-hint">Predicted final score after 90 min + OT if needed \u00b7 penalty shoot-out goals count</div>`:'')+
     `<div class="bkt-tiewarn">\u26a0\uFE0F No draws \u2014 change one score</div>`+
     crowdHtml+overrideHtml;
   return cell;
@@ -2140,9 +2185,13 @@ function calcKnockoutPts(m,predHs,predAs){
   else if(predWin===actualWin&&predDiff===actualDiff){base=2;note='Correct winner + goal difference';}
   else if(predWin===actualWin){base=1;note='Correct winner (tendency)';}
   else{base=0;note='Incorrect';}
-  let pts=base*mult;
-  if(base>0&&isBravePick('m'+m,actualWin))   {pts+=2;note+=' \u26a1 Brave Pick';}
-  return{pts,note,base,mult};
+  // Brave Pick bonus is added to the base BEFORE multiplication so it scales
+  // with the round multiplier, just like the base points do.
+  // e.g. exact score (3) + brave (2) = 5, × QF mult (2) = 10 pts.
+  const brave=base>0&&isBravePick('m'+m,actualWin);
+  if(brave)note+=' \u26a1 Brave Pick';
+  const pts=(base+(brave?2:0))*mult;
+  return{pts,note,base,mult,brave};
 }
 function calcKOTotalPoints(user){
   const p=(predictions[user]&&predictions[user].picks)||{};
@@ -2206,13 +2255,14 @@ function renderWinner(p1,p2,p3){
 <tr><td>Group stage: Predicted Haiti 4\u20133 Brazil, result is 4\u20133</td><td>3 + 2 + 2 = <strong>7 pts</strong> \u26a1\u{1F3B2}</td></tr>
 <tr><td>QF: Predicted 2\u20130, actual 2\u20130</td><td>3 \u00d7 2 = <strong>6 pts</strong></td></tr>
 <tr><td>QF: Predicted 3\u20131, actual 4\u20132 (same winner &amp; margin)</td><td>2 \u00d7 2 = <strong>4 pts</strong></td></tr>
+<tr><td>SF: Brave Pick \u2014 predicted 1\u20130 for the underdog, result is 1\u20130</td><td>(3 + 2) \u00d7 3 = <strong>15 pts</strong> \u26a1</td></tr>
 <tr><td>SF: Predicted 1\u20130, actual 1\u20131 \u2192 5\u20133 on pens (you backed the home side)</td><td>1 \u00d7 3 = <strong>3 pts</strong></td></tr>
 <tr><td>Final: Wrong team predicted to win</td><td>0 pts</td></tr>
 </table></div>
 <div class="sc-section"><div class="sc-section-title">Tournament Bonuses (locked in before Jun 11)</div>
 <div class="sc-row"><div class="sc-pts">15</div><div class="sc-desc">Correct tournament winner</div></div>
 <div class="sc-row"><div class="sc-pts">15</div><div class="sc-desc">Correct top goalscorer</div></div></div>
-<div class="sc-note">\u26a1 Brave Pick and \u{1F3B2} Wild Score bonuses stack in the group stage \u2014 maximum 7 pts from a single group game. In the knockout stage, only Brave Pick applies, and the whole result is multiplied by the round's value.</div>`;
+<div class="sc-note">\u26a1 Brave Pick and \u{1F3B2} Wild Score bonuses stack in the group stage \u2014 maximum 7 pts from a single group game. In the knockout stage, only Brave Pick applies \u2014 and the +2 bonus is added to your base score <em>before</em> the round multiplier, so backing an underdog in later rounds is worth even more.</div>`;
   p3.appendChild(se);
   const wrap=mk('div','');wrap.id='summaryWrap';p3.appendChild(wrap);
   refreshSummary();
@@ -2451,7 +2501,7 @@ function buildMatchDayLB(container){
   const nextBtn=mk('button','md-nav-btn','\u203a');nextBtn.disabled=mdDayIndex===days.length-1;
   nextBtn.onclick=()=>{mdUserNavigated=true;mdDayIndex++;buildMatchDayLB(container);};
   const lbl=mk('div','');
-  lbl.innerHTML=`<div class="md-nav-label">${esc(dayNavLabel(day))}</div><span class="md-nav-sub">${totalPlayed} match${totalPlayed!==1?'es':'' } played</span>`;
+  lbl.innerHTML=`<div class="md-nav-label">${esc(dayNavLabel(day))}</div><span class="md-nav-sub">${totalPlayed} match${totalPlayed!==1?'es':''} played</span>`;
   nav.appendChild(prevBtn);nav.appendChild(lbl);nav.appendChild(nextBtn);
   container.innerHTML='';
   container.appendChild(mk('div','ptitle','\u{1F4C5} Match-Day Standings'));
@@ -2464,48 +2514,56 @@ function buildMatchDayLB(container){
     .map(u=>({name:u,pts:calcDayPtsForUser(u,day),avatar:assignAvatar(u)}))
     .sort((a,b)=>b.pts-a.pts||a.name.localeCompare(b.name));
   const bigDay=mk('div','md-section');
-  bigDay.innerHTML=`<div class="md-section-head">\u{1F3C6} Standings <span class="md-head-sub"> \u00b7 all players with picks today</span></div>`;
+  bigDay.innerHTML=`<div class="md-section-head">\u{1F3C6} Standings <span class="md-head-sub"> \u00b7 picks + points by match</span></div>`;
   if(!dayScores.length){bigDay.appendChild(mk('div','md-empty','No picks recorded for this day.'));}
-  else{dayScores.forEach((r,i)=>{const av=AVATARS[r.avatar]||AVATARS.ghost;const row=mk('div','md-row');row.innerHTML=`<div class="md-rank">${medals[i]||i+1}</div><div class="md-avatar" title="${esc(av.label)}">${av.emoji}</div><div class="md-name">${esc(r.name)}${r.name===currentUser?' <span class="lb-me">YOU</span>':''}</div><div><span class="md-pts">${r.pts}</span><span class="md-pts-lbl"> pts</span></div>`;bigDay.appendChild(row);});}
+  else{
+    dayScores.forEach((r,i)=>{
+      const av=AVATARS[r.avatar]||AVATARS.ghost;
+      const row=mk('div','md-row md-row-expanded');
+      // Top line: rank, avatar, name, total pts
+      const topLine=mk('div','md-row-top');
+      topLine.innerHTML=`<div class="md-rank">${medals[i]||i+1}</div>`+
+        `<div class="md-avatar" title="${esc(av.label)}">${av.emoji}</div>`+
+        `<div class="md-name">${esc(r.name)}${r.name===currentUser?' <span class="lb-me">YOU</span>':''}</div>`+
+        `<div><span class="md-pts">${r.pts}</span><span class="md-pts-lbl"> pts</span></div>`;
+      row.appendChild(topLine);
+      // Per-match pick chips for this user on this day
+      const pk=(predictions[r.name]&&predictions[r.name].picks)||{};
+      const chips=[];
+      // Group-stage games
+      gsGames.forEach(g=>{
+        const uh=pk['hs_'+g.id],ua=pk['as_'+g.id];
+        if(uh==null||String(uh)===''||ua==null||String(ua)==='')return;
+        const pts=calcGamePts(r.name,g.id)||0;
+        const res=results[g.id];
+        chips.push({label:`${fl(g.home)}${fl(g.away)} ${uh}\u2013${ua}`,pts,res:res?`${res.hs}\u2013${res.as}`:null,note:''});
+      });
+      // KO matches
+      koNums.forEach(m=>{
+        const hs=pk['hs_m'+m],as=pk['as_m'+m];
+        if(hs==null||String(hs)===''||as==null||String(as)===''||hs===as)return;
+        const obj=KO_BY_NUM[m];
+        const homeSlot=bktResolveSlot(obj.home,obj.round,m);
+        const awaySlot=bktResolveSlot(obj.away,obj.round,m);
+        const {pts,note}=calcKnockoutPts(m,hs,as);
+        const res=results['m'+m];
+        const mult=KO_MULT[m]||1;
+        chips.push({label:`${fl(homeSlot.team||obj.home)}${fl(awaySlot.team||obj.away)} ${hs}\u2013${as}${mult>1?` \u00d7${mult}`:''}`,pts,res:res?`${res.hs}\u2013${res.as}`:null,note});
+      });
+      if(chips.length){
+        const pl=mk('div','md-row-picks');
+        chips.forEach(c=>{
+          const chip=mk('span',`md-pick-chip ${c.pts>0?'pts-hit':'pts-zero'}`);
+          chip.title=c.note||'';
+          chip.textContent=`${c.label}${c.res?' \u2192 '+c.res:''}${c.pts>0?' (+'+c.pts+')':''}`;
+          pl.appendChild(chip);
+        });
+        row.appendChild(pl);
+      }
+      bigDay.appendChild(row);
+    });
+  }
   container.appendChild(bigDay);
-  const breakdown=mk('div','md-section');
-  breakdown.innerHTML=`<div class="md-section-head">\u{1F4CB} Match Breakdown <span class="md-head-sub"> \u00b7 result + picks + points</span></div>`;
-  gsGames.forEach(g=>{
-    const res=results[g.id];
-    const picks=allUsers.map(u=>{
-      const pk=(predictions[u]&&predictions[u].picks)||{};
-      const uh=pk['hs_'+g.id],ua=pk['as_'+g.id];
-      if(uh==null||String(uh)===''||ua==null||String(ua)==='')return null;
-      const pts=calcGamePts(u,g.id);
-      return{name:u,pick:`${uh}\u2013${ua}`,pts:pts||0,isMe:u===currentUser};
-    }).filter(Boolean).sort((a,b)=>b.pts-a.pts||a.name.localeCompare(b.name));
-    const div=mk('div','md-match-row');
-    div.innerHTML=`<div class="md-match-teams">${fl(g.home)} ${esc(g.home)} vs ${fl(g.away)} ${esc(g.away)}</div><div class="md-match-result">${res.hs}\u2013${res.as}</div>`;
-    if(picks.length){const pl=mk('div','md-match-picks');picks.forEach(p=>{const chip=mk('span',`md-pick-chip ${p.pts>0?'pts-hit':'pts-zero'}${p.isMe?' is-me':''}`);chip.textContent=`${p.isMe?'You':p.name}: ${p.pick} (${p.pts>0?'+'+p.pts:0})`;pl.appendChild(chip);});div.appendChild(pl);}
-    breakdown.appendChild(div);
-  });
-  koNums.forEach(m=>{
-    const res=results['m'+m];
-    const obj=KO_BY_NUM[m];
-    const homeSlot=bktResolveSlot(obj.home,obj.round,m);
-    const awaySlot=bktResolveSlot(obj.away,obj.round,m);
-    const homeName=homeSlot.team||obj.home;
-    const awayName=awaySlot.team||obj.away;
-    const penNote=res.decided_in&&res.decided_in!=='regulation'?` (${res.decided_in==='penalties'?'pens':'ET'})`:''
-    const picks=allUsers.map(u=>{
-      const pk=(predictions[u]&&predictions[u].picks)||{};
-      const hs=pk['hs_m'+m],as=pk['as_m'+m];
-      if(hs==null||String(hs)===''||as==null||String(as)===''||hs===as)return null;
-      const {pts,note}=calcKnockoutPts(m,hs,as);
-      return{name:u,pick:`${hs}\u2013${as}`,pts,note,isMe:u===currentUser};
-    }).filter(Boolean).sort((a,b)=>b.pts-a.pts||a.name.localeCompare(b.name));
-    const mult=KO_MULT[m]||1;
-    const div=mk('div','md-match-row');
-    div.innerHTML=`<div class="md-match-teams">${fl(homeName)} ${esc(homeName)} vs ${fl(awayName)} ${esc(awayName)}<span class="md-match-mult">\u00d7${mult}</span></div><div class="md-match-result">${res.hs}\u2013${res.as}${esc(penNote)}</div>`;
-    if(picks.length){const pl=mk('div','md-match-picks');picks.forEach(p=>{const chip=mk('span',`md-pick-chip ${p.pts>0?'pts-hit':'pts-zero'}${p.isMe?' is-me':''}`);chip.title=p.note;chip.textContent=`${p.isMe?'You':p.name}: ${p.pick} (${p.pts>0?'+'+p.pts:0})`;pl.appendChild(chip);});div.appendChild(pl);}
-    breakdown.appendChild(div);
-  });
-  container.appendChild(breakdown);
 }
 
 // ── LEADERBOARD ────────────────────────────────────────────
