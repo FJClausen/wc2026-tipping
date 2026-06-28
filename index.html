@@ -2555,7 +2555,7 @@ function buildMatchDayLB(container){
         chips.forEach(c=>{
           const chip=mk('span',`md-pick-chip ${c.pts>0?'pts-hit':'pts-zero'}`);
           chip.title=c.note||'';
-          chip.textContent=`${c.label}${c.res?' \u2192 '+c.res:''}${c.pts>0?' (+'+c.pts+')':''}`;
+          chip.innerHTML=`${c.label}${c.res?' \u2192 '+esc(c.res):''}${c.pts>0?' (+'+c.pts+')':''}`;
           pl.appendChild(chip);
         });
         row.appendChild(pl);
