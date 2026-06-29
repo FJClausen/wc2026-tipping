@@ -2424,7 +2424,15 @@ function calcPoints(user){
 }
 function calcPredCount(user){
   const p=(predictions[user]&&predictions[user].picks)||{};
-  return GAMES.filter(g=>p['hs_'+g.id]!==''&&p['hs_'+g.id]!=null&&p['as_'+g.id]!==''&&p['as_'+g.id]!=null).length;
+  // Count both group-stage picks AND knockout picks so users who only entered
+  // KO predictions are not silently excluded from the leaderboard.
+  const gsPicks=GAMES.filter(g=>p['hs_'+g.id]!=null&&p['hs_'+g.id]!==''&&p['as_'+g.id]!=null&&p['as_'+g.id]!=='').length;
+  let koPicks=0;
+  for(let m=73;m<=104;m++){
+    const hs=p['hs_m'+m],as=p['as_m'+m];
+    if(hs!=null&&String(hs)!==''&&as!=null&&String(as)!==''&&hs!==as)koPicks++;
+  }
+  return gsPicks+koPicks;
 }
 
 // ── MATCH-DAY LEADERBOARD ──────────────────────────────────
