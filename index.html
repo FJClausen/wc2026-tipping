@@ -1068,7 +1068,9 @@ function calcCrowdPickKO(mn,homeTeam,awayTeam){
 
 // ── PLAYER BADGES ──────────────────────────────────────────
 function calcAllBadges(allUsers){
-  const gamesWithResults=Object.keys(results);
+  // Only group-stage games — KO keys (m73+) use different pick key patterns
+  // and would skew badge calculations.
+  const gamesWithResults=Object.keys(results).filter(gid=>!gid.startsWith('m'));
   const minGames=10;
 
   let exactCounts={};
@@ -1163,7 +1165,9 @@ function calcAllBadges(allUsers){
 
 // ── HARDEST / EASIEST GAME ─────────────────────────────────
 function calcGameDifficulty(){
-  const played=Object.keys(results);
+  // Only group-stage games (g01-g72) — KO match keys (m73+) have no entry
+  // in GAMES and would produce undefined game objects, crashing buildGameDiffSection.
+  const played=Object.keys(results).filter(gid=>!gid.startsWith('m'));
   if(!played.length)return{hardest:null,easiest:null};
   const allU=Object.keys(predictions);
   const gamePcts=played.map(gid=>{
