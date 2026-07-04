@@ -665,6 +665,18 @@ const KO_ODDS={
   m86:[1.12,8.00,20.0], // Argentina vs Cape Verde ⚡
   m87:[1.56,3.70,7.00], // Colombia vs Ghana ⚡
   m88:[3.30,2.90,2.45], // Australia vs Egypt
+  // ── R16 odds ── [home_win, draw, away_win], decimal, home/away per app slot.
+  // m89-m94: FanDuel moneyline as of Jul 3 2026 (same book as R32 above).
+  // m95-m96: bet365 opening lines (Jul 3) — FanDuel hadn't posted 3-way R16
+  //          markets for those two yet; swap in FanDuel when it does. Underdog >= 5.00 = ⚡
+  m89:[18.0,7.00,1.17], // Paraguay vs France ⚡
+  m90:[5.20,3.40,1.77], // Canada vs Morocco ⚡
+  m91:[1.80,3.60,4.60], // Brazil vs Norway
+  m92:[3.10,3.10,2.40], // Mexico vs England
+  m93:[4.20,3.50,1.87], // Portugal vs Spain
+  m94:[2.65,3.30,2.70], // USA vs Belgium
+  m95:[1.33,5.00,8.50], // Argentina vs Egypt ⚡ (bet365)
+  m96:[3.10,3.25,2.30], // Switzerland vs Colombia (bet365)
 };
 function isWildScore(hs,as){
   const h=parseInt(hs),a=parseInt(as);
