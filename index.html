@@ -347,36 +347,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .ako-yes{background:#dcfce7;color:#166534}
 .ako-lock{background:#dbeafe;color:#1e40af}
 .ako-no{background:var(--bg2);color:var(--text3)}
-/* Gap summary (p2) */
-.ako-gap-row{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border);flex-wrap:wrap}
-.ako-gap-name{width:90px;min-width:90px;font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ako-gap-bar{flex:1;min-width:60px;height:8px;border-radius:4px;background:var(--bg2);overflow:hidden;position:relative}
-.ako-gap-bar.gap-done .ako-gap-fill{background:var(--green)}
-.ako-gap-bar.gap-mid .ako-gap-fill{background:var(--intgold)}
-.ako-gap-bar.gap-lo .ako-gap-fill{background:var(--red)}
-.ako-gap-fill{height:100%;border-radius:4px;transition:width .3s}
-.ako-gap-stat{font-size:10px;font-weight:700;color:var(--text);white-space:nowrap}
-.ako-gap-missing{font-size:9.5px;color:var(--red);flex-basis:100%}
-.ako-gap-done{font-size:9.5px;color:var(--green);font-weight:600}
-/* Lock warnings (p3) */
-.ako-lock-block{border-radius:6px;padding:6px 10px;margin-bottom:6px;border-left:3px solid}
-.ako-lock-block.lock-urgent{background:#fff1f2;border-color:var(--red)}
-.ako-lock-block.lock-soon{background:#fffbeb;border-color:var(--intgold)}
-.ako-lock-block.lock-ok{background:var(--bg2);border-color:var(--border)}
-.ako-lock-match{font-size:11px;font-weight:700;color:var(--text);margin-bottom:2px}
-.ako-hrs{font-size:10px;font-weight:600;color:var(--red)}
-.ako-lock-who{font-size:10px;color:var(--text3);line-height:1.4}
-.ako-all-in{color:var(--green);font-weight:600}
 /* ── Match Insights (admin KO stats) ── */
-.ako-insights{margin-top:8px;border:1px solid var(--border);border-radius:7px;overflow:hidden}
-.ako-insights-head{display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;user-select:none;background:linear-gradient(90deg,var(--navy2),var(--navy));transition:opacity .12s}
-.ako-insights-head:hover{opacity:.92}
-.ako-insights-chevron{font-size:11px;color:rgba(255,255,255,.6);transition:transform .15s;flex-shrink:0}
-.ako-insights.open .ako-insights-chevron{transform:rotate(90deg)}
-.ako-insights-title{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:1.5px;color:#fff}
-.ako-insights-sub{font-size:9.5px;color:rgba(255,255,255,.55);margin-left:auto}
-.ako-insights-body{display:none;flex-direction:column;gap:8px;padding:8px}
-.ako-insights.open .ako-insights-body{display:flex}
 .ako-mcard{background:var(--surface);border:1.5px solid var(--border);border-radius:7px;padding:8px 10px}
 .ako-mcard-head{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:11px;font-weight:700;color:var(--navy);margin-bottom:6px;flex-wrap:wrap}
 .ako-mcard-n{font-size:9.5px;font-weight:500;color:var(--text3)}
@@ -1207,6 +1178,59 @@ function calcKOMatchStats(mn,homeLabel,awayLabel,users){
   }
 
   return{total,scoreDist,winner,underdog,teamSplit,consensus,leaderPick};
+}
+// Builds one match's stat card as a DOM node (admin KO Tracker only).
+// Standalone so it can be reused across multiple panels without recomputing
+// or duplicating markup — calcKOMatchStats stays the single source of truth.
+function buildAdminMatchCard(mn,homeLabel,awayLabel,users){
+  const st=calcKOMatchStats(mn,homeLabel,awayLabel,users);
+  const card=mk('div','ako-mcard');
+  if(!st.total){
+    card.innerHTML=`<div class="ako-mcard-head"><span>M${mn} \u00b7 ${esc(homeLabel)} vs ${esc(awayLabel)}</span></div>`+
+      `<div class="ako-no-data">No predictions yet for this match.</div>`;
+    return card;
+  }
+  // (2) Winner split bar
+  const hw=st.winner.homePct,aw=st.winner.awayPct;
+  const winnerBarHtml=`<div class="ako-stat-row"><div class="ako-stat-lbl">Winner split</div>`+
+    `<div class="ako-winner-bar">`+
+    (hw>0?`<div class="ako-winner-seg home" style="width:${hw}%">${hw}%</div>`:'')+
+    (aw>0?`<div class="ako-winner-seg away" style="width:${aw}%">${aw}%</div>`:'')+
+    `</div></div>`;
+  // (1) Score distribution — top 5 exact scorelines
+  const distRows=st.scoreDist.slice(0,5).map(d=>
+    `<div class="ako-dist-row"><span class="ako-dist-score">${esc(d.score)}</span>`+
+    `<div class="ako-dist-bar-wrap"><div class="ako-dist-bar" style="width:${d.pct}%"></div></div>`+
+    `<span class="ako-dist-pct">${d.count} \u00b7 ${d.pct}%</span></div>`).join('');
+  const distHtml=`<div class="ako-stat-row"><div class="ako-stat-lbl">Score distribution</div>${distRows}</div>`;
+  // (5) Consensus strength
+  const consClass=st.consensus.gap>=25?'strong':st.consensus.gap>=10?'moderate':'split';
+  const consHtml=`<div class="ako-stat-row"><div class="ako-stat-lbl">Consensus strength</div>`+
+    `<span class="ako-consensus-pill ${consClass}">${esc(st.consensus.label)} \u2014 `+
+    `${esc(st.consensus.top.score)} (${st.consensus.top.pct}%)`+
+    (st.consensus.second?` vs ${esc(st.consensus.second.score)} (${st.consensus.second.pct}%)`:'')+
+    ` \u00b7 ${st.consensus.gap}pt gap</span></div>`;
+  // (3) Underdog-backing rate — omitted entirely if no odds line yet
+  const underdogHtml=st.underdog
+    ?`<div class="ako-stat-row"><div class="ako-stat-lbl">Underdog backing</div>`+
+      `<span class="ako-underdog-pill">\u26a1 ${st.underdog.pct}% backed ${esc(st.underdog.label)} `+
+      `(@${st.underdog.odds.toFixed(2)}) \u00b7 ${st.underdog.count}/${st.total}</span></div>`
+    :'';
+  // (4) INT team-affiliation split — only teams with >=2 contributing picks
+  const teamHtml=st.teamSplit.length
+    ?`<div class="ako-stat-row"><div class="ako-stat-lbl">Team split</div>`+
+      st.teamSplit.map(t=>`<span class="ako-team-chip">${esc(t.team)}: <span class="h">${t.home}H</span>/<span class="a">${t.away}A</span></span>`).join('')+
+      `</div>`
+    :'';
+  // (7) Leaderboard leader's pick
+  const leaderHtml=st.leaderPick
+    ?`<div class="ako-stat-row"><div class="ako-stat-lbl">Leader's pick</div>`+
+      `<span class="ako-leader-pill">\u{1F947} ${esc(st.leaderPick.name)} picks ${esc(String(st.leaderPick.hs))}\u2013${esc(String(st.leaderPick.as))}</span></div>`
+    :'';
+  card.innerHTML=`<div class="ako-mcard-head"><span>M${mn} \u00b7 ${esc(homeLabel)} vs ${esc(awayLabel)}</span>`+
+    `<span class="ako-mcard-n">${st.total} prediction${st.total!==1?'s':''}</span></div>`+
+    winnerBarHtml+distHtml+consHtml+underdogHtml+teamHtml+leaderHtml;
+  return card;
 }
 
 // ── PLAYER BADGES ──────────────────────────────────────────
@@ -2919,10 +2943,6 @@ async function obSubmit(){
 // Rows = players (sorted A-Z, skipping reserved rows), columns = KO matches
 // grouped by round. Each cell shows predicted score or a dash if not entered.
 // A coverage count per match helps spot which games still have low engagement.
-function toggleAdminInsights(headEl){
-  const sec=headEl.closest('.ako-insights');
-  if(sec)sec.classList.toggle('open');
-}
 function renderAdminKO(p1,p2,p3){
   if(!isAdmin()){p1.appendChild(mk('div','ptitle','Access denied'));return;}
   [p1,p2,p3].forEach(p=>p.classList.add('on'));
@@ -2958,6 +2978,10 @@ function renderAdminKO(p1,p2,p3){
   // Round summary row first: one entry per match with match number + date + coverage
   const summaryWrap=mk('div','admin-ko-summary');
   summaryWrap.innerHTML='<div class="admin-ko-sum-title">Coverage by match:</div>';
+  // Stashed here as each round's matchInfo is built, so p2/p3 (Match Insights)
+  // can reuse the already-resolved home/away labels without re-running
+  // bktResolveSlot for every match a second time.
+  const allMatchLabels={};
 
   rounds.forEach(round=>{
     const rDiv=mk('div','admin-ko-round-block');
@@ -2976,6 +3000,7 @@ function renderAdminKO(p1,p2,p3){
       const awaySlot=obj?bktResolveSlot(obj.away,obj.round,mn):{team:null,label:'?'};
       const homeLabel=homeSlot.team||homeSlot.label;
       const awayLabel=awaySlot.team||awaySlot.label;
+      allMatchLabels[mn]={homeLabel,awayLabel};
       // Count who has picked this match
       const picked=users.filter(u=>{
         const p=(predictions[u]&&predictions[u].picks)||{};
@@ -3024,139 +3049,38 @@ function renderAdminKO(p1,p2,p3){
       tbl.appendChild(row);
     });
     rDiv.appendChild(tbl);
-
-    // ── Match Insights accordion — one stat card per match in this round.
-    // Closed by default (admin can expand per round); built from
-    // calcKOMatchStats so all 6 stat types stay in sync with one source
-    // of truth per match.
-    const insights=mk('div','ako-insights');
-    const iHead=mk('div','ako-insights-head');
-    iHead.setAttribute('onclick','toggleAdminInsights(this)');
-    iHead.innerHTML=`<span class="ako-insights-chevron">\u25B8</span>`+
-      `<span class="ako-insights-title">Match Insights</span>`+
-      `<span class="ako-insights-sub">score dist \u00b7 winner split \u00b7 underdog \u00b7 team split \u00b7 consensus \u00b7 leader pick</span>`;
-    insights.appendChild(iHead);
-    const iBody=mk('div','ako-insights-body');
-    matchInfo.forEach(({mn,homeLabel,awayLabel})=>{
-      const st=calcKOMatchStats(mn,homeLabel,awayLabel,users);
-      const card=mk('div','ako-mcard');
-      if(!st.total){
-        card.innerHTML=`<div class="ako-mcard-head"><span>M${mn} \u00b7 ${esc(homeLabel)} vs ${esc(awayLabel)}</span></div>`+
-          `<div class="ako-no-data">No predictions yet for this match.</div>`;
-        iBody.appendChild(card);
-        return;
-      }
-      // (2) Winner split bar
-      const hw=st.winner.homePct,aw=st.winner.awayPct;
-      const winnerBarHtml=`<div class="ako-stat-row"><div class="ako-stat-lbl">Winner split</div>`+
-        `<div class="ako-winner-bar">`+
-        (hw>0?`<div class="ako-winner-seg home" style="width:${hw}%">${hw}%</div>`:'')+
-        (aw>0?`<div class="ako-winner-seg away" style="width:${aw}%">${aw}%</div>`:'')+
-        `</div></div>`;
-      // (1) Score distribution — top 5 exact scorelines
-      const distRows=st.scoreDist.slice(0,5).map(d=>
-        `<div class="ako-dist-row"><span class="ako-dist-score">${esc(d.score)}</span>`+
-        `<div class="ako-dist-bar-wrap"><div class="ako-dist-bar" style="width:${d.pct}%"></div></div>`+
-        `<span class="ako-dist-pct">${d.count} \u00b7 ${d.pct}%</span></div>`).join('');
-      const distHtml=`<div class="ako-stat-row"><div class="ako-stat-lbl">Score distribution</div>${distRows}</div>`;
-      // (5) Consensus strength
-      const consClass=st.consensus.gap>=25?'strong':st.consensus.gap>=10?'moderate':'split';
-      const consHtml=`<div class="ako-stat-row"><div class="ako-stat-lbl">Consensus strength</div>`+
-        `<span class="ako-consensus-pill ${consClass}">${esc(st.consensus.label)} \u2014 `+
-        `${esc(st.consensus.top.score)} (${st.consensus.top.pct}%)`+
-        (st.consensus.second?` vs ${esc(st.consensus.second.score)} (${st.consensus.second.pct}%)`:'')+
-        ` \u00b7 ${st.consensus.gap}pt gap</span></div>`;
-      // (3) Underdog-backing rate — omitted entirely if no odds line yet
-      const underdogHtml=st.underdog
-        ?`<div class="ako-stat-row"><div class="ako-stat-lbl">Underdog backing</div>`+
-          `<span class="ako-underdog-pill">\u26a1 ${st.underdog.pct}% backed ${esc(st.underdog.label)} `+
-          `(@${st.underdog.odds.toFixed(2)}) \u00b7 ${st.underdog.count}/${st.total}</span></div>`
-        :'';
-      // (4) INT team-affiliation split — only teams with >=2 contributing picks
-      const teamHtml=st.teamSplit.length
-        ?`<div class="ako-stat-row"><div class="ako-stat-lbl">Team split</div>`+
-          st.teamSplit.map(t=>`<span class="ako-team-chip">${esc(t.team)}: <span class="h">${t.home}H</span>/<span class="a">${t.away}A</span></span>`).join('')+
-          `</div>`
-        :'';
-      // (7) Leaderboard leader's pick
-      const leaderHtml=st.leaderPick
-        ?`<div class="ako-stat-row"><div class="ako-stat-lbl">Leader's pick</div>`+
-          `<span class="ako-leader-pill">\u{1F947} ${esc(st.leaderPick.name)} picks ${esc(String(st.leaderPick.hs))}\u2013${esc(String(st.leaderPick.as))}</span></div>`
-        :'';
-      card.innerHTML=`<div class="ako-mcard-head"><span>M${mn} \u00b7 ${esc(homeLabel)} vs ${esc(awayLabel)}</span>`+
-        `<span class="ako-mcard-n">${st.total} prediction${st.total!==1?'s':''}</span></div>`+
-        winnerBarHtml+distHtml+consHtml+underdogHtml+teamHtml+leaderHtml;
-      iBody.appendChild(card);
-    });
-    insights.appendChild(iBody);
-    rDiv.appendChild(insights);
-
     wrap.appendChild(rDiv);
   });
 
   p1.appendChild(wrap);
 
-  // p2: unpicked summary — who has the most gaps
+  // p2/p3: Match Insights — split into two panels so neither one requires
+  // scrolling past the entire bracket to reach it (this replaces the old
+  // "Pick gaps by player" / "Upcoming lock times" sections, which are now
+  // superseded by these richer per-match stats). R32 alone (16 matches) goes
+  // in p2; everything R16-onward (also 16 matches total) goes in p3 — split
+  // by match count rather than round count so the two panels stay balanced.
   [p2,p3].forEach(p=>p.classList.add('on'));
-  p2.appendChild(mk('div','ptitle','Pick gaps by player'));
-  p2.appendChild(mk('div','psub','Sorted by unpicked matches \u2014 useful for chasing before each kickoff'));
-  const gaps=users.map(u=>{
-    const picks=(predictions[u]&&predictions[u].picks)||{};
-    // only count future (unlocked) matches as gaps
-    const upcoming=allMs.filter(mn=>{
-      const obj=KO_BY_NUM[mn];
-      const lock=obj?koMatchLockTime(obj.date,obj.time):null;
-      return !lock||now<lock; // not yet locked
-    });
-    const missing=upcoming.filter(mn=>{
-      const p=picks['hs_m'+mn];
-      const a=picks['as_m'+mn];
-      return p==null||p===''||a==null||a==='';
-    });
-    return{u,missing,total:upcoming.length};
-  }).sort((a,b)=>b.missing.length-a.missing.length);
+  const R32_ROUND=rounds.find(r=>r.key==='r32');
+  const REST_ROUNDS=rounds.filter(r=>r.key!=='r32');
 
-  gaps.forEach(({u,missing,total})=>{
-    const row=mk('div','ako-gap-row');
-    const pct=total?Math.round((total-missing.length)/total*100):100;
-    const cls=pct===100?'gap-done':pct>=50?'gap-mid':'gap-lo';
-    row.innerHTML=`<span class="ako-gap-name">${esc(u)}</span>`+
-      `<span class="ako-gap-bar ${cls}">`+
-      `<span class="ako-gap-fill" style="width:${pct}%"></span></span>`+
-      `<span class="ako-gap-stat">${total-missing.length}/${total}</span>`+
-      (missing.length?`<span class="ako-gap-missing">Missing: M${missing.join(', M')}</span>`:'<span class="ako-gap-done">\u2713 All in</span>');
-    p2.appendChild(row);
-  });
-
-  // p3: next-to-lock warnings
-  p3.appendChild(mk('div','ptitle','Upcoming lock times'));
-  p3.appendChild(mk('div','psub','Matches locking soon \u2014 who still needs to pick'));
-  const upcoming=allMs
-    .map(mn=>{
-      const obj=KO_BY_NUM[mn];
-      const lock=obj?koMatchLockTime(obj.date,obj.time):null;
-      return{mn,obj,lock};
-    })
-    .filter(({lock})=>lock&&now<lock)
-    .sort((a,b)=>a.lock-b.lock)
-    .slice(0,8); // next 8 locks
-
-  upcoming.forEach(({mn,obj,lock})=>{
-    const hoursLeft=Math.round((lock-now)/3600000);
-    const dayFmt=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short',month:'short',day:'numeric'}).format(lock);
-    const timeFmt=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour:'numeric',minute:'2-digit',hour12:true}).format(lock);
-    const notPicked=users.filter(u=>{
-      const p=(predictions[u]&&predictions[u].picks)||{};
-      return p['hs_m'+mn]==null||p['hs_m'+mn]===''||p['as_m'+mn]==null||p['as_m'+mn]==='';
+  p2.appendChild(mk('div','ptitle','Match Insights \u2014 Round of 32'));
+  p2.appendChild(mk('div','psub','Score distribution \u00b7 winner split \u00b7 underdog backing \u00b7 team split \u00b7 consensus \u00b7 leader\u2019s pick'));
+  if(R32_ROUND){
+    R32_ROUND.ms.forEach(mn=>{
+      const lbl=allMatchLabels[mn]||{homeLabel:'?',awayLabel:'?'};
+      p2.appendChild(buildAdminMatchCard(mn,lbl.homeLabel,lbl.awayLabel,users));
     });
-    const urgency=hoursLeft<6?'lock-urgent':hoursLeft<24?'lock-soon':'lock-ok';
-    const block=mk('div',`ako-lock-block ${urgency}`);
-    block.innerHTML=`<div class="ako-lock-match">M${mn} \u00b7 ${esc(dayFmt)} ${esc(timeFmt)} ET`+
-      (hoursLeft<48?` <span class="ako-hrs">(${hoursLeft}h)</span>`:'')+`</div>`+
-      (notPicked.length
-        ? `<div class="ako-lock-who">${notPicked.length} not picked: ${notPicked.map(esc).join(', ')}</div>`
-        : `<div class="ako-lock-who ako-all-in">\u2713 All ${users.length} players have picked</div>`);
-    p3.appendChild(block);
+  }
+
+  p3.appendChild(mk('div','ptitle','Match Insights \u2014 R16 to Final'));
+  p3.appendChild(mk('div','psub','Same stats, later rounds \u2014 multiplier climbs as the bracket narrows'));
+  REST_ROUNDS.forEach(round=>{
+    p3.appendChild(mk('div','pv-subhead',esc(round.label)));
+    round.ms.forEach(mn=>{
+      const lbl=allMatchLabels[mn]||{homeLabel:'?',awayLabel:'?'};
+      p3.appendChild(buildAdminMatchCard(mn,lbl.homeLabel,lbl.awayLabel,users));
+    });
   });
 }
 
