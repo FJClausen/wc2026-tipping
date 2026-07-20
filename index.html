@@ -426,7 +426,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .lb-pts-lbl{font-size:10px;color:var(--text3)}
 .lb-scores{display:flex;align-items:stretch;gap:0;flex-shrink:0;text-align:center}
 .lb-sc-col{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 7px;min-width:38px}
-.lb-sc-col.gs,.lb-sc-col.ko{border-right:1px solid var(--border)}
+.lb-sc-col.gs,.lb-sc-col.ko,.lb-sc-col.wcts{border-right:1px solid var(--border)}
 .lb-sc-col.total{padding-right:2px}
 .lb-sc-n{font-family:'Bebas Neue',sans-serif;font-size:16px;line-height:1;color:var(--text2)}
 .lb-sc-col.total .lb-sc-n{font-size:21px;color:var(--navy)}
@@ -2573,6 +2573,15 @@ function postTake(){
 }
 
 // ── SCORING ENGINE ─────────────────────────────────────────
+// Winner & Top Scorer bonus (15 + 15), split out so the leaderboard's
+// WC&TS column and calcPoints stay in sync from one source of truth.
+function calcBonusPoints(user){
+  const p=(predictions[user]&&predictions[user].picks)||{};
+  let b=0;
+  if(OFFICIAL_WINNER&&p.winner===OFFICIAL_WINNER)b+=WINNER_BONUS;
+  if(OFFICIAL_SCORER&&p.scorer===OFFICIAL_SCORER)b+=SCORER_BONUS;
+  return b;
+}
 function calcPoints(user){
   const p=(predictions[user]&&predictions[user].picks)||{};
   let pts=0;
@@ -2592,8 +2601,7 @@ function calcPoints(user){
     if(exact&&isWildScore(uh,ua))pts+=2;
   }
   pts+=calcKOTotalPoints(user);
-  if(OFFICIAL_WINNER&&p.winner===OFFICIAL_WINNER)pts+=WINNER_BONUS;
-  if(OFFICIAL_SCORER&&p.scorer===OFFICIAL_SCORER)pts+=SCORER_BONUS;
+  pts+=calcBonusPoints(user);
   return pts;
 }
 function calcPredCount(user){
@@ -2787,7 +2795,7 @@ function renderLB(p1,p2,p3){
   const allU=Object.keys(predictions).filter(u=>!RESERVED_USERS.has(u)&&calcPredCount(u)>=5);
   const gamesPlayed=Object.keys(results).length;
   const rows=allU.map(u=>({
-    name:u,pts:calcPoints(u),ko:calcKOTotalPoints(u),preds:calcPredCount(u),
+    name:u,pts:calcPoints(u),ko:calcKOTotalPoints(u),bonus:calcBonusPoints(u),preds:calcPredCount(u),
     team:(predictions[u]&&predictions[u].team)||'',avatar:assignAvatar(u),
   })).sort((a,b)=>b.pts-a.pts||b.preds-a.preds||a.name.localeCompare(b.name));
 
@@ -2817,8 +2825,9 @@ function renderLB(p1,p2,p3){
       ${badgesHtml}
       ${teamsHtml?`<div class="lb-teams">${teamsHtml}</div>`:''}
       <div class="lb-scores">
-        <div class="lb-sc-col gs"><div class="lb-sc-n">${r.pts-r.ko}</div><div class="lb-sc-l">Group</div></div>
+        <div class="lb-sc-col gs"><div class="lb-sc-n">${r.pts-r.ko-r.bonus}</div><div class="lb-sc-l">Group</div></div>
         <div class="lb-sc-col ko"><div class="lb-sc-n">${r.ko}</div><div class="lb-sc-l">KO</div></div>
+        <div class="lb-sc-col wcts"><div class="lb-sc-n">${r.bonus}</div><div class="lb-sc-l">WC&amp;TS</div></div>
         <div class="lb-sc-col total"><div class="lb-sc-n">${r.pts}</div><div class="lb-sc-l">Total</div><div class="lb-picks">${r.preds} picks</div></div>
       </div>`;
     p1.appendChild(row);
